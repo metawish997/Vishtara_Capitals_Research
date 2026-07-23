@@ -1,0 +1,128 @@
+@use '../utils' as *;
+
+/*----------------------------------------*/
+/*  2.7 Accordion
+/*----------------------------------------*/
+
+.tp-faq{
+    &-wrap{
+        & .accordion-buttons{
+            position: relative;
+            font-size: 24px;
+            font-weight: 400;
+            line-height: 1.2;
+            width: 100%;
+            text-align: left;
+            padding: 25px 0px;
+            padding-right: 40px;
+            letter-spacing: -0.24px;
+            @include tp-transition();
+            color: var(--tp-finance-secondary);
+            @media #{$xl,$lg,$md,$xs} {
+                font-size: 20px;
+            }
+            &:not(.collapsed){
+                & .tp-faq-icon{
+                    &::before{
+                        @include tp-transform(translate(-50%, -50%) rotate(0deg));
+                    }
+                    &::before,
+                    &::after{
+                        background-color: var(--tp-finance-secondary);
+                    }
+                }
+            }
+        }
+        & .accordion-items{
+            margin-bottom: 10px;
+            background: var(--tp-common-white);
+            border-bottom: 1px solid rgba(34, 47, 48, 0.08);
+        }
+        & .accordion-body{
+            padding: 0 70px 20px 0px;
+            @media #{$xl} {
+                padding: 0 45px 20px 0px;
+            }
+            @media #{$lg,$md,$xs} {
+                padding: 0 40px 20px 0px;
+            }
+            & p{
+                margin-bottom: 0;
+                color: var(--tp-finance-secondary);
+                @media #{$xxl,$xl,$lg,$md,$xs} {
+                    & br{
+                        display: none;
+                    }
+                }
+            }
+        }
+    }
+    &-icon{
+        top: 22px;
+        right: 0px;
+        width: 34px;
+        height: 34px;
+        line-height: 34px;
+        text-align: center;
+        border-radius: 50%;
+        position: absolute;
+        display: inline-block;
+        &::after,
+        &::before{
+            content: '';
+            width: 12px;
+            height: 2px;
+            left: 50%;
+            top: 50%;
+            position: absolute;
+            border-radius: 2px;
+            @include tp-transition();
+            background-color: var(--tp-finance-secondary);
+            @include tp-transform(translate(-50%, -50%));
+        }
+        &::before{
+            @include tp-transform(translate(-50%, -50%) rotate(90deg));
+        }
+    }
+}
+
+.tp-fi-faq{
+    &-heading{
+        @media #{$xl,$lg,$md,$xs} {
+            margin-bottom: 30px;
+        }
+    }
+    &-support{
+        width: 386px;
+        padding: 40px;
+        overflow: hidden;
+        border-radius: 6px;
+        @media #{$xs} {
+            width: 100%;
+        }
+        &-shape{
+            position: absolute;
+            top: 0;
+            right: 0;
+            border-radius: 6px;
+        }
+        &-title{
+            font-size: 32px;
+            font-weight: 400;
+            margin-bottom: 20px;
+            letter-spacing: -0.32px;
+        }
+        &-list{
+            & ul{
+                & li{
+                    gap: 10px;
+                    display: flex;
+                    list-style: none;
+                    margin-bottom: 5px;    
+                    letter-spacing: -0.16px;
+                    color: var(--tp-finance-secondary);
+                }
+            }
+        }
+    }
+}

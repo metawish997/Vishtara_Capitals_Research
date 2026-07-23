@@ -1,0 +1,226 @@
+@use '../../utils' as *;
+
+/*----------------------------------------*/
+/*  7.7 testimonial css
+/*----------------------------------------*/
+
+.tp-fi-testimonial{
+    &-title{
+        font-size: 32px;
+        font-weight: 400;
+        letter-spacing: -0.32px;
+        color: var(--tp-finance-secondary);
+        @media #{$xl,$lg,$md,$xs} {
+            & br{
+                display: none;
+            }
+        }
+        @media #{$md,$xs} {
+            font-size: 28px;
+        }
+    }
+    &-quote{
+        gap: 28px;
+        @media #{$lg,$md,$xs} {
+            gap: 12px;
+        }
+        @media #{$md,$xs} {
+            margin-bottom: 30px;
+        }
+        &-icon{
+            & span{
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                display: inline-grid;
+                place-content: center;
+                background-color: var(--tp-finance-primary);
+            }
+        }
+        &-content{
+            & span{
+                font-size: 20px;
+                font-weight: 500;
+                display: inline-block;
+                color: var(--tp-finance-secondary);
+            }
+            & p{
+                margin: 0;
+                color: var(--tp-finance-secondary);
+            }
+        }
+    }
+    &-slider{
+        &-text{
+            @media #{$xl} {
+                padding-bottom: 80px;
+            }
+            @media #{$lg} {
+                padding-bottom: 50px;
+            }
+            @media #{$md,$xs} {
+                padding-bottom: 30px;
+            }
+        }
+        &-wrap{
+            position: relative;
+            & .tp-testimonial-bottom-thumb-active{
+                margin-right: 125px;
+                @media #{$xl} {
+                    margin-right: 90px;
+                }
+                @media #{$lg,$md,$sm} {
+                    margin-right: 60px;
+                }
+                @media #{$xs} {
+                    margin-right: 0;
+                }
+                & .swiper-slide.swiper-slide-active.swiper-slide-visible{
+                    & .tp-fi-testimonial-slider-thumb{
+                        & img{
+                            filter: grayscale(0);
+                        }
+                    }
+                }
+            }
+        }
+        &-thumb{
+            & img{
+                width: 100%;
+                border-radius: 6px;   
+                filter: grayscale(100%);
+            }
+        }
+    }
+    &-navigation{
+        position: absolute;
+        top: 50%;
+        right: 0;
+        transform: translateY(-50%);
+        @media #{$xs} {
+            display: none;
+        }
+        @media #{$sm} {
+            display: block;
+        }
+        & .tp-testimonial-next{
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            text-align: center;
+            border-radius: 50%;
+            display: inline-grid;
+            place-content: center;
+            @include tp-transition();
+            color: var(--tp-common-white);
+            background-color: var(--tp-finance-secondary);
+            &:hover{
+                color: var(--tp-finance-secondary);
+                background-color: var(--tp-finance-primary);
+            }
+        }
+    }
+}
+
+
+.tp-at-testimonial{
+    &-item{
+        position: relative;
+        border-radius: 6px;
+        padding: 40px 40px 30px;
+        background: rgba(252, 246, 240, 0.20);
+        border: 1px solid rgba(58, 21, 16, 0.08);
+        @media #{$x3l,$xxl,$xl,$lg} {
+            padding: 30px;
+        }
+        @media #{$md,$xs} {
+            padding: 20px;
+        }
+    }
+    &-content{
+        margin-bottom: 25px;
+        padding-bottom: 55px;
+        border-bottom: 1px dashed rgba(58, 21, 16, 0.08);
+        @media #{$x3l,$xxl,$xl,$lg,$md,$xs} {
+            padding-bottom: 30px;
+        }
+        & p{
+            margin: 0;
+            font-size: 20px;
+            line-height: 1.4;
+            letter-spacing: -0.2px;
+            color: var(--tp-common-black);
+            @media #{$xl,$lg} {
+                font-size: 18px;
+            }
+            & br{
+                @media #{$x3l,$xxl,$xl,$lg,$md,$xs} {
+                    display: none;
+                }
+            }
+        }
+    }
+    &-user{
+        &-img{
+            & img{
+                border-radius: 50%;
+            }
+        }
+        &-name{
+            font-size: 16px;
+            margin-bottom: 0;
+            color: var(--tp-accounting-brown);
+        }
+        &-info{
+            & span{
+                font-size: 14px;
+                display: inline-block;
+                color: var(--tp-accounting-brown);
+            }
+        }
+    }
+    &-slider{
+        &::after{
+            position: absolute;
+            width: 435px;
+            height: 100%;
+            top: 0;
+            right: 0;
+            content: '';
+            z-index: 1;
+            background: linear-gradient(-90deg, #FFF 0%, rgba(255, 255, 255, 0.90) 50%, rgba(255, 255, 255, 0.00) 100%);
+            @media #{$md,$xs} {
+                content: none;
+            }
+        }
+        &::before{
+            position: absolute;
+            width: 435px;
+            height: 100%;
+            top: 0;
+            left: 0;
+            content: '';
+            z-index: 2;
+            background: linear-gradient(90deg, #FFF 0%, rgba(255, 255, 255, 0.90) 50%, rgba(255, 255, 255, 0.00) 100%);
+            @media #{$md,$xs} {
+                content: none;
+            }
+        }
+    }
+    &-btn-wrap{
+        gap: 20px;
+        display: flex;
+        @media #{$xs} {
+            flex-wrap: wrap;
+        }
+        & .tp-btn-border{
+            color: var(--tp-accounting-brown);
+            border-color: var(--tp-accounting-brown);
+            & i{
+                &::after{
+                    background-color: var(--tp-accounting-brown);
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,119 @@
+@use '../utils' as *;
+/*----------------------------------------*/
+/*  2.3 Animations
+/*----------------------------------------*/
+
+@keyframes rotate_anim {
+	0% {
+	  -webkit-transform: rotate(0deg);
+	  transform: rotate(0deg);
+	}
+	100% {
+	  -webkit-transform: rotate(360deg);
+	  transform: rotate(360deg);
+	}
+}
+
+
+@keyframes text_upper {
+	0% {
+		transform:translateY(0)
+	}
+	to {
+		transform:translateY(-105%)
+	}
+}
+
+@keyframes text_bottom {
+	0% {
+		transform:translateY(105%)
+	}
+	to {
+		transform:translateY(0)
+	}
+}
+
+@keyframes animate-pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2), 0 0 0 0 rgba(255, 255, 255, 0.2);
+    }
+    40% {
+        box-shadow: 0 0 0 50px rgba(255, 109, 74, 0.0), 0 0 0 0 rgba(255, 255, 255, 0.2);
+    }
+    80% {
+        box-shadow: 0 0 0 50px rgba(255, 109, 74, 0.0), 0 0 0 30px rgba(255, 109, 74, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 109, 74, 0.0), 0 0 0 30px rgba(255, 109, 74, 0);
+    }
+}
+
+@keyframes headerSlideDown {
+    0% {
+     margin-top:-150px
+    }
+    100% {
+     margin-top:0
+    }
+}
+
+// animation icon-bounce
+@keyframes icon-bounce {
+  0%,
+  100%,
+  20%,
+  50%,
+  80% {
+    @include tp-transform(translateY(0));
+  }
+  40% {
+    @include tp-transform(translateY(-10px));
+  }
+  60% {
+    @include tp-transform(translateY(-5px));
+  }
+}
+
+@keyframes animation-popup {
+  0% {
+    -webkit-transform: scale(0.7) rotate(0deg);
+    transform: scale(0.7) rotate(0deg);
+  }
+  40% {
+    -webkit-transform: scale(0.7) rotate(160deg);
+    transform: scale(0.7) rotate(160deg);
+  }
+  80% {
+    -webkit-transform: scale(1) rotate(360deg);
+    transform: scale(1) rotate(360deg);
+  }
+  100% {
+    -webkit-transform: scale(1) rotate(360deg);
+    transform: scale(1) rotate(360deg);
+  }
+}
+
+
+@keyframes dot-2 {
+  0% {
+    transform: translateX(-50px);
+  }
+  100% {
+    transform: translateX(0px);
+  }
+}
+
+@keyframes bar_anim {
+	0%, 100% {
+	  -webkit-clip-path: inset(-2px 0);
+	  clip-path: inset(-2px 0);
+	}
+	42% {
+	  -webkit-clip-path: inset(-2px 0 -2px 100%);
+	  clip-path: inset(-2px 0 -2px 100%);
+	}
+	43% {
+	  -webkit-clip-path: inset(-2px 100% -2px 0);
+	  clip-path: inset(-2px 100% -2px 0);
+	}
+}

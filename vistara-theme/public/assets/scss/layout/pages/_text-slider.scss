@@ -1,0 +1,28 @@
+@use '../../utils' as *;
+
+/*----------------------------------------*/
+/*  7.5 text slider css
+/*----------------------------------------*/
+
+
+.tp-fi-text-slider{
+    &-item{
+        & p{
+            margin: 0;
+            font-size: 20px;
+            letter-spacing: -0.4px;
+            color: var(--tp-finance-secondary);
+            @media #{$lg,$md,$xs} {
+                font-size: 18px;
+            }
+        }
+    }
+}
+
+.tp-fa-text{
+    &-style{
+        & p{
+            color: var(--tp-common-white);
+        }
+    }
+}

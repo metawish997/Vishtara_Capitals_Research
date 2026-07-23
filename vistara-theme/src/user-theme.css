@@ -1,0 +1,932 @@
+/* ==========================================================================
+   VISHTARA CAPITAL RESEARCH — PREMIUM USER DESIGN SYSTEM
+   Scoped under `.user-theme` so the Admin panel remains 100% untouched.
+   This file re-themes all user-facing layouts, components and pages.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. DESIGN TOKENS (scoped variables)
+   Updated with #304B70 as primary accent and #FEFEFE as card background
+   -------------------------------------------------------------------------- */
+.user-theme {
+    /* Primary color palette - using #304B70 as the main accent */
+    --primary: #304B70;
+    --primary-dark: #253854;
+    --primary-darker: #1a2d42;
+    --primary-light: #4a6b9a;
+    --primary-gradient: linear-gradient(135deg, #304B70 0%, #253854 100%);
+
+    /* Card and background colors */
+    --card: #FEFEFE;
+    --card-dark: #F8F9FA;
+    --bg: #FEFEFE;
+    --bg-gradient: linear-gradient(135deg, #FEFEFE 0%, #F0F2F5 100%);
+
+    /* Accent colors */
+    --accent: #304B70;
+    --accent-soft: #4a6b9a;
+    --accent-gradient: linear-gradient(135deg, #304B70 0%, #4a6b9a 100%);
+
+    /* Text colors */
+    --text-primary: #0F172A;
+    --text-secondary: #64748B;
+    --text-muted: #94A3B8;
+
+    /* Border colors */
+    --border: #E2E8F0;
+    --border-accent: rgba(48, 75, 112, 0.3);
+
+    /* Interactive states */
+    --toggle-bg: rgba(48, 75, 112, 0.02);
+    --toggle-inactive: #F0F4F8;
+    --toggle-active: var(--accent);
+    --toggle-active-text: #0F172A;
+    --toggle-inactive-text: #64748B;
+
+    /* CTA background */
+    --cta-bg: linear-gradient(180deg, #FEFEFE 0%, #F0F2F5 100%);
+
+    /* Font settings */
+    --font-main: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    --font-heading: 'Cormorant Garamond', Georgia, serif;
+
+    /* Particle effects */
+    --particle-color: rgba(48, 75, 112, 0.12);
+    --particle-opacity: 0.12;
+}
+
+/* --------------------------------------------------------------------------
+   2. BASE
+   -------------------------------------------------------------------------- */
+.user-theme body,
+.user-theme {
+    background-color: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
+}
+
+.user-theme h1,
+.user-theme h2,
+.user-theme h3,
+.user-theme h4,
+.user-theme h5,
+.user-theme h6 {
+    font-family: var(--font-heading);
+    color: var(--text-primary);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+}
+
+.user-theme .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* --------------------------------------------------------------------------
+   3. GRADIENT BACKGROUND UTILITIES
+   -------------------------------------------------------------------------- */
+.user-theme .gradient-bg-primary {
+    background: linear-gradient(135deg, #304B70 0%, #253854 100%);
+}
+
+.user-theme .gradient-bg-secondary {
+    background: linear-gradient(135deg, #FEFEFE 0%, #F0F2F5 100%);
+}
+
+.user-theme .gradient-bg-accent {
+    background: linear-gradient(135deg, #304B70 0%, #4a6b9a 50%, #304B70 100%);
+}
+
+.user-theme .gradient-text {
+    background: linear-gradient(135deg, #304B70, #4a6b9a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* --------------------------------------------------------------------------
+   4. ANIMATED BACKGROUND EFFECTS
+   -------------------------------------------------------------------------- */
+.user-theme .animated-bg {
+    position: relative;
+    overflow: hidden;
+}
+
+.user-theme .animated-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, transparent 0%, rgba(48, 75, 112, 0.03) 50%, transparent 100%);
+    animation: gradientShift 8s ease infinite;
+    z-index: 1;
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.user-theme .pulse-glow {
+    animation: pulseGlow 4s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   5. HERO SECTION ANIMATIONS
+   -------------------------------------------------------------------------- */
+.user-theme .hero-section {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.user-theme .hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(ellipse at top left, rgba(48, 75, 112, 0.08) 0%, transparent 40%),
+        radial-gradient(ellipse at bottom right, rgba(48, 75, 112, 0.05) 0%, transparent 40%);
+    animation: heroPulse 12s ease-in-out infinite;
+    z-index: 1;
+}
+
+@keyframes heroPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.02);
+        opacity: 0.95;
+    }
+}
+
+.user-theme .hero-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(48, 75, 112, 0.12) 0%, transparent 70%);
+    filter: blur(80px);
+    animation: heroGlowPulse 8s ease-in-out infinite;
+    z-index: 0;
+}
+
+@keyframes heroGlowPulse {
+
+    0%,
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 0.6;
+    }
+}
+
+/* Floating elements for hero */
+.user-theme .floating-element {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(48, 75, 112, 0.15) 0%, transparent 70%);
+    animation: float 6s ease-in-out infinite;
+}
+
+.user-theme .floating-element:nth-child(1) {
+    width: 120px;
+    height: 120px;
+    top: 10%;
+    right: 10%;
+    animation-delay: 0s;
+}
+
+.user-theme .floating-element:nth-child(2) {
+    width: 80px;
+    height: 80px;
+    bottom: 20%;
+    left: 5%;
+    animation-delay: 2s;
+}
+
+.user-theme .floating-element:nth-child(3) {
+    width: 100px;
+    height: 100px;
+    top: 60%;
+    right: 15%;
+    animation-delay: 4s;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    33% {
+        transform: translateY(-20px) rotate(120deg);
+    }
+
+    66% {
+        transform: translateY(-10px) rotate(240deg);
+    }
+}
+
+/* --------------------------------------------------------------------------
+   6. SECTION GRADIENT BACKDROPS
+   -------------------------------------------------------------------------- */
+.user-theme .section-gradient {
+    position: relative;
+    z-index: 1;
+}
+
+.user-theme .section-gradient::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(48, 75, 112, 0.02) 0%, transparent 50%);
+    z-index: -1;
+}
+
+.user-theme .section-accent-top {
+    position: relative;
+    z-index: 1;
+}
+
+.user-theme .section-accent-top::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 400px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(48, 75, 112, 0.08) 0%, transparent 70%);
+    filter: blur(60px);
+    z-index: 0;
+}
+
+/* --------------------------------------------------------------------------
+   7. BUTTONS
+   -------------------------------------------------------------------------- */
+.user-theme .pill-btn-primary,
+.user-theme .vc-btn-primary {
+    background: var(--primary-gradient);
+    color: #FFFFFF;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 6px 18px rgba(48, 75, 112, 0.25);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 10;
+    pointer-events: auto !important;
+    font-family: var(--font-main);
+}
+
+.user-theme .pill-btn-primary:hover,
+.user-theme .vc-btn-primary:hover {
+    background: linear-gradient(135deg, #304B70 0%, #253854 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgba(48, 75, 112, 0.35);
+}
+
+.user-theme .pill-btn-primary:active {
+    transform: translateY(0);
+}
+
+.user-theme .pill-btn-secondary,
+.user-theme .vc-btn-secondary {
+    background: #FFFFFF;
+    color: var(--primary);
+    border: 1px solid var(--border);
+    padding: 12px 24px;
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    font-family: var(--font-main);
+}
+
+.user-theme .pill-btn-secondary:hover,
+.user-theme .vc-btn-secondary:hover {
+    background: #F2F5FA;
+    border-color: var(--primary);
+}
+
+/* Accent button variant (navy) */
+.user-theme .vc-btn-gold {
+    background: var(--accent);
+    color: #FEFEFE;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 6px 18px rgba(48, 75, 112, 0.22);
+    transition: all 0.2s ease;
+    font-family: var(--font-main);
+}
+
+.user-theme .vc-btn-gold:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+/* --------------------------------------------------------------------------
+   8. CARDS
+   -------------------------------------------------------------------------- */
+.user-theme .modern-card,
+.user-theme .vc-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 24px rgba(15, 23, 42, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.user-theme .modern-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--primary-light));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+}
+
+.user-theme .modern-card:hover::before {
+    transform: scaleX(1);
+}
+
+.user-theme .modern-card:hover,
+.user-theme .vc-card:hover {
+    border-color: var(--border-accent);
+    box-shadow: 0 16px 44px rgba(15, 23, 42, 0.12);
+    transform: translateY(-4px);
+}
+
+.user-theme .glass-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 24px rgba(15, 23, 42, 0.05);
+}
+
+.user-theme .glass-card:hover {
+    background: #FFFFFF;
+    border-color: var(--primary-light);
+    transform: translateY(-4px);
+}
+
+/* --------------------------------------------------------------------------
+   9. SECTION LABELS / BADGES
+   -------------------------------------------------------------------------- */
+.user-theme .section-label,
+.user-theme .section-badge,
+.user-theme .vc-section-label {
+    display: inline-block;
+    padding: 7px 20px;
+    background: var(--primary-gradient);
+    color: #FEFEFE;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    margin-bottom: 16px;
+    font-family: var(--font-main);
+    transition: all 0.3s ease;
+}
+
+.user-theme .section-label:hover,
+.user-theme .section-badge:hover,
+.user-theme .vc-section-label:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(48, 75, 112, 0.25);
+}
+
+.user-theme .vc-eyebrow {
+    font-size: 13px;
+    color: var(--primary);
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    font-family: var(--font-main);
+}
+
+/* --------------------------------------------------------------------------
+   10. NAVBAR (glass-nav override)
+   -------------------------------------------------------------------------- */
+.user-theme .glass-nav {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 92%;
+    max-width: 1180px;
+    height: 72px;
+    background: var(--primary-dark) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    z-index: 1000;
+    box-shadow: 0 10px 30px rgba(2, 18, 47, 0.25);
+}
+
+.user-theme .nav-links-desktop a {
+    text-decoration: none;
+    transition: color 0.2s;
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: var(--font-main);
+}
+
+.user-theme .nav-links-desktop a:hover {
+    color: #FFFFFF !important;
+}
+
+.user-theme .nav-links-desktop a.active {
+    color: #FFFFFF !important;
+    font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   11. BACKGROUND EFFECTS (enhanced with gradients)
+   -------------------------------------------------------------------------- */
+.user-theme .hero-bg-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.user-theme .bg-glow-main {
+    position: absolute;
+    top: -10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    height: 70%;
+    background: radial-gradient(ellipse at center, rgba(48, 75, 112, 0.12) 0%, transparent 70%);
+    filter: blur(100px);
+    z-index: 1;
+}
+
+.user-theme .particles-container {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+}
+
+.user-theme .particle {
+    position: absolute;
+    background: var(--particle-color);
+    border-radius: 50%;
+    opacity: 1;
+    box-shadow: 0 0 6px var(--particle-color);
+    animation: float-particle var(--duration) linear infinite;
+}
+
+.user-theme .glow-bg {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(48, 75, 112, 0.12) 0%, transparent 70%);
+    filter: blur(80px);
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   12. BENTO / GRID
+   -------------------------------------------------------------------------- */
+.user-theme .bento-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.user-theme .bento-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(15, 23, 42, 0.05);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.user-theme .bento-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--primary-light));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+}
+
+.user-theme .bento-item:hover::before {
+    transform: scaleX(1);
+}
+
+.user-theme .bento-item:hover {
+    border-color: var(--primary-light);
+    box-shadow: 0 16px 44px rgba(15, 23, 42, 0.12);
+    transform: translateY(-4px);
+}
+
+.user-theme .bento-large {
+    grid-column: span 2;
+    grid-row: span 2;
+}
+
+.user-theme .bento-wide {
+    grid-column: span 2;
+}
+
+.user-theme .bento-medium {
+    grid-row: span 2;
+}
+
+/* --------------------------------------------------------------------------
+   13. INPUTS
+   -------------------------------------------------------------------------- */
+.user-theme .vc-input,
+.user-theme input[type="text"],
+.user-theme input[type="email"],
+.user-theme input[type="password"],
+.user-theme input[type="number"],
+.user-theme input[type="tel"],
+.user-theme input[type="search"],
+.user-theme input[type="date"],
+.user-theme textarea,
+.user-theme select {
+    width: 100%;
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 14px;
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.user-theme .vc-input:focus,
+.user-theme input:focus,
+.user-theme textarea:focus,
+.user-theme select:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(48, 75, 112, 0.15);
+}
+
+.user-theme .vc-input::placeholder,
+.user-theme input::placeholder,
+.user-theme textarea::placeholder {
+    color: #9AA3B2;
+}
+
+/* --------------------------------------------------------------------------
+   14. TABLES
+   -------------------------------------------------------------------------- */
+.user-theme .vc-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    font-family: var(--font-main);
+}
+
+.user-theme .vc-table thead th {
+    background: #F2F4F8;
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-align: left;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.user-theme .vc-table tbody td {
+    padding: 14px 18px;
+    font-size: 14px;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border);
+}
+
+.user-theme .vc-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.user-theme .vc-table tbody tr {
+    transition: background 0.2s ease;
+}
+
+.user-theme .vc-table tbody tr:hover {
+    background: #F4F6FA;
+}
+
+/* --------------------------------------------------------------------------
+   15. BADGES / CHIPS
+   -------------------------------------------------------------------------- */
+.user-theme .vc-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-family: var(--font-main);
+}
+
+.user-theme .vc-badge-gold {
+    background: rgba(200, 154, 61, 0.14);
+    color: #9a7322;
+}
+
+.user-theme .vc-badge-navy {
+    background: rgba(48, 75, 112, 0.10);
+    color: var(--primary);
+}
+
+.user-theme .vc-badge-green {
+    background: rgba(22, 163, 74, 0.12);
+    color: #15803d;
+}
+
+.user-theme .vc-badge-red {
+    background: rgba(220, 38, 38, 0.10);
+    color: #b91c1c;
+}
+
+/* --------------------------------------------------------------------------
+   16. SCROLLBAR
+   -------------------------------------------------------------------------- */
+.user-theme ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.user-theme ::-webkit-scrollbar-track {
+    background: #EEF1F6;
+}
+
+.user-theme ::-webkit-scrollbar-thumb {
+    background: #C9D2E0;
+    border-radius: 10px;
+}
+
+.user-theme ::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-light);
+}
+
+/* --------------------------------------------------------------------------
+   17. TYPOGRAPHY HELPERS
+   -------------------------------------------------------------------------- */
+.user-theme .vc-title {
+    font-family: var(--font-heading);
+    color: var(--text-primary);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.user-theme .vc-text-muted {
+    color: var(--text-secondary);
+}
+
+.user-theme .vc-text-gold {
+    color: var(--primary);
+}
+
+.user-theme .vc-text-navy {
+    color: var(--primary);
+}
+
+/* --------------------------------------------------------------------------
+   18. RESPONSIVE
+   -------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+    .user-theme .bento-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .user-theme .bento-large,
+    .user-theme .bento-wide,
+    .user-theme .bento-medium {
+        grid-column: span 1;
+        grid-row: span 1;
+    }
+
+    .user-theme .glass-nav {
+        padding: 0 16px;
+    }
+
+    .user-theme .nav-links-desktop {
+        display: none;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   19. FOOTER OVERRIDE (force light premium theme inside user-theme)
+   -------------------------------------------------------------------------- */
+.user-theme footer {
+    background-color: var(--primary-dark) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.user-theme footer,
+.user-theme footer p,
+.user-theme footer span {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.user-theme footer h4 {
+    color: #FFFFFF !important;
+}
+
+.user-theme footer a,
+.user-theme footer button {
+    color: rgba(255, 255, 255, 0.7) !important;
+    background: none;
+}
+
+.user-theme footer a:hover,
+.user-theme footer button:hover {
+    color: var(--primary-light) !important;
+}
+
+.user-theme footer .footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.user-theme footer .footer-bottom a {
+    color: #FFFFFF !important;
+}
+
+/* --------------------------------------------------------------------------
+   20. SECTION GRADIENT BACKDROPS
+   -------------------------------------------------------------------------- */
+.user-theme .section-gradient-bg {
+    background: linear-gradient(135deg, #FEFEFE 0%, #F0F2F5 100%);
+    position: relative;
+    z-index: 1;
+}
+
+.user-theme .section-gradient-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(48, 75, 112, 0.02) 0%, transparent 50%);
+    z-index: 0;
+}
+
+.user-theme .section-gradient-bg>* {
+    position: relative;
+    z-index: 1;
+}
+
+/* --------------------------------------------------------------------------
+   21. ANIMATED SECTION HEADERS
+   -------------------------------------------------------------------------- */
+.user-theme .section-header-animate {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.user-theme .section-header-animate:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.user-theme .section-header-animate:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.user-theme .section-header-animate:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --------------------------------------------------------------------------
+   22. HERO BADGE ANIMATIONS
+   -------------------------------------------------------------------------- */
+.user-theme .floating-badge {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-size: 14px;
+    color: #FEFEFE;
+    animation: pulseBorder 3s ease-in-out infinite;
+}
+
+@keyframes pulseBorder {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2);
+    }
+
+    50% {
+        box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+    }
+}

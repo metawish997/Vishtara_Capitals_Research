@@ -1,0 +1,263 @@
+@use '../../utils' as *;
+
+/*----------------------------------------*/
+/*  8.4 banner css
+/*----------------------------------------*/
+
+
+.tp-fi-banner{
+    &-title{
+        font-size: 24px;
+        font-weight: 400;
+        margin-bottom: 12px;
+        color: var(--tp-finance-secondary);
+    }
+    &-wrapper{
+        height: 380px;
+        overflow: hidden;
+        @media #{$xs} {
+            height: 300px;
+        }
+        & img{
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            @media #{$xs} {
+                height: 100%;
+                object-fit: cover;
+            }
+        }
+        & .tp-cn-success-item-2-shape{
+            top: auto;
+            left: 13%;
+            right: auto;
+            bottom: 120px;
+            @media #{$lg} {
+                bottom: 80px;
+            }
+            @media #{$md,$xs} {
+                display: none;
+            }
+        }
+    }
+    &-content{
+        position: absolute;
+        bottom: 120px;
+        right: 200px;
+        width: 400px;
+        padding: 50px;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.95);
+        @media #{$xxl,$xl} {
+            right: 100px;
+            bottom: 80px;
+        }
+        @media #{$lg} {
+            right: 50px;
+            bottom: 50px;
+        }
+        @media #{$md,$xs} {
+            right: 30px;
+            bottom: 30px;
+        }
+        @media #{$xs} {
+            width: 340px; 
+            padding: 30px;
+        }
+        & p{
+            margin: 0;
+            font-size: 15px;
+            font-weight: 400;
+            color: var(--tp-finance-secondary);
+            & br{
+                @media #{$xs} {
+                    display: none;
+                }
+            }
+        }
+    }
+    &-wrap{
+        padding: 20px 0;
+    }
+    &-text{
+        text-align: center;
+        color: var(--tp-common-white);
+        margin: 0;
+        & .video{
+            margin-inline-end: 20px;
+            & a{
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                text-align: center;
+                place-content: center;
+                display: inline-grid;
+                background-color: var(--tp-finance-primary);
+                & svg{
+                    display: inline-block;
+                    transform: translateY(0px);
+                }
+            }
+        }
+        & .link{
+            font-weight: 500;
+            &:hover{
+                color: var(--tp-common-white);
+            }
+        }
+    }
+}
+
+
+.tp-cn-success{
+    &-item{
+        padding: 70px;
+        background-size: cover;
+        background-repeat: no-repeat;
+        @media #{$xl} {
+            padding: 35px;
+        }
+        @media #{$lg,$md,$xs} {
+            padding: 30px;
+        }
+        &-shape{
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            @media #{$xs} {
+                display: none;
+            }
+        }
+        &-sub{
+            font-size: 16px;
+            font-weight: 400;
+            margin-bottom: 10px;
+            display: inline-block;
+            letter-spacing: -0.08px;
+            color: var(--tp-consulting-secondary);
+        }
+        &-content{
+            @media #{$xs} {
+                padding-bottom: 120px;
+            }
+        }
+        &-title{
+            font-size: 32px;
+            font-weight: 500;
+            margin-bottom: 40px;
+            color: var(--tp-consulting-secondary);
+            @media #{$xl,$lg,$md,$xs} {
+                & br{
+                    display: none;
+                }
+            }
+            @media #{$xs} {
+                font-size: 27px;
+                margin-bottom: 30px;
+            }
+        }
+        &-bottom{
+            gap: 30px;
+            display: flex;
+            align-items: center;
+            @media #{$lg,$md} {
+                gap: 20px;
+            }
+            @media #{$xs} {
+                gap: 15px;
+            }
+        }
+        &-icon{
+            & span{
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                display: inline-grid;
+                place-content: center;
+                border: 1px solid rgba(1, 55, 61, 0.10);
+            }
+        }
+        &-wrap{
+            & span{
+                font-size: 20px;
+                font-weight: 500;
+                margin-bottom: 4px;
+                display: inline-block;
+                letter-spacing: 0.2px;
+                color: var(--tp-consulting-secondary);
+            }
+            & p{
+                margin: 0;
+                font-size: 15px;
+                line-height: 1.3;
+                font-weight: 400;
+                color: var(--tp-consulting-secondary);
+            }
+        }
+    }
+    &-item{
+        &-2{
+            padding: 50px;
+            height: 670px;
+            border-radius: 6px;
+            position: relative;
+            background-size: cover;
+            background-repeat: no-repeat;
+            @media #{$xl} {
+                height: 596px;
+            }
+            @media #{$lg} {
+                height: 625px;
+            }
+            @media #{$xs} {
+                height: 525px;
+            }
+            &-shape{
+                position: absolute;
+                top: 50px;
+                right: 50px;
+                mix-blend-mode: screen;
+                animation: animation-popup 2.5s linear 0s infinite alternate;
+            }
+            &-title{
+                font-size: 24px;
+                font-weight: 400;
+                margin-bottom: 15px;
+                display: inline-block;
+                color: var(--tp-consulting-secondary);
+            }
+            &-content{
+                position: absolute;
+                bottom: 50px;
+                left: 50px;
+                width: 400px;
+                padding: 45px;
+                border-radius: 6px;
+                background-color: var(--tp-consulting-primary);
+                @media #{$lg,$md} {
+                    bottom: 30px;
+                    left: 30px;
+                    width: 380px;
+                    padding: 35px;
+                }
+                @media #{$xs} {
+                    bottom: 30px;
+                    left: 0px;
+                    right: 0px;
+                    padding: 25px;
+                    margin: 0 20px;
+                    width: calc(100% - 40px);
+                }
+                & p{
+                    margin: 0;
+                    color: var(--tp-consulting-secondary);
+                    & br{
+                        @media #{$xs} {
+                            display: none;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,325 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --text: #6b6375;
+  --text-h: #08060d;
+  --bg: #fff;
+  --border: #e5e4e7;
+  --code-bg: #f4f3ec;
+  --accent: #aa3bff;
+  --accent-bg: rgba(170, 59, 255, 0.1);
+  --accent-border: rgba(170, 59, 255, 0.5);
+  --social-bg: rgba(244, 243, 236, 0.5);
+  --shadow:
+    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+
+  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+
+  font: 18px/145% var(--sans);
+  letter-spacing: 0.18px;
+  color-scheme: light dark;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  @media (max-width: 1024px) {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #9ca3af;
+    --text-h: #f3f4f6;
+    --bg: #16171d;
+    --border: #2e303a;
+    --code-bg: #1f2028;
+    --accent: #c084fc;
+    --accent-bg: rgba(192, 132, 252, 0.15);
+    --accent-border: rgba(192, 132, 252, 0.5);
+    --social-bg: rgba(47, 48, 58, 0.5);
+    --shadow:
+      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+  }
+
+  #social .button-icon {
+    filter: invert(1) brightness(2);
+  }
+}
+
+body {
+  margin: 0;
+}
+
+#root {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Override #root constraints for the Admin Dashboard */
+body.admin-dashboard-active #root {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  border: none;
+  text-align: left;
+}
+
+h1,
+h2 {
+  font-family: var(--heading);
+  font-weight: 500;
+  color: var(--text-h);
+}
+
+h1 {
+  font-size: 56px;
+  letter-spacing: -1.68px;
+  margin: 32px 0;
+
+  @media (max-width: 1024px) {
+    font-size: 36px;
+    margin: 20px 0;
+  }
+}
+
+h2 {
+  font-size: 24px;
+  line-height: 118%;
+  letter-spacing: -0.24px;
+  margin: 0 0 8px;
+
+  @media (max-width: 1024px) {
+    font-size: 20px;
+  }
+}
+
+p {
+  margin: 0;
+}
+
+code,
+.counter {
+  font-family: var(--mono);
+  display: inline-flex;
+  border-radius: 4px;
+  color: var(--text-h);
+}
+
+code {
+  font-size: 15px;
+  line-height: 135%;
+  padding: 4px 8px;
+  background: var(--code-bg);
+}
+
+/* Swapped branding color theme (not applicable on text) */
+.theme-finances-opposite,
+body.theme-finances-opposite {
+  --tp-theme-primary: #011D52 !important;
+  /* Yellow becomes Blue */
+  --tp-theme-secondary: #F8B919 !important;
+  /* Blue becomes Yellow */
+  --tp-finance-primary: #011D52 !important;
+  --tp-finance-secondary: #F8B919 !important;
+}
+
+/* Specific styling for the header marquee bar background in opposite theme */
+body.theme-finances-opposite .tp-header-bottom {
+  background: linear-gradient(160deg, rgb(36, 63, 99) 0%, rgb(50, 78, 115) 60%, rgb(36, 63, 99) 100%) !important;
+}
+
+/* Specific styling for the card background in opposite theme */
+.theme-finances-opposite .tp-fi-value-graph {
+  background: linear-gradient(160deg, rgb(36, 63, 99) 0%, rgb(50, 78, 115) 60%, rgb(36, 63, 99) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Text in the card needs to be white/light for readability */
+.theme-finances-opposite .tp-fi-value-graph *,
+.theme-finances-opposite .tp-fi-value-graph h3,
+.theme-finances-opposite .tp-fi-value-graph span,
+.theme-finances-opposite .tp-fi-value-graph p {
+  color: #FFFFFF !important;
+}
+
+/* Also override SVG stroke in the card icon */
+.theme-finances-opposite .tp-fi-value-graph-icon span svg path,
+.theme-finances-opposite .tp-fi-value-graph-icon span svg circle {
+  stroke: #FFFFFF !important;
+}
+
+/* Marquee text on opposite theme needs to be white/light for readability */
+body.theme-finances-opposite .vistar-marquee-item,
+body.theme-finances-opposite .vistar-marquee-item .dot,
+.theme-finances-opposite .vistar-marquee-item,
+.theme-finances-opposite .vistar-marquee-item .dot {
+  color: #FFFFFF !important;
+}
+
+/* Maintain original colors on normal text elements */
+body.theme-finances-opposite .tp-section-sub.primary-color,
+body.theme-finances-opposite .tp-fi-hero-trust,
+.theme-finances-opposite .tp-section-sub.primary-color,
+.theme-finances-opposite .tp-fi-hero-trust {
+  color: #F8B919 !important;
+  /* Keep original yellow text */
+}
+
+body.theme-finances-opposite .tp-section-title:not(.white-color),
+.theme-finances-opposite .tp-section-title:not(.white-color) {
+  color: #011D52 !important;
+  /* Keep original blue text */
+}
+
+/* Maintain original text colors and make text slider readable */
+body.theme-finances-opposite .tp-fi-text-slider-item p,
+.theme-finances-opposite .tp-fi-text-slider-item p {
+  color: #FFFFFF !important;
+}
+
+body.theme-finances-opposite .tp-fi-text-slider-item i svg path,
+.theme-finances-opposite .tp-fi-text-slider-item i svg path {
+  stroke: #FFFFFF !important;
+}
+
+/* Card hover style in opposite theme - turn blue/gradient */
+.theme-finances-opposite .tp-fi-team-item:hover,
+body.theme-finances-opposite .tp-fi-team-item:hover {
+  background: linear-gradient(160deg, rgb(36, 63, 99) 0%, rgb(50, 78, 115) 60%, rgb(36, 63, 99) 100%) !important;
+  border-color: transparent !important;
+}
+
+/* Ensure text color turns white on hover in the opposite theme for readability */
+.theme-finances-opposite .tp-fi-team-item:hover .tp-fi-team-item-title,
+.theme-finances-opposite .tp-fi-team-item:hover .tp-fi-team-item-content span,
+body.theme-finances-opposite .tp-fi-team-item:hover .tp-fi-team-item-title,
+body.theme-finances-opposite .tp-fi-team-item:hover .tp-fi-team-item-content span {
+  color: #FFFFFF !important;
+}
+
+/* ==========================================================================
+   ADMIN PANEL THEME VARIABLES (Scoped to prevent conflicts)
+   ========================================================================== */
+body.admin-dashboard-active {
+  --bg: #f4f6f8;
+  --card: #ffffff;
+  --accent: #243F63;
+  --accent-glow: rgba(36, 63, 99, 0.2);
+  --text-primary: #1E293B;
+  --text-secondary: #64748b;
+  --border: #e2e8f0;
+  --success: #22c55e;
+  --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+  --particle-color: rgba(36, 63, 99, 0.75);
+  --particle-opacity: 0.3;
+  --toggle-bg: #f1f5f9;
+  --toggle-inactive: #e2e8f0;
+  --toggle-active: var(--accent);
+  --toggle-active-text: #ffffff;
+  --toggle-inactive-text: #64748b;
+  --cta-bg: linear-gradient(135deg, #243F63 0%, #1A2B40 100%);
+}
+
+html[data-theme='light'] body.admin-dashboard-active {
+  --bg: #f4f6f8;
+  --card: #ffffff;
+  --accent: #243F63;
+  --accent-glow: rgba(36, 63, 99, 0.2);
+  --text-primary: #1E293B;
+  --text-secondary: #64748b;
+  --border: #e2e8f0;
+  --success: #22c55e;
+  --particle-color: rgba(36, 63, 99, 0.7);
+  --particle-opacity: 0.55;
+  --toggle-bg: #f1f5f9;
+  --toggle-inactive: #e2e8f0;
+  --toggle-active: var(--accent);
+  --toggle-active-text: #ffffff;
+  --toggle-inactive-text: #64748b;
+  --cta-bg: linear-gradient(135deg, #243F63 0%, #1A2B40 100%);
+}
+
+/* ==========================================================================
+   MINIMALIST GLOBAL ADMIN TYPOGRAPHY (Overrides)
+   ========================================================================== */
+body.admin-dashboard-active * {
+  /* Force a lighter, cleaner font weight standard */
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+}
+
+body.admin-dashboard-active table th {
+  font-size: 11px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary) !important;
+  font-weight: 600 !important;
+}
+
+body.admin-dashboard-active table td {
+  font-size: 13px !important;
+}
+
+/* Enforce minimalist spacing on standard cards */
+body.admin-dashboard-active .bg-\[var\(--card\)\] {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+  border-radius: 12px !important;
+}
+
+body.admin-dashboard-active h1,
+body.admin-dashboard-active h2,
+body.admin-dashboard-active h3 {
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Minimalist Inputs */
+body.admin-dashboard-active input,
+body.admin-dashboard-active select,
+body.admin-dashboard-active textarea {
+  border-radius: 10px !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+/* ==========================================================================
+   UTILITIES
+   ========================================================================== */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ==========================================================================
+   CUSTOM SCROLLBAR FOR ADMIN DASHBOARD
+   ========================================================================== */
+body.admin-dashboard-active ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+body.admin-dashboard-active ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+body.admin-dashboard-active ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  /* slate-300 */
+  border-radius: 10px;
+}
+
+body.admin-dashboard-active ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+  /* slate-400 */
+}

@@ -1,0 +1,252 @@
+@use '../../utils' as *;
+
+/*----------------------------------------*/
+/*  8.8 fact css
+/*----------------------------------------*/
+
+
+.tp-fact{
+    &-ptb{
+        @media #{$md,$xs} {
+            margin-top: 80px;
+            margin-bottom: 80px;
+        }
+    }
+    &-big-img{
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: calc(50% + -12px);
+        height: calc(100% - 24px);
+        @media #{$xl}{
+            width: 50%;
+        }
+        @media #{$lg,$md,$xs}{
+            position: static;
+            height: 400px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        & img{
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+    &-item{
+        height: 100%;
+        overflow: hidden;
+    }
+    &-content{
+        height: 100%;
+        @media #{$xs} {
+            gap: 60px;
+        }
+        &-wrap{
+            height: 100%;
+            padding: 60px;
+            @media #{$xl,$md,$xs} {
+                padding: 40px;
+            }
+        }
+        & p{
+            font-size: 32px;
+            font-weight: 500;
+            line-height: 1.1;
+            letter-spacing: -0.32px;
+            color: var(--tp-common-white);
+            @media #{$xxl} {
+                font-size: 28px;
+            }
+            @media #{$xl,$md,$xs} {
+                font-size: 22px;
+            }
+            & br{
+                @media #{$xl,$md,$xs} {
+                    display: none;
+                }
+            }
+        }
+        & span{
+            font-size: 96px;
+            font-weight: 400;
+            line-height: .7;
+            display: inline-block;
+            letter-spacing: -0.96px;
+            color: var(--tp-common-white);
+            @media #{$xxl} {
+                font-size: 70px;
+            }
+            @media #{$xl,$md,$xs} {
+                font-size: 60px;
+            }
+            & i{
+                font-style: normal;
+            }
+        }
+    }
+}
+
+
+.tp-fa{
+    &-strategy{
+        &-ptb{
+            @media #{$md,$xs} {
+                padding-bottom: 80px;
+            }
+        }
+        &-content{
+            & p{
+                margin-bottom: 40px;
+                color: var(--tp-advisory-secondary);
+                @media #{$md} {
+                    margin-bottom: 30px;
+                }
+                @media #{$xs} {
+                    margin-bottom: 20px;
+                }
+                & br{
+                    @media #{$xl,$lg,$md,$xs} {
+                        display: none;
+                    }
+                }
+            }
+        }
+    }
+    &-gallery{
+        &-active{
+            margin: 0 -150px;
+            @media #{$xs} {
+                margin: 0;
+            }
+        }
+        &-item{
+            & h3{
+                margin: 0;
+                font-size: 60px;
+                font-weight: 400;
+                line-height: 1.1;
+                padding-left: 30px;
+                letter-spacing: -0.64px;
+                color: var(--tp-advisory-primary);
+                @media #{$x3l} {
+                    font-size: 52px;
+                }
+                @media #{$xxl,$md} {
+                    font-size: 45px;
+                }
+                @media #{$xl,$lg,$xs} {
+                    font-size: 40px;
+                }
+            }
+        }
+    }
+}
+
+.tp-cc-fact{
+    &-bottom{
+        & .tp-fi-stories-item-logo{
+            padding-bottom: 80px;
+            @media #{$lg,$md,$xs} {
+                padding-bottom: 40px;
+            }
+        }
+        & .tp-fi-stories-item-title{
+            margin-bottom: 10px;
+        }
+        & .tp-fi-stories-item{
+            padding: 30px 40px;
+        }
+    }
+    &-heading{
+        @media #{$md,$xs} {
+            padding-bottom: 40px;
+        }
+    }
+    &-item{
+        @media #{$lg} {
+            padding-bottom: 40px;
+        }
+        @media #{$md,$xs} {
+            padding-bottom: 20px;
+        }
+        & span{
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            display: inline-block;
+            letter-spacing: -0.48px;
+            color: var(--tp-corporate-primary);
+        }
+        & p{
+            color: var(--tp-corporate-primary);
+            & br{
+                @media #{$xl,$lg,$md,$xs} {
+                    display: none;
+                }
+            }
+        }
+        &-text{
+            font-size: 70px;
+            font-weight: 400;
+            letter-spacing: -0.7px;
+            color: var(--tp-corporate-primary);
+            @media #{$xl,$lg,$md} {
+                font-size: 50px;
+            }
+            @media #{$xs} {
+                font-size: 40px;
+            }
+        }
+    }
+    &-thumb{
+        height: 300px;
+        overflow: hidden;
+        & img{
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+    &-wrapper{
+        @media #{$xl} {
+            padding-left: 100px;
+        }
+        @media #{$lg} {
+            padding-left: 50px;
+        }
+        @media #{$md,$xs} {
+            padding-left: 0;
+        }
+    }
+}
+
+
+.tp-at-fact{
+    &-style{
+        & .tp-cc-fact-item{
+            & span{
+                color: var(--tp-accounting-brown);
+            }
+            &-text{
+                color: var(--tp-accounting-3);
+            }
+            & p{
+                color: var(--tp-accounting-wood);
+            }
+        }
+    }
+    &-wrapper{
+        @media #{$md,$xs} {
+            padding-bottom: 50px;
+        }
+    }
+    &-heading{
+        padding-bottom: 150px;
+        @media #{$xl,$lg} {
+            padding-bottom: 110px;
+        }
+        @media #{$md,$xs} {
+            padding-bottom: 30px;
+        }
+    }
+}

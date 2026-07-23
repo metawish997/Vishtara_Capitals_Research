@@ -1,0 +1,116 @@
+@use '../../utils' as *;
+
+/*----------------------------------------*/
+/*  7.9 brand css
+/*----------------------------------------*/
+
+.tp-fi-brand{
+    &-top{
+        & a{
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--tp-theme-secondary);
+        }
+    }
+    &-slider{
+        &-item{
+            opacity: 0.25;
+            text-align: center;
+            @include tp-transition();
+        }
+    }
+    &-wrapper{
+        & .swiper-slide-active{
+            & .tp-fi-brand-slider-item{
+                opacity: 1;
+            }
+        }
+    }
+}
+
+
+.tp-at-download{
+    &-item{
+        padding: 40px;
+        border-radius: 6px;
+        border: 1px solid rgba(58, 21, 16, 0.10);
+        @media #{$lg,$md,$xs} {
+            padding: 30px;
+        }
+        &-title{
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: var(--tp-accounting-brown);
+        }
+        &-content{
+            & p{
+                margin: 0;
+                color: var(--tp-accounting-wood);
+                @media #{$xxl,$xl,$lg,$md,$xs} {
+                    & br{
+                        display: none;
+                    }
+                }
+            }
+        }
+    }
+    &-btn{
+        width: 100%;
+        display: flex;
+        font-weight: 500;
+        border-radius: 6px;
+        align-items: center;
+        padding: 11px 40px 10px;
+        justify-content: space-between;
+        color: var(--tp-accounting-brown);
+        background-color: var(--tp-accounting-gray);
+        @media #{$md,$xs} {
+            padding: 11px 30px 10px;
+        }
+        &:hover{
+            color: var(--tp-common-white);
+            background-color: var(--tp-accounting-secondary);
+        }
+    }
+}
+
+
+.tp-worksheet{
+    &-style{
+        & .tp-at-download{
+            &-item{
+                border-color: rgba(34, 47, 48, 0.10);
+                &-title{
+                    color: var(--tp-finance-secondary);
+                }
+                &-content{
+                    & p{
+                        color: var(--tp-finance-secondary);
+                    }
+                }
+                &-btn{
+                    @media #{$md,$xs} {
+                        margin-bottom: 20px;
+                    }
+                }
+            }
+            &-btn{
+                background-color: var(--tp-finance-white);
+                &:hover{
+                    background-color: var(--tp-finance-secondary);
+                }
+            }
+        }
+    }
+}
+
+
+.tp-cn-brand{
+    &-ptb{
+        @media #{$md,$xs} {
+            padding-top: 50px;
+            margin-bottom: 80px;
+        }
+    }
+}

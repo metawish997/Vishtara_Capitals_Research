@@ -1,0 +1,165 @@
+@use '../../utils' as *;
+
+/*----------------------------------------*/
+/*  7.3 project css
+/*----------------------------------------*/
+
+.tp-cc-project{
+    &-heading{
+        @media #{$md,$xs} {
+            margin-bottom: 30px;
+        }
+    }
+    &-item{
+        &:hover{
+            & .tp-cc-project-item{
+                &-thumb{
+                    & img{
+                        transform: scale(1.1);
+                    }
+                }
+                &-content{
+                    transform: translateY(0);
+                    background: var(--tp-corporate-sulu);
+                }
+                &-title{
+                    & a{
+                        color: var(--tp-corporate-primary);
+                    }
+                }
+            }
+        }
+        &-thumb{
+            overflow: hidden;
+            border-radius: 6px;
+            & img{
+                width: 100%;
+                transition: all .9s ease-in-out;
+            }
+        }
+        &-box{
+            left: 30px;
+            right: 30px;
+            bottom: 30px;
+            overflow: hidden;
+            position: absolute;
+            border-radius: 6px;
+        }
+        &-content{
+            padding: 20px 30px;
+            border-radius: 6px;
+            margin-bottom: 0;
+            transform: translateY(116px);
+            @include tp-transition(all, 0.4s, ease-out);
+            
+            backdrop-filter: blur(20px);
+            background: linear-gradient(252deg, rgba(255, 255, 255, 0.15) -14.19%, rgba(255, 255, 255, 0.06) 100%);
+
+            @media #{$xxl} {
+                transform: translateY(145px);
+            }
+            @media #{$xl,$lg,$md} {
+                padding: 20px 25px;
+                transform: translateY(170px);
+            }
+            @media #{$xs} {
+                padding: 20px;
+                transform: translateY(140px);
+            }
+            @media #{$sm} {
+                transform: translateY(120px);
+            }
+            & p{
+                margin-bottom: 25px;
+                color: var(--tp-corporate-primary);
+                & br{
+                    @media #{$xxl,$xl,$lg,$md,$xs} {
+                        display: none;
+                    }
+                }
+            }
+        }
+        &-title{
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            color: var(--tp-common-white);
+            @media #{$xs} {
+                font-size: 20px;
+            }
+        }
+        &-btn{
+            & a{
+                font-size: 16px;
+                font-weight: 500;
+                color: var(--tp-corporate-primary);
+                & span{
+                    margin-left: 4px;
+                    display: inline-block;
+                }
+            }
+        }
+    }
+    &-dot{
+        right: 0;
+        left: 0;
+        margin: 0 auto;
+        margin-top: 50px;
+        text-align: center;
+        & .swiper-pagination-bullet{
+            width: 12px;
+            height: 12px;
+            margin: 0 8px;
+            position: relative;
+            display: inline-block;
+            @include tp-transition();
+            background: rgba(18, 53, 67, 0.80);
+            &-active{
+                opacity: 1;
+                background: var(--tp-corporate-primary);
+            }
+        }
+    }
+    &-bottom{
+        &::before{
+            position: absolute;
+            content: '';
+            top: 16px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            width: 100%;
+            background: rgba(18, 53, 67, 0.08);
+        }
+        & span{
+            position: relative;
+            padding: 3px 10px;
+            border-radius: 6px;
+            display: inline-block;
+            background: #F8F8F8;
+        }
+    }
+}
+
+
+.tp-error{
+     &-title{
+        font-size: 64px;
+        font-weight: 500;
+        margin-bottom: 50px;
+        color: var(--tp-common-black);
+    }
+    &-title-sm{
+        font-size: 26px;
+        line-height: 1;
+        font-weight: 500;
+        text-transform: uppercase;
+        color: var(--tp-common-black);
+    }
+    &-content{
+        & p{
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+    }
+}

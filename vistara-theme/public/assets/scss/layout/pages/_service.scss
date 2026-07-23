@@ -1,0 +1,514 @@
+@use '../../utils' as *;
+
+/*----------------------------------------*/
+/*  7.4 service css
+/*----------------------------------------*/
+
+.tp-fi-service{
+    &-heading{
+        @media #{$md,$xs} {
+            margin-bottom: 30px;
+        }
+    }
+    &-right{
+        @media #{$md,$xs} {
+            margin-bottom: 30px;
+        }
+    }
+    &-item{
+        border-radius: 6px;
+        padding: 50px 30px 30px;
+        @include tp-transition();
+        border: 1px solid rgba(34, 47, 48, 0.10);
+        @media #{$xxl,$xl} {
+            padding: 50px 20px 30px;
+        }
+        &:hover{
+            border-color: transparent;
+            background-color: var(--tp-finance-white);
+            & .tp-fi-service-item{
+                &-icon{
+                    & span{
+                        background-color: var(--tp-finance-primary);
+                    }
+                }
+                &-btn{
+                    & a{
+                        color: var(--tp-finance-white);
+                        background-color: var(--tp-finance-secondary);
+                    }
+                }
+            }
+        }
+        &-icon{
+            margin-bottom: 30px;
+            & span{
+                width: 100px;
+                height: 100px;
+                text-align: center;
+                border-radius: 6px;
+                display: inline-grid;
+                place-content: center;
+                @include tp-transition();
+                background: var(--tp-finance-white);
+            }
+        }
+        &-title{
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            letter-spacing: -0.24px;
+            color: var(--tp-finance-secondary);
+        }
+        &-content{
+            & p{
+                margin-bottom: 45px;
+                color: var(--tp-finance-secondary);
+                @media #{$xl,$lg,$md,$xs} {
+                    margin-bottom: 30px;
+                    & br{
+                        display: none;
+                    }
+                }
+            }
+        }
+        &-btn{
+            & a{
+                font-size: 16px;
+                font-weight: 500;
+                display: flex;
+                padding: 12px 25px;
+                border-radius: 4px;
+                justify-content: space-between;
+                color: var(--tp-finance-secondary);
+                border: 1px solid rgba(34, 47, 48, 0.10);
+                @media #{$md} {
+                    padding: 10px 25px;
+                }
+            }
+        }
+
+        &-2{
+            padding: 40px;
+            border-radius: 6px;
+            background-size: cover;
+            background-repeat: no-repeat;
+            &-content{
+                padding-top: 192px;
+                @media #{$xl} {
+                    padding-top: 172px;
+                }
+            }
+            &-icon{
+                margin-bottom: 30px;
+            }
+            &-title{
+                margin: 0;
+                font-size: 24px;
+                font-weight: 400;
+                letter-spacing: -0.48px;
+                color: var(--tp-common-white);
+            }
+        }
+    }
+}
+
+
+.tp-cn-service{
+    &-heading{
+        position: sticky;
+        top: 120px;
+        & p{
+            margin-bottom: 48px;
+            color: var(--tp-consulting-gray);
+            @media #{$xl,$lg,$md,$xs} {
+                margin-bottom: 30px;
+                & br{
+                    display: none;
+                }
+            }
+        }
+    }
+    &-item{
+        top: 120px;
+        position: sticky;
+        overflow: hidden;
+        border-radius: 6px;
+        @include tp-transition();
+        background-color: #F6F5F2;
+        &:hover{
+            background-color: var(--tp-consulting-primary);
+            & .tp-btn-border{
+                border-color: var(--tp-consulting-secondary);
+            }
+        }
+        &-icon{
+            margin-bottom: 35px;
+            @media #{$lg,$md,$xs} {
+                margin-bottom: 20px;
+            }
+        }
+        &-title{
+            font-weight: 500;
+            margin-bottom: 15px;
+            color: var(--tp-consulting-secondary);
+            @media #{$xs} {
+                margin-bottom: 10px;
+            }
+        }
+        &-content{
+            padding: 28px;
+            padding-left: 40px;
+            @media #{$xs} {
+                padding-left: 20px;
+            }
+            & p{
+                margin-bottom: 30px;
+                color: var(--tp-consulting-gray);
+                @media #{$xl,$lg,$md,$xs} {
+                    & br{
+                        display: none;
+                    }
+                }
+                @media #{$xs} {
+                    margin-bottom: 20px;
+                }
+            }
+        }
+        &-btn{
+            & .tp-btn{
+                padding: 14px 58px 14px 23px;
+            }
+        }
+        &-thumb{
+            height: 100%;
+            @media #{$lg} {
+                margin-right: -60px;
+            }
+            &-1{
+                mask-image: url(../img/consulting/service/service-item-1-mask.svg);
+                -webkit-mask-image: url(../img/consulting/service/service-item-1-mask.svg);
+                height: 100%;
+                width: 100%;
+                mask-repeat: no-repeat;
+                overflow: hidden;
+                border-radius: 6px;
+                background-position: center center;
+                @media #{$xs} {
+                    display: none;
+                }
+            }
+            &-2{
+                mask-image: url(../img/consulting/service/service-item-2-mask.svg);
+                -webkit-mask-image: url(../img/consulting/service/service-item-2-mask.svg);
+                height: 100%;
+                width: 100%;
+                mask-repeat: no-repeat;
+                overflow: hidden;
+                border-radius: 6px;
+                background-position: center center;
+                @media #{$xs} {
+                    display: none;
+                }
+            }
+            &-3{
+                mask-image: url(../img/consulting/service/service-item-3-mask.svg);
+                -webkit-mask-image: url(../img/consulting/service/service-item-3-mask.svg);
+                height: 100%;
+                width: 100%;
+                mask-repeat: no-repeat;
+                overflow: hidden;
+                border-radius: 6px;
+                background-position: center center;
+                @media #{$xs} {
+                    display: none;
+                }
+            }
+        }
+    }
+}
+
+
+.tp-fa-service{
+    &-heading,
+    &-btn{
+        @media #{$md,$xs} {
+            margin-bottom: 30px;
+        }
+    }
+    &-thumb{
+        height: 100%;
+        & img{
+            @media #{$xl,$lg} {
+                height: 100%;
+                object-fit: cover;
+            }
+        }
+    }
+    &-item{
+        padding: 40px;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.35);
+        border: 1px solid rgba(27, 57, 66, 0.08);
+        @media #{$lg,$md,$xs} {
+            padding: 30px;
+        }
+        &:hover{
+            & .tp-fa-service-item-icon {
+                & span{
+                    background-color: var(--tp-advisory-orange);
+                }
+            }
+        }
+        &-icon{
+            gap: 10px;
+            display: flex;
+            align-items: start;
+            & span{
+                width: 80px;
+                height: 80px;
+                text-align: center;
+                border-radius: 50%;
+                display: inline-grid;
+                place-content: center;
+                @include tp-transition();
+                color: var(--tp-common-white);
+                background-color: var(--tp-advisory-primary);
+            }
+            & a{
+                width: 80px;
+                height: 80px;
+                text-align: center;
+                border-radius: 50%;
+                display: inline-grid;
+                place-content: center;
+                color: var(--tp-advisory-primary);
+                background-color: var(--tp-common-white);
+            }
+        }
+        &-title{
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            color: var(--tp-advisory-primary);
+        }
+        &-text{
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(27, 57, 66, 0.08);
+            & p{
+                color: var(--tp-advisory-secondary);
+                & br{
+                    @media #{$md,$xs} {
+                        display: none;
+                    }
+                }
+            }
+        }
+        &-list{
+            & ul{
+                display: block;
+                & li{
+                    gap: 15px;
+                    display: flex;
+                    letter-spacing: -0.16px;
+                    &:not(:last-of-type){
+                        margin-bottom: 6px;
+                    }
+                }
+            }
+        }
+    }
+    &-slider{
+        margin-right: -190px;
+        @media #{$xxl} {
+            margin-right: -215px;
+        }
+        @media #{$xl} {
+            margin-right: -390px;
+        }
+        @media #{$lg} {
+            margin-right: -455px;
+        }
+        @media #{$md,$xs} {
+            margin-right: 0;
+        }
+    }
+}
+
+
+.tp-cc-service{
+    &-text{
+        display: inline-block;
+        &-shape{
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            animation: rotate_anim 10s linear infinite;
+        }
+    }
+    &-item{
+        padding: 44px 50px 48px;
+        @media #{$xl} {
+            padding: 40px 35px 40px;
+        }
+        @media #{$lg,$md} {
+            padding: 30px 25px 40px;
+        }
+        @media #{$xs} {
+            padding: 30px;
+        }
+        &.large{
+            & .tp-cc-service-item{
+                &-content{
+                    & p{
+                        margin-bottom: 45px;
+                        & br{
+                            @media #{$xl,$lg} {
+                                display: none;
+                            }
+                        }
+                    }
+                    & .tp-cc-service-item-title{
+                        margin-bottom: 95px;
+                        padding-bottom: 35px;
+                        border-bottom: 1px solid rgba(18, 53, 67, 0.10);
+                        @media #{$xl,$lg} {
+                            margin-bottom: 65px;
+                        }
+                        @media #{$xs} {
+                            margin-bottom: 70px;
+                            padding-bottom: 25px;
+                        }
+                    }
+                }
+            }
+        }
+        &-num{
+            margin-bottom: 18px;
+            display: inline-block;
+            letter-spacing: -0.32px;
+            color: var(--tp-advisory-secondary);
+        }
+        &-title{
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 40px;
+            color: var(--tp-corporate-primary);
+            @media #{$xl,$lg,$md,$xs} {
+                font-size: 20px;
+            }
+        }
+        &-content{
+            & p{
+                color: var(--tp-advisory-secondary);
+            }
+        }
+        &-icon{
+            margin-bottom: 122px;
+            @media #{$lg,$md,$xs} {
+                margin-bottom: 100px;
+            }
+        }
+        &-btn{
+            & a{
+                font-weight: 500;
+                color: var(--tp-corporate-primary);
+                &:hover{
+                    & span{
+                        color: var(--tp-common-white);
+                        background-color: var(--tp-corporate-primary);
+                    }
+                }
+                & span{
+                    width: 22px;
+                    height: 22px;
+                    margin-left: 6px;
+                    border-radius: 50%;
+                    display: inline-grid;
+                    place-content: center;
+                    @include tp-transition();
+                    color: var(--tp-corporate-primary);
+                    background-color: var(--tp-corporate-sulu);
+                    & svg{
+                        transform: translateY(0px);
+                    }
+                }
+            }
+        }
+    }
+}
+
+.tp-at-service{
+    &-heading{
+        @media #{$md,$xs} {
+            margin-bottom: 50px;
+        }
+    }
+    &-text{
+        & p{
+            color: var(--tp-accounting-wood);
+        }
+    }
+    &-thumb{
+        &-wrap{
+            @media #{$xs} {
+                flex-wrap: wrap;
+            }
+        }
+    }
+    &-list{
+        & ul{
+            & li{
+                list-style: none;
+                margin-bottom: 20px;
+                border-bottom: 1px solid rgba(58, 21, 16, 0.08);
+                & a{
+                    display: flex;
+                    font-size: 20px;
+                    font-weight: 400;
+                    padding-bottom: 20px;
+                    justify-content: space-between;
+                    color: var(--tp-accounting-brown);
+                    &:hover{
+                        color: var(--tp-accounting-3);
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+.tp-service{
+    &-philosopy{
+        &-ptb{
+            @media #{$xs} {
+                padding-bottom: 80px;
+            }
+        }
+        &-heading{
+            & p{
+                @media #{$lg,$md,$xs} {
+                    margin-bottom: 30px;
+                }
+                & br{
+                    @media #{$xs} {
+                        display: none;
+                    }
+                }
+            }
+        }
+        &-faq{
+           & .tp-faq-wrap{
+                & .accordion-items{
+                    margin-bottom: 0px;
+                }
+                & .accordion-buttons{
+                    font-size: 20px;
+                    padding: 22px 0px;
+                }
+           }
+        }
+    }
+}

@@ -1,0 +1,48 @@
+@use 'sass:map';
+@use 'colors' as *;
+@use 'typography' as *;
+
+:root {
+    // 1. Font family variables
+    @each $ff, $shades in $font-family {
+        @each $shade, $value in $shades {
+            --tp-#{$ff}-#{$shade}: #{$value};
+        }
+    }
+
+    // 2. Common color variables (white, black, text)
+    @each $group, $shades in $colors {
+        @if $group == 'common' or $group == 'text' {
+            @each $shade, $value in $shades {
+                --tp-#{$group}-#{$shade}: #{$value};
+            }
+        }
+    }
+
+    // 3. Default Theme setup 
+    $default-theme: map.get($colors, 'finance');
+    @each $key, $value in $default-theme {
+        --tp-theme-#{$key}: #{$value};
+    }
+
+    // 4. Theme others color variables
+    @each $theme-name, $theme-data in $colors {
+        @if $theme-name != 'common' and $theme-name != 'text' and $theme-name != 'themes' {
+            @each $key, $value in $theme-data {
+                --tp-#{$theme-name}-#{$key}: #{$value};
+            }
+        }
+    }
+}
+
+// 5. Theme Variants 
+$theme-list: ('finance', 'consulting', 'advisory', 'corporate', 'accounting');
+@each $theme-name in $theme-list {
+    $theme-data: map.get($colors, $theme-name);
+    
+    .theme-#{$theme-name} {
+        @each $key, $value in $theme-data {
+            --tp-theme-#{$key}: #{$value};
+        }
+    }
+}
