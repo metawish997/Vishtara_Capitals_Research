@@ -25,11 +25,11 @@ const newsService = {
 
     // --- News ---
     getNews: async () => {
-        const response = await api.get('/news');
+        const response = await api.get(`/news?t=${Date.now()}`);
         return response.data;
     },
     getSingleNews: async (slug) => {
-        const response = await api.get(`/news/${slug}`);
+        const response = await api.get(`/news/${slug}?t=${Date.now()}`);
         return response.data;
     },
     createNews: async (data) => {

@@ -23,6 +23,9 @@ const BlogSchema = new mongoose.Schema({
   content: {
     type: String,
   },
+  full_description: {
+    type: String,
+  },
   content_json: {
     type: String, // To store rich text editor JSON
   },

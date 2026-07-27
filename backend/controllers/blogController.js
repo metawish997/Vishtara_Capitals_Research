@@ -37,24 +37,24 @@ exports.deleteCategory = async (req, res, next) => {
 };
 
 exports.updateCategoryStatus = async (req, res, next) => {
-    try {
-      const category = await BlogCategory.findByIdAndUpdate(
-        req.params.id,
-        { status: req.body.status },
-        { new: true, runValidators: true }
-      );
-      if (!category) return res.status(404).json({ success: false, message: 'Category not found' });
-      res.status(200).json({ success: true, data: category });
-    } catch (error) { next(error); }
+  try {
+    const category = await BlogCategory.findByIdAndUpdate(
+      req.params.id,
+      { status: req.body.status },
+      { new: true, runValidators: true }
+    );
+    if (!category) return res.status(404).json({ success: false, message: 'Category not found' });
+    res.status(200).json({ success: true, data: category });
+  } catch (error) { next(error); }
 };
 
 // --- Blog Controllers ---
 exports.getBlogs = async (req, res, next) => {
   try {
     const blogs = await Blog.find()
-        .populate('category')
-        .populate('image')
-        .sort('-createdAt');
+      .populate('category')
+      .populate('image')
+      .sort('-createdAt');
     res.status(200).json({ success: true, data: blogs });
   } catch (error) { next(error); }
 };
@@ -62,8 +62,8 @@ exports.getBlogs = async (req, res, next) => {
 exports.getBlogBySlug = async (req, res, next) => {
   try {
     const blog = await Blog.findOne({ slug: req.params.slug })
-        .populate('category')
-        .populate('image');
+      .populate('category')
+      .populate('image');
     if (!blog) return res.status(404).json({ success: false, message: 'Blog not found' });
     res.status(200).json({ success: true, data: blog });
   } catch (error) { next(error); }
@@ -97,13 +97,13 @@ exports.deleteBlog = async (req, res, next) => {
 };
 
 exports.updateBlogStatus = async (req, res, next) => {
-    try {
-      const blog = await Blog.findByIdAndUpdate(
-        req.params.id,
-        { status: req.body.status },
-        { new: true, runValidators: true }
-      );
-      if (!blog) return res.status(404).json({ success: false, message: 'Blog not found' });
-      res.status(200).json({ success: true, data: blog });
-    } catch (error) { next(error); }
+  try {
+    const blog = await Blog.findByIdAndUpdate(
+      req.params.id,
+      { status: req.body.status },
+      { new: true, runValidators: true }
+    );
+    if (!blog) return res.status(404).json({ success: false, message: 'Blog not found' });
+    res.status(200).json({ success: true, data: blog });
+  } catch (error) { next(error); }
 };

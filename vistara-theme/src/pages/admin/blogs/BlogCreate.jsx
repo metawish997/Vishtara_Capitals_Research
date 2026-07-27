@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import blogService from '../../../services/blogService';
 import mediaService from '../../../services/mediaService';
@@ -9,12 +9,14 @@ const BlogCreate = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const isEdit = !!id;
+    const editorRef = useRef(null);
 
     const [formData, setFormData] = useState({
         title: '',
         slug: '',
         short_description: '',
         content: '',
+        full_description: '',
         status: 'draft',
         scheduled_for: '',
         is_featured: false,
@@ -28,10 +30,50 @@ const BlogCreate = () => {
     const [previewUrl, setPreviewUrl] = useState(null);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(isEdit);
+    const initialContentRef = useRef('');
 
     useEffect(() => {
         fetchInitialData();
     }, [id]);
+
+    const isInitializingRef = useRef(false);
+
+    useEffect(() => {
+        // Initialize CKEditor after loading
+        if (window.ClassicEditor && !loading) {
+            const editorElement = document.querySelector('#blog-editor');
+            if (editorElement && !editorRef.current && !isInitializingRef.current) {
+                isInitializingRef.current = true;
+                window.ClassicEditor
+                    .create(editorElement, {
+                        toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'undo', 'redo'],
+                        placeholder: 'Write your story here...'
+                    })
+                    .then(editor => {
+                        editorRef.current = editor;
+                        isInitializingRef.current = false;
+                        if (initialContentRef.current) {
+                            editor.setData(initialContentRef.current);
+                        }
+                        editor.model.document.on('change:data', () => {
+                            const data = editor.getData();
+                            setFormData(prev => ({ ...prev, content: data, full_description: data }));
+                        });
+                    })
+                    .catch(error => {
+                        isInitializingRef.current = false;
+                        console.error('CKEditor init error:', error);
+                    });
+            }
+        }
+        return () => {
+            if (editorRef.current) {
+                editorRef.current.destroy()
+                    .then(() => { editorRef.current = null; })
+                    .catch(err => console.error(err));
+            }
+        };
+    }, [loading]);
 
     const fetchInitialData = async () => {
         try {
@@ -42,16 +84,30 @@ const BlogCreate = () => {
                 const blogRes = await blogService.getBlogs();
                 const blog = blogRes.data.find(b => b._id === id);
                 if (blog) {
+                    const contentToSet = blog.full_description || blog.content || '';
+                    initialContentRef.current = contentToSet;
                     setFormData({
                         ...blog,
                         category: blog.category?._id || '',
                         short_description: blog.short_description || '',
                         meta_title: blog.meta_title || '',
                         meta_description: blog.meta_description || '',
-                        content: blog.content || ''
+                        content: contentToSet,
+                        full_description: contentToSet
                     });
                     if (blog.image) {
                         setPreviewUrl(`${BASE_URL}${blog.image.url}`);
+                    }
+                    // In case editor is already ready, set data immediately
+                    if (editorRef.current) {
+                        editorRef.current.setData(contentToSet);
+                    } else {
+                        // Retry setting it after a short delay if it's still mounting
+                        setTimeout(() => {
+                            if (editorRef.current) {
+                                editorRef.current.setData(contentToSet);
+                            }
+                        }, 500);
                     }
                 }
             }
@@ -118,8 +174,8 @@ const BlogCreate = () => {
     };
 
     if (loading) return (
-        <div className="min-h-screen flex items-center justify-center">
-            <div className="w-10 h-10 border-4 border-[[#011d52]]/20 border-t-indigo-600 rounded-full animate-spin"></div>
+        <div className="min-h-screen flex items-center justify-center bg-slate-50">
+            <div className="w-10 h-10 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
         </div>
     );
 
@@ -134,7 +190,7 @@ const BlogCreate = () => {
                             {isEdit ? 'Edit Blog Article' : 'Create New Blog'}
                         </h3>
                         <div className="flex items-center gap-2 border-l border-slate-200 pl-3">
-                            <span className="text-[9px] text-slate-400 font-medium">Craft a new article with content and SEO</span>
+                            <span className="text-[9px] text-slate-400 font-medium">Blog Management System</span>
                         </div>
                     </div>
                     <div className="flex gap-2">
@@ -144,7 +200,7 @@ const BlogCreate = () => {
                         </button>
                         <button type="submit" form="blogForm"
                             className="text-[10px] font-semibold bg-[#011d52] text-white border border-[#011d52] px-3 py-1.5 rounded-md hover:bg-[#03173d] transition-colors">
-                            Save Blog
+                            {isEdit ? 'Update Blog' : 'Save Blog'}
                         </button>
                     </div>
                 </div>
@@ -152,8 +208,8 @@ const BlogCreate = () => {
                 {/* Scrollable Form Area */}
                 <div className="p-4 bg-slate-50/30 flex-1 overflow-y-auto">
                     <form id="blogForm" onSubmit={handleSubmit} className="space-y-4 max-w-5xl mx-auto">
-                        
-                        {/* Row 1: 3 columns */}
+
+                        {/* Row 1: Title + Category */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="md:col-span-2">
                                 <label className="block text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-1">Blog Title *</label>
@@ -171,7 +227,7 @@ const BlogCreate = () => {
                             </div>
                         </div>
 
-                        {/* Row 2: 3 columns */}
+                        {/* Row 2: Slug + Status + Reading Time */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label className="block text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-1">URL Slug</label>
@@ -194,7 +250,7 @@ const BlogCreate = () => {
                             </div>
                         </div>
 
-                        {/* Row 3: Conditionally Schedule / Checkboxes */}
+                        {/* Row 3: Schedule + Featured */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             {formData.status === 'scheduled' && (
                                 <div>
@@ -210,7 +266,7 @@ const BlogCreate = () => {
                             </div>
                         </div>
 
-                        {/* Full Width rows */}
+                        {/* Short Description */}
                         <div>
                             <div className="flex justify-between items-center mb-1">
                                 <label className="block text-[9px] font-bold uppercase tracking-widest text-slate-400">Short Description (Excerpt)</label>
@@ -221,11 +277,12 @@ const BlogCreate = () => {
                                 placeholder="A brief summary for listing cards..."></textarea>
                         </div>
 
+                        {/* Full Description - CKEditor */}
                         <div>
-                            <label className="block text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-1">Article Content *</label>
-                            <textarea name="content" rows="10" value={formData.content} onChange={handleInputChange}
-                                className="w-full rounded-md border border-slate-200 bg-white text-[10px] px-2.5 py-2 focus:border-[#011d52] outline-none text-slate-800 font-medium"
-                                placeholder="Write your article content here..."></textarea>
+                            <label className="block text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-1">Full Description *</label>
+                            <div className="ck-editor-container border border-slate-200 rounded-lg overflow-hidden text-slate-800 bg-white">
+                                <div id="blog-editor"></div>
+                            </div>
                         </div>
 
                         {/* SEO Row */}
@@ -254,6 +311,38 @@ const BlogCreate = () => {
                     </form>
                 </div>
             </div>
+
+            <style dangerouslySetInnerHTML={{ __html: `
+                .ck-editor__editable_inline {
+                    min-height: 250px;
+                    font-size: 9px !important;
+                    font-weight: 600 !important;
+                    line-height: 1.5 !important;
+                    color: #1e293b !important;
+                    border-bottom-left-radius: 8px !important;
+                    border-bottom-right-radius: 8px !important;
+                }
+                .ck-editor__editable_inline p {
+                    font-size: 9px !important;
+                    margin-bottom: 0.5em !important;
+                }
+                .ck.ck-editor__main>.ck-editor__editable:not(.ck-focused) {
+                    border-color: #e2e8f0;
+                }
+                .ck-focused {
+                    border-color: #011d52 !important;
+                    box-shadow: 0 0 0 1px #011d52 !important;
+                }
+                .ck.ck-toolbar {
+                    border-color: #e2e8f0;
+                    background: #f8fafc;
+                    border-top-left-radius: 8px !important;
+                    border-top-right-radius: 8px !important;
+                }
+                input::placeholder, textarea::placeholder {
+                    color: #d1d5db !important;
+                }
+            ` }} />
         </div>
     );
 };

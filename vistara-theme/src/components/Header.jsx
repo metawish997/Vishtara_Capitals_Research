@@ -1,136 +1,325 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
+import marqueeService from "../services/marqueeService";
 
 export default function Header() {
-  const { user } = useAuth();
-  const [fontSizeState, setFontSizeState] = useState("reset"); // 'up', 'down', 'reset'
-  const [contrastState, setContrastState] = useState("reset"); // 'high', 'reset'
-  const [buttonText, setButtonText] = useState("Sign Up");
-  const [fadeState, setFadeState] = useState("fade-in");
+   const { user } = useAuth();
+   const [zoomStep, setZoomStep] = useState(localStorage.getItem('user-zoom-step') !== null ? parseInt(localStorage.getItem('user-zoom-step')) : 1);
+   const [contrastState, setContrastState] = useState("reset"); // 'high', 'reset'
+   const [buttonText, setButtonText] = useState("Sign Up");
+   const [fadeState, setFadeState] = useState("fade-in");
+   const [isAccessOpen, setIsAccessOpen] = useState(false);
+   const [marquees, setMarquees] = useState([]);
 
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      setFadeState("fade-out");
-      setTimeout(() => {
-        setButtonText((prev) => (prev === "Sign Up" ? "Login" : "Sign Up"));
-        setFadeState("fade-in");
-      }, 300);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
+   React.useEffect(() => {
+      const fetchMarquees = async () => {
+         try {
+            const res = await marqueeService.getMarquees();
+            console.log("Marquee API Response:", res);
+            if (res && res.data) {
+               // Show only active marquees, or all if we just want one? Wait, MarqueeManager treats it as a broadcast list, I'll filter active.
+               const active = res.data.filter(m => m.is_active);
+               console.log("Active Marquees:", active);
+               setMarquees(active);
+            }
+         } catch (error) {
+            console.error("Failed to load marquees", error);
+         }
+      };
+      fetchMarquees();
+   }, []);
 
-  const adjustFontSize = (action) => {
-    const html = document.documentElement;
-    if (action === "up") {
-      html.style.fontSize = "18px";
-      setFontSizeState("up");
-    } else if (action === "down") {
-      html.style.fontSize = "14px";
-      setFontSizeState("down");
-    } else {
-      html.style.fontSize = ""; // Reset
-      setFontSizeState("reset");
-    }
-  };
+   React.useEffect(() => {
+      const interval = setInterval(() => {
+         setFadeState("fade-out");
+         setTimeout(() => {
+            setButtonText((prev) => (prev === "Sign Up" ? "Login" : "Sign Up"));
+            setFadeState("fade-in");
+         }, 300);
+      }, 3000);
+      return () => clearInterval(interval);
+   }, []);
 
-  const toggleContrast = (action) => {
-    if (action === "high") {
-      document.body.classList.add("high-contrast");
-      setContrastState("high");
-      if (!document.getElementById("high-contrast-styles")) {
-        const style = document.createElement("style");
-        style.id = "high-contrast-styles";
-        style.innerHTML = `
+   const applyZoom = (step) => {
+      if (step === 0) {
+         document.body.style.zoom = '';
+         document.body.style.MozTransform = '';
+         document.body.style.MozTransformOrigin = '';
+         document.body.style.width = '';
+         document.body.style.maxWidth = '';
+      } else {
+         const scale = 1 + (step * 0.1); // e.g., step 2 -> 1.2 (120%)
+         document.body.style.zoom = scale;
+         document.body.style.MozTransform = `scale(${scale})`;
+         document.body.style.MozTransformOrigin = 'top left';
+
+         // Fix white space bug when zooming out by dynamically calculating the inverse scale
+         if (scale < 1) {
+            document.body.style.width = `calc(100% / ${scale})`;
+            document.body.style.maxWidth = `calc(100% / ${scale})`;
+         } else {
+            document.body.style.width = '';
+            document.body.style.maxWidth = '';
+         }
+      }
+   };
+
+   React.useEffect(() => {
+      applyZoom(zoomStep);
+      return () => {
+         applyZoom(0);
+      };
+   }, []);
+
+   const adjustFontSize = (action) => {
+      if (action === "up") {
+         setZoomStep(prev => {
+            const nextStep = Math.min(prev + 1, 3);
+            localStorage.setItem('user-zoom-step', nextStep);
+            applyZoom(nextStep);
+            return nextStep;
+         });
+      } else if (action === "down") {
+         setZoomStep(prev => {
+            const nextStep = Math.max(prev - 1, -3);
+            localStorage.setItem('user-zoom-step', nextStep);
+            applyZoom(nextStep);
+            return nextStep;
+         });
+      } else {
+         setZoomStep(0);
+         localStorage.setItem('user-zoom-step', 0);
+         applyZoom(0);
+      }
+   };
+
+   const toggleContrast = (action) => {
+      if (action === "high") {
+         document.body.classList.add("high-contrast");
+         setContrastState("high");
+         if (!document.getElementById("high-contrast-styles")) {
+            const style = document.createElement("style");
+            style.id = "high-contrast-styles";
+            style.innerHTML = `
           body.high-contrast {
             background-color: #121A24 !important;
             color: #E2E8F0 !important;
           }
-          body.high-contrast p, 
-          body.high-contrast span,
+          body.high-contrast p:not(.tp-fi-hero-content p):not(.tp-cn-success-item p), 
+          body.high-contrast span:not(.tp-fi-hero-content span):not(.tp-cn-success-item span),
           body.high-contrast h1,
           body.high-contrast h2,
-          body.high-contrast h3,
+          body.high-contrast h3:not(.tp-fi-hero-content h3):not(.tp-cn-success-item h3),
           body.high-contrast h4,
           body.high-contrast h5,
           body.high-contrast h6,
           body.high-contrast li,
           body.high-contrast td,
           body.high-contrast th,
+          body.high-contrast strong,
+          body.high-contrast b,
           body.high-contrast a:not(.tp-btn-event) {
             color: #F8FAFC !important;
           }
+          body.high-contrast .tp-btn-border,
+          body.high-contrast .tp-btn-border .button-text {
+            color: #F8FAFC !important;
+            border-color: #F8FAFC !important;
+          }
+          body.high-contrast .tp-btn-border img {
+            filter: brightness(0) invert(1);
+          }
           body.high-contrast .tp-footer-area,
-          body.high-contrast .tp-header-area {
+          body.high-contrast .tp-header-area,
+          body.high-contrast .tp-fi-about-ptb,
+          body.high-contrast .tp-fi-testimonial-ptb,
+          body.high-contrast .tp-about-vision-ptb {
             background-color: #0A0F15 !important;
           }
+          body.high-contrast .tp-fi-service-item,
+          body.high-contrast .tp-fi-stories-item,
+          body.high-contrast .tp-fi-value-graph,
+          body.high-contrast .tp-fi-about-thumb-shape,
+          body.high-contrast .tp-header-lan-content,
+          body.high-contrast .tp-about-vision-item,
+          body.high-contrast .tp-cn-blog-item,
+          body.high-contrast .payments-page-card {
+            background-color: #1E293B !important;
+            border-color: #334155 !important;
+          }
+          body.high-contrast .tp-contact-city-item {
+            background-color: #1E293B !important;
+            border-color: #334155 !important;
+            border: 1px solid #334155 !important;
+            padding: 40px 30px !important;
+            border-radius: 12px !important;
+          }
+          body.high-contrast .tp-contact-city-item-dvdr {
+            border-color: #334155 !important;
+          }
+          body.high-contrast input,
+          body.high-contrast textarea {
+            background-color: #0F172A !important;
+            border-color: #334155 !important;
+            color: #F8FAFC !important;
+          }
+          body.high-contrast {
+            --policy-sidebar-text: #F8FAFC;
+          }
+          body.high-contrast input::placeholder,
+          body.high-contrast textarea::placeholder {
+            color: #94A3B8 !important;
+            opacity: 1 !important;
+          }
+          body.high-contrast .payments-page-card table,
+          body.high-contrast .payments-page-card table tbody,
+          body.high-contrast .payments-page-card table thead,
+          body.high-contrast .payments-page-card table tr,
+          body.high-contrast .payments-page-card table td,
+          body.high-contrast .payments-page-card table th {
+            background-color: transparent !important;
+            border-color: #334155 !important;
+            color: #E2E8F0 !important;
+          }
+          body.high-contrast .payments-page-card table thead tr th {
+             background-color: #334155 !important;
+             color: #F8FAFC !important;
+          }
+          body.high-contrast .payments-page-card table tbody tr:nth-child(even) td {
+             background-color: rgba(255, 255, 255, 0.05) !important;
+          }
+          body.high-contrast .bank-item {
+            border-color: #334155 !important;
+          }
+          body.high-contrast .bank-item-val {
+            color: #E2E8F0 !important;
+          }
+          body.high-contrast .payment-note,
+          body.high-contrast .payment-upi-id,
+          body.high-contrast .qr-container {
+            background-color: #0F172A !important;
+            border-color: #334155 !important;
+            color: #E2E8F0 !important;
+          }
+          body.high-contrast .payment-note strong,
+          body.high-contrast .payment-note a,
+          body.high-contrast .payment-upi-id span,
+          body.high-contrast .payment-upi-id strong {
+            color: #E2E8F0 !important;
+          }
+          body.high-contrast .tp-cn-blog-item:hover {
+            background-color: #0F172A !important;
+          }
+          body.high-contrast .tp-cn-blog-item .tp-btn {
+            background-color: #334155 !important;
+            color: #F8FAFC !important;
+          }
+          body.high-contrast .tp-fi-banner-content {
+            background-color: transparent !important;
+          }
+          body.high-contrast .tp-fi-about-content {
+            background-color: #1E293B !important;
+            border-color: #334155 !important;
+            padding: 40px !important;
+            border-radius: 12px !important;
+          }
+          body.high-contrast .tp-fi-stories-item {
+             height: 420px !important;
+          }
+          body.high-contrast .tp-faq-wrap .accordion-items,
+          body.high-contrast .tp-faq-wrap .accordion-buttons {
+            background-color: transparent !important;
+            color: #F8FAFC !important;
+            border-color: #334155 !important;
+          }
+          body.high-contrast .tp-faq-wrap .accordion-body p {
+            color: #F8FAFC !important;
+          }
+          body.high-contrast .tp-faq-icon::before,
+          body.high-contrast .tp-faq-icon::after {
+            background-color: #F8FAFC !important;
+          }
+          body.high-contrast .tp-fi-faq-support,
+          body.high-contrast .postbox-details-quote,
+          body.high-contrast .tp-blog-details-info {
+             background-color: #0A0F15 !important;
+          }
+          body.high-contrast .tp-fi-stories-item-content span,
+          body.high-contrast .tp-fi-value-graph-date,
+          body.high-contrast .tp-fi-service-item p {
+             color: #94A3B8 !important;
+          }
+          body.high-contrast .tp-fi-service-item-icon svg path,
+          body.high-contrast svg path:not(.tp-cn-success-item svg path):not(.tp-cn-success-item-wrap svg path):not(.tp-cn-success-item-icon svg path) {
+            fill: #E2E8F0;
+            stroke: #E2E8F0;
+          }
+          body.high-contrast .tp-fi-hero-content h3,
+          body.high-contrast .tp-fi-hero-content p,
+          body.high-contrast .tp-fi-hero-content span {
+             color: #222F30 !important;
+          }
+          body.high-contrast .tp-fi-brand-slider-item {
+             color: #F8FAFC !important;
+          }
         `;
-        document.head.appendChild(style);
+            document.head.appendChild(style);
+         }
+      } else {
+         document.body.classList.remove("high-contrast");
+         setContrastState("reset");
+         const style = document.getElementById("high-contrast-styles");
+         if (style) style.remove();
       }
-    } else {
-      document.body.classList.remove("high-contrast");
-      setContrastState("reset");
-      const style = document.getElementById("high-contrast-styles");
-      if (style) style.remove();
-    }
-  };
+   };
 
-  const getBtnStyle = (isActive) => ({
-    background: "none",
-    border: "none",
-    padding: "2px 6px",
-    fontSize: "14px",
-    fontWeight: isActive ? "700" : "500",
-    color: isActive ? "#D2AF4D" : "var(--text-muted, #6F7D90)",
-    cursor: "pointer",
-    outline: "none",
-    transition: "color 0.2s ease"
-  });
 
-  return (
-    <header className="tp-header-height">
+
+   return (
+      <header className="tp-header-height">
          <div id="header-sticky" className="tp-header-area">
             <div className="container container-1800">
                <div className="row align-items-center">
                   <div className="col-xxl-3 col-xl-3 col-6">
                      <div className="tp-header-left-side">
                         <div className="tp-header-logo">
-                           <a href="index.html" style={{textDecoration: "none", display: "flex", alignItems: "center", gap: "10px", whiteSpace: "nowrap"}}>
-                              <img src="/vistaralogo.svg" alt="Vishtara Logo" style={{width: "100px", height: "auto"}} />
-                              <h4 style={{ margin: 0, fontWeight: "bold", color: "var(--tp-theme-secondary)", fontSize: "18px" }}>Vishtara Capital Research</h4>
+                           <a href="/" aria-label="Vishtara Capital Research Home" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "10px" }}>
+                              <img className="header-logo-img" src="/vistaralogo.svg" alt="Vishtara Logo" style={{ width: "90px", height: "auto", flexShrink: 0 }} />
+                              <h4 className="header-logo-text" style={{ margin: 0, fontWeight: "bold", color: "var(--tp-theme-secondary)", fontSize: "17px", lineHeight: "1.2" }}>Vishtara Capital Research</h4>
                            </a>
                         </div>
                      </div>
                   </div>
-                  <div className="col-xxl-5 col-xl-6 d-none d-xl-block">
+                  <div className="col-xxl-7 col-xl-7 d-none d-xl-block">
                      <div className="tp-header-menu tp-header-dropdown text-center">
                         <nav className="tp-mobile-menu-active">
-                            <ul>
-                               <li>
-                                  <Link to="/">Home</Link>
-                               </li>
-                               <li>
-                                  <Link to="/about">About Us</Link>
-                               </li>
-                               <li>
-                                  <Link to="/services">Services</Link>
-                               </li>
-                               <li>
-                                  <Link to="/blog">Blog</Link>
-                               </li>
-                               <li>
-                                  <Link to="/payments">Payments</Link>
-                               </li>
-                               <li>
-                                  <Link to="/contact">Contact</Link>
-                               </li>
-                            </ul>
+                           <ul style={{ display: "flex", justifyContent: "center", gap: "15px", flexWrap: "nowrap", margin: 0, padding: 0 }}>
+                              <li>
+                                 <Link to="/" style={{ whiteSpace: "nowrap" }}>Home</Link>
+                              </li>
+                              <li>
+                                 <Link to="/about" style={{ whiteSpace: "nowrap" }}>About Us</Link>
+                              </li>
+                              <li>
+                                 <Link to="/services" style={{ whiteSpace: "nowrap" }}>Services</Link>
+                              </li>
+                              <li>
+                                 <Link to="/blog" style={{ whiteSpace: "nowrap" }}>Blog</Link>
+                              </li>
+                              <li>
+                                 <Link to="/payments" style={{ whiteSpace: "nowrap" }}>Payments</Link>
+                              </li>
+                              <li>
+                                 <Link to="/contact" style={{ whiteSpace: "nowrap" }}>Contact</Link>
+                              </li>
+                           </ul>
                         </nav>
                      </div>
                   </div>
-                  <div className="col-xxl-4 col-xl-3 col-6">
-                      <div className="tp-header-action d-flex justify-content-end align-items-center">
-                          <style>{`
+                  <div className="col-xxl-2 col-xl-2 col-6">
+                     <div className="tp-header-action d-flex justify-content-end align-items-center">
+                        <style>{`
                              .tp-header-action .tp-header-lan::before {
                                 display: none !important;
                              }
@@ -164,55 +353,108 @@ export default function Header() {
                                 opacity: 1;
                                 transform: translateY(0);
                              }
+                             
+                             /* Accessibility Fix: Sign Up / Login Button */
+                             .tp-header-action .tp-btn-event {
+                                background-color: #222F30 !important;
+                                border-color: #181e1fff !important;
+                             }
+                             .tp-header-action .tp-btn-event .button-text {
+                                color: #FBB040 !important;
+                                font-weight: 700 !important;
+                             }
+
+                             /* Mobile Header Logo Fix */
+                             @media (max-width: 767px) {
+                                .header-logo-img { width: 45px !important; }
+                                .header-logo-text { font-size: 13px !important; line-height: 1.1 !important; max-width: 130px; }
+                                .tp-header-action .tp-header-lan { margin: 0 0 0 10px !important; }
+                             }
+
+                             /* Accessibility Menu Buttons */
+                             .access-btn {
+                                background: none;
+                                border: none;
+                                border-radius: 4px;
+                                padding: 4px 8px;
+                                font-size: 14px;
+                                font-weight: 600;
+                                color: #334155;
+                                cursor: pointer;
+                                outline: none;
+                                transition: all 0.2s ease;
+                             }
+                             .access-btn.active {
+                                font-weight: 700;
+                                color: #9B6800;
+                             }
+                             
+                             /* Dark mode & High contrast styles for Access Buttons */
+                             html[data-theme="dark"] .access-btn,
+                             body.high-contrast .access-btn {
+                                color: #94A3B8;
+                             }
+                             html[data-theme="dark"] .access-btn.active,
+                             body.high-contrast .access-btn.active {
+                                color: #FBB040;
+                             }
+                             
+                             html[data-theme="dark"] .tp-header-lan-content .access-title,
+                             body.high-contrast .tp-header-lan-content .access-title {
+                                color: #F8FAFC !important;
+                             }
                           `}</style>
-                          {user ? (
-                              <Link to={(user.role === 'admin' || user.role === 'superadmin' || user.role === 'super admin') ? '/admin/dashboard' : '/portal'} className="tp-btn-event d-none d-xxl-flex" style={{ minWidth: "130px", justifyContent: "center" }}>
-                                 <div className="button-text" style={{ width: "auto", textAlign: "center", textTransform: "capitalize" }}>{user.name || user.first_name || 'Dashboard'}</div>
-                                 <div className="button-icon-wrapper" style={{ marginLeft: "10px" }}>
-                                    <div className="button-dot"></div>
+                        {user ? (
+                           <Link to={(user.role === 'admin' || user.role === 'superadmin' || user.role === 'super admin') ? '/admin/dashboard' : '/portal'} className="tp-btn-event d-none d-xxl-flex" style={{ minWidth: "130px", justifyContent: "center" }}>
+                              <div className="button-text" style={{ width: "auto", textAlign: "center", textTransform: "capitalize" }}>{user.name || user.first_name || 'Dashboard'}</div>
+                              <div className="button-icon-wrapper" style={{ marginLeft: "10px" }}>
+                                 <div className="button-dot"></div>
+                              </div>
+                           </Link>
+                        ) : (
+                           <Link to="/login" className="tp-btn-event d-none d-xxl-flex" style={{ minWidth: "140px", justifyContent: "center" }}>
+                              <div className={`button-text shuffle-text ${fadeState}`} style={{ width: "auto", minWidth: "65px", textAlign: "center", whiteSpace: "nowrap" }}>{buttonText}</div>
+                              <div className="button-icon-wrapper" style={{ marginLeft: "10px" }}>
+                                 <img src="/assets/img/finance/hero/btn-arrow.svg" loading="lazy" width="16" height="16"
+                                    alt="" className="button-image" />
+                                 <div className="button-dot"></div>
+                              </div>
+                           </Link>
+                        )}
+                        <div className="tp-header-lan d-none d-xl-block" style={{ position: "relative" }}>
+                           <a href="#" onClick={(e) => { e.preventDefault(); setIsAccessOpen(!isAccessOpen); }} aria-label="Accessibility Options" aria-haspopup="true" aria-expanded={isAccessOpen} style={{ color: "var(--text-dark, #1B2B40)", cursor: "pointer" }}>
+                              <span>
+                                 <svg aria-labelledby="svg-inline--fa-title-zwy8pG9PvW5d" data-prefix="fas" data-icon="child-reaching" className="svg-inline--fa fa-child-reaching fa-icon access_icon" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" aria-label="Accessibility List" style={{ width: "22px", height: "22px", fill: "currentColor", verticalAlign: "middle" }}>
+                                    <title id="svg-inline--fa-title-zwy8pG9PvW5d">Accessibility List</title>
+                                    <path fill="currentColor" d="M256 64A64 64 0 1 0 128 64a64 64 0 1 0 128 0zM152.9 169.3c-23.7-8.4-44.5-24.3-58.8-45.8L74.6 94.2C64.8 79.5 45 75.6 30.2 85.4s-18.7 29.7-8.9 44.4L40.9 159c18.1 27.1 42.8 48.4 71.1 62.4L112 480c0 17.7 14.3 32 32 32s32-14.3 32-32l0-96 32 0 0 96c0 17.7 14.3 32 32 32s32-14.3 32-32l0-258.4c29.1-14.2 54.4-36.2 72.7-64.2l18.2-27.9c9.6-14.8 5.4-34.6-9.4-44.3s-34.6-5.5-44.3 9.4L291 122.4c-21.8 33.4-58.9 53.6-98.8 53.6c-12.6 0-24.9-2-36.6-5.8c-.9-.3-1.8-.7-2.7-.9z"></path>
+                                 </svg>
+                              </span>
+                           </a>
+                           <div className="tp-header-lan-content" style={{ minWidth: "220px", padding: "16px", borderRadius: "8px", boxShadow: "0 10px 30px rgba(0,0,0,0.06)", background: "#ffffff", border: "1px solid var(--card-border, #D9E1EA)", right: 0, left: "auto", opacity: isAccessOpen ? 1 : 0, visibility: isAccessOpen ? "visible" : "hidden", transition: "all 0.2s ease-in-out", transform: isAccessOpen ? "translateY(0)" : "translateY(10px)" }}>
+                              <div style={{ marginBottom: "14px" }}>
+                                 <div className="access-title" style={{ fontWeight: "700", color: "var(--text-dark, #1B2B40)", marginBottom: "6px", fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Font Size</div>
+                                 <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+                                    <button onClick={() => adjustFontSize("up")} className={`access-btn ${zoomStep > 0 ? "active" : ""}`}>A+</button>
+                                    <span style={{ color: "#64748B" }}>|</span>
+                                    <button onClick={() => adjustFontSize("reset")} className={`access-btn ${zoomStep === 0 ? "active" : ""}`}>Reset</button>
+                                    <span style={{ color: "#64748B" }}>|</span>
+                                    <button onClick={() => adjustFontSize("down")} className={`access-btn ${zoomStep < 0 ? "active" : ""}`}>A-</button>
                                  </div>
-                              </Link>
-                          ) : (
-                              <Link to="/login" className="tp-btn-event d-none d-xxl-flex" style={{ minWidth: "130px", justifyContent: "center" }}>
-                                 <div className={`button-text shuffle-text ${fadeState}`} style={{ width: "65px", textAlign: "center" }}>{buttonText}</div>
-                                 <div className="button-icon-wrapper" style={{ marginLeft: "10px" }}>
-                                    <img src="/assets/img/finance/hero/btn-arrow.svg" loading="lazy" width="16" height="16"
-                                       alt="" className="button-image" />
-                                    <div className="button-dot"></div>
+                              </div>
+                              <div>
+                                 <div className="access-title" style={{ fontWeight: "700", color: "var(--text-dark, #1B2B40)", marginBottom: "6px", fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Contrast</div>
+                                 <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+                                    <button onClick={() => toggleContrast("high")} className={`access-btn ${contrastState === "high" ? "active" : ""}`}>High Contrast</button>
+                                    <span style={{ color: "#64748B" }}>|</span>
+                                    <button onClick={() => toggleContrast("reset")} className={`access-btn ${contrastState === "reset" ? "active" : ""}`}>Reset</button>
                                  </div>
-                              </Link>
-                          )}
-                         <div className="tp-header-lan d-none d-xl-block" style={{ position: "relative" }}>
-                            <a href="#" onClick={(e) => e.preventDefault()} style={{ color: "var(--text-dark, #1B2B40)" }}>
-                               <span>
-                                  <svg aria-labelledby="svg-inline--fa-title-zwy8pG9PvW5d" data-prefix="fas" data-icon="child-reaching" className="svg-inline--fa fa-child-reaching fa-icon access_icon" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" aria-label="Accessibility List" style={{width: "22px", height: "22px", fill: "currentColor", verticalAlign: "middle"}}>
-                                     <title id="svg-inline--fa-title-zwy8pG9PvW5d">Accessibility List</title>
-                                     <path fill="currentColor" d="M256 64A64 64 0 1 0 128 64a64 64 0 1 0 128 0zM152.9 169.3c-23.7-8.4-44.5-24.3-58.8-45.8L74.6 94.2C64.8 79.5 45 75.6 30.2 85.4s-18.7 29.7-8.9 44.4L40.9 159c18.1 27.1 42.8 48.4 71.1 62.4L112 480c0 17.7 14.3 32 32 32s32-14.3 32-32l0-96 32 0 0 96c0 17.7 14.3 32 32 32s32-14.3 32-32l0-258.4c29.1-14.2 54.4-36.2 72.7-64.2l18.2-27.9c9.6-14.8 5.4-34.6-9.4-44.3s-34.6-5.5-44.3 9.4L291 122.4c-21.8 33.4-58.9 53.6-98.8 53.6c-12.6 0-24.9-2-36.6-5.8c-.9-.3-1.8-.7-2.7-.9z"></path>
-                                  </svg>
-                               </span>
-                            </a>
-                            <div className="tp-header-lan-content" style={{ minWidth: "220px", padding: "16px", borderRadius: "8px", boxShadow: "0 10px 30px rgba(0,0,0,0.06)", background: "#ffffff", border: "1px solid var(--card-border, #D9E1EA)", right: 0, left: "auto" }}>
-                               <div style={{ marginBottom: "14px" }}>
-                                  <div style={{ fontWeight: "700", color: "var(--text-dark, #1B2B40)", marginBottom: "6px", fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Font Size</div>
-                                  <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
-                                     <button onClick={() => adjustFontSize("up")} style={getBtnStyle(fontSizeState === "up")}>A+</button>
-                                     <span style={{ color: "var(--card-border, #D9E1EA)" }}>|</span>
-                                     <button onClick={() => adjustFontSize("reset")} style={getBtnStyle(fontSizeState === "reset")}>Reset</button>
-                                     <span style={{ color: "var(--card-border, #D9E1EA)" }}>|</span>
-                                     <button onClick={() => adjustFontSize("down")} style={getBtnStyle(fontSizeState === "down")}>A-</button>
-                                  </div>
-                                </div>
-                               <div>
-                                  <div style={{ fontWeight: "700", color: "var(--text-dark, #1B2B40)", marginBottom: "6px", fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Contrast</div>
-                                  <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
-                                     <button onClick={() => toggleContrast("high")} style={getBtnStyle(contrastState === "high")}>High Contrast</button>
-                                     <span style={{ color: "var(--card-border, #D9E1EA)" }}>|</span>
-                                     <button onClick={() => toggleContrast("reset")} style={getBtnStyle(contrastState === "reset")}>Reset</button>
-                                  </div>
-                               </div>
-                            </div>
-                         </div>
-                        <button className="tp-header-bar tp-offcanvas-open-btn uml-25">
+                              </div>
+                           </div>
+                        </div>
+                        <button className="tp-header-bar tp-offcanvas-open-btn uml-25" aria-label="Open mobile menu" onClick={() => {
+                           document.querySelector('.tp-offcanvas-area')?.classList.add('opened');
+                           document.querySelector('.body-overlay')?.classList.add('opened');
+                        }}>
                            <span>
                               <svg xmlns="http://www.w3.org/2000/svg" width="40" height="9" viewBox="0 0 40 9"
                                  fill="none">
@@ -226,13 +468,13 @@ export default function Header() {
                </div>
             </div>
          </div>
-          <div className="tp-header-bottom d-none d-md-block" style={{
+         <div className="tp-header-bottom d-none d-md-block" style={{
             background: window.location.pathname === "/home2"
-              ? "linear-gradient(160deg, rgb(36, 63, 99) 0%, rgb(50, 78, 115) 60%, rgb(36, 63, 99) 100%)"
-              : "var(--tp-theme-primary)",
+               ? "linear-gradient(160deg, rgb(36, 63, 99) 0%, rgb(50, 78, 115) 60%, rgb(36, 63, 99) 100%)"
+               : "var(--tp-theme-primary)",
             padding: "4px 0"
-          }}>
-              <style>{`
+         }}>
+            <style>{`
                 .vistar-marquee-container {
                   overflow: hidden;
                   white-space: nowrap;
@@ -252,10 +494,10 @@ export default function Header() {
                   margin-right: 50px;
                   font-size: 13px;
                   font-weight: 600;
-                  color: ${window.location.pathname === "/home2" ? "#ffffff" : "#222F30"};
+                  color: ${window.location.pathname === "/home2" ? "#222F30" : "#222F30 !important"};
                 }
                 .vistar-marquee-item .dot {
-                  color: ${window.location.pathname === "/home2" ? "#ffffff" : "#222F30"};
+                  color: ${window.location.pathname === "/home2" ? "#222F30" : "#222F30 !important"};
                   margin-right: 6px;
                   font-size: 14px;
                 }
@@ -263,17 +505,34 @@ export default function Header() {
                  0% { transform: translateX(100vw); }
                  100% { transform: translateX(-100%); }
                }
-             `}</style>
-             <div className="vistar-marquee-container">
+                body.high-contrast .vistar-marquee-container span.vistar-marquee-item.vistar-marquee-item.vistar-marquee-item,
+                body.high-contrast .vistar-marquee-container span.dot.dot.dot {
+                  color: #222F30 !important;
+                }
+                .vistar-marquee-container * {
+                  color: #222F30 !important;
+                }
+                .vistar-marquee-content * {
+                  color: #222F30 !important;
+                }
+              `}</style>
+            <div className="vistar-marquee-container">
                <div className="vistar-marquee-content">
-                 <span className="vistar-marquee-item"><span className="dot">●</span> ALWAYS CONDUCT YOUR OWN RESEARCH BEFORE INVESTING.</span>
-                 <span className="vistar-marquee-item"><span className="dot">●</span> PAST PERFORMANCE DOES NOT GUARANTEE FUTURE RESULTS.</span>
-                 <span className="vistar-marquee-item"><span className="dot">●</span> TRADING INVOLVES FINANCIAL RISK.</span>
-                 <span className="vistar-marquee-item"><span className="dot">●</span> INFORMATION SHARED SHOULD NOT BE CONSIDERED FINANCIAL ADVICE.</span>
+                  {marquees.length > 0 ? (
+                     marquees.map(m => (
+                        <span key={m._id} className="vistar-marquee-item">
+                           <span className="dot">●</span>
+                           {/* {m.title && <span style={{ fontWeight: 'bold', marginRight: '5px', textTransform: 'uppercase' }}>[{m.title}]</span>} */}
+                           {m.content}
+                        </span>
+                     ))
+                  ) : (
+                     <span className="vistar-marquee-item"></span>
+                  )}
                </div>
-             </div>
-          </div>
-         
-    </header>
-  );
+            </div>
+         </div>
+
+      </header>
+   );
 }

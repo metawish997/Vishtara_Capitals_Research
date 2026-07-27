@@ -2,7 +2,7 @@ import api from './api';
 
 const marqueeService = {
     getMarquees: async () => {
-        const response = await api.get('/marquees');
+        const response = await api.get(`/marquees?t=${Date.now()}`);
         return response.data;
     },
     createMarquee: async (data) => {

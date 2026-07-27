@@ -25,11 +25,11 @@ const blogService = {
 
     // --- Blogs ---
     getBlogs: async () => {
-        const response = await api.get('/blogs');
+        const response = await api.get(`/blogs?t=${Date.now()}`);
         return response.data;
     },
     getBlogBySlug: async (slug) => {
-        const response = await api.get(`/blogs/slug/${slug}`);
+        const response = await api.get(`/blogs/slug/${slug}?t=${Date.now()}`);
         return response.data;
     },
     createBlog: async (data) => {

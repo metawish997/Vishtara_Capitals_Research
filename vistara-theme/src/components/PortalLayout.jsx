@@ -3,6 +3,8 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import useAuth from '../hooks/useAuth';
 import { BASE_URL } from '../services/api';
 import toast from 'react-hot-toast';
+import notificationService from '../services/notificationService';
+import { Bell } from 'lucide-react';
 
 export default function PortalLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -11,17 +13,58 @@ export default function PortalLayout() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const profileRef = useRef(null);
+  const notifRef = useRef(null);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
-  // Close profile dropdown when clicking outside
+  const fetchNotifications = async () => {
+      try {
+          const res = await notificationService.getNotifications();
+          if (res.success) {
+              setNotifications(res.data);
+              setUnreadCount(res.data.length);
+          }
+      } catch (error) {
+          console.error("Error fetching notifications:", error);
+      }
+  };
+
+  useEffect(() => {
+      fetchNotifications();
+      const interval = setInterval(fetchNotifications, 30000);
+      return () => clearInterval(interval);
+  }, []);
+
+  // Close dropdowns when clicking outside
   useEffect(() => {
       const handler = (e) => {
           if (profileRef.current && !profileRef.current.contains(e.target)) {
               setProfileOpen(false);
           }
+          if (notifRef.current && !notifRef.current.contains(e.target)) {
+              setIsNotifOpen(false);
+          }
       };
       document.addEventListener('mousedown', handler);
       return () => document.removeEventListener('mousedown', handler);
   }, []);
+
+  const handleMarkAsRead = async (e, id) => {
+      e.preventDefault();
+      e.stopPropagation();
+      try {
+          await notificationService.markAsRead(id);
+          fetchNotifications();
+      } catch (error) { }
+  };
+
+  const handleMarkAllAsRead = async () => {
+      try {
+          await notificationService.markAllAsRead();
+          fetchNotifications();
+      } catch (error) { }
+  };
 
   const menuItems = [
     { label: "Dashboard", path: "/portal", icon: "📊" },
@@ -184,7 +227,99 @@ export default function PortalLayout() {
             </span>
             <div style={{ width: "1px", height: "20px", backgroundColor: "#e2e8f0" }}></div>
             
-            {/* User Profile Dropdown */}
+            {/* Notification Dropdown */}
+            <div style={{ position: "relative" }} ref={notifRef}>
+                <button
+                    onClick={() => setIsNotifOpen(!isNotifOpen)}
+                    style={{
+                        position: "relative",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: "36px",
+                        height: "36px",
+                        borderRadius: "50%",
+                        backgroundColor: "#f1f5f9",
+                        color: "#64748b",
+                        border: "1px solid #e2e8f0",
+                        cursor: "pointer",
+                        transition: "all 0.2s"
+                    }}
+                    onMouseOver={(e) => { e.currentTarget.style.backgroundColor = "#e2e8f0"; e.currentTarget.style.color = "#1e293b"; }}
+                    onMouseOut={(e) => { e.currentTarget.style.backgroundColor = "#f1f5f9"; e.currentTarget.style.color = "#64748b"; }}
+                >
+                    <Bell size={18} strokeWidth={2} />
+                    {unreadCount > 0 && (
+                        <span style={{
+                            position: "absolute",
+                            top: "-4px",
+                            right: "-4px",
+                            height: "16px",
+                            minWidth: "16px",
+                            backgroundColor: "#ef4444",
+                            color: "#ffffff",
+                            fontSize: "10px",
+                            fontWeight: "bold",
+                            borderRadius: "10px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: "0 4px",
+                            border: "2px solid #ffffff"
+                        }}>
+                            {unreadCount > 99 ? '99+' : unreadCount}
+                        </span>
+                    )}
+                </button>
+
+                {isNotifOpen && (
+                    <div style={{
+                        position: "absolute",
+                        top: "100%",
+                        right: 0,
+                        marginTop: "8px",
+                        backgroundColor: "#ffffff",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: "8px",
+                        boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
+                        width: "320px",
+                        zIndex: 1001,
+                        overflow: "hidden",
+                        display: "flex",
+                        flexDirection: "column"
+                    }}>
+                        <div style={{ padding: "12px 16px", borderBottom: "1px solid #f1f5f9", backgroundColor: "#f8fafc", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <span style={{ fontSize: "12px", fontWeight: "700", color: "#1e293b", textTransform: "uppercase" }}>Notifications</span>
+                            {unreadCount > 0 && (
+                                <button onClick={handleMarkAllAsRead} style={{ fontSize: "10px", color: "#3b82f6", background: "none", border: "none", cursor: "pointer", fontWeight: "600" }}>
+                                    Mark all as read
+                                </button>
+                            )}
+                        </div>
+                        <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+                            {notifications.length > 0 ? notifications.map((n, i) => (
+                                <div key={i} style={{ padding: "12px 16px", borderBottom: "1px solid #f1f5f9", display: "flex", gap: "10px", alignItems: "flex-start", backgroundColor: n.isRead ? "#ffffff" : "#f0f9ff", cursor: "pointer" }} onClick={(e) => handleMarkAsRead(e, n._id)}>
+                                    {!n.isRead && <div style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: "#3b82f6", marginTop: "6px", flexShrink: 0 }}></div>}
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <p style={{ margin: 0, fontSize: "12px", fontWeight: "600", color: "#1e293b", textOverflow: "ellipsis", whiteSpace: "nowrap", overflow: "hidden" }}>{n.title}</p>
+                                        <p style={{ margin: "4px 0 0 0", fontSize: "11px", color: "#64748b", lineHeight: "1.4" }}>{n.message}</p>
+                                        <span style={{ fontSize: "10px", color: "#94a3b8", marginTop: "6px", display: "block" }}>{new Date(n.createdAt).toLocaleDateString()} {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                    </div>
+                                </div>
+                            )) : (
+                                <div style={{ padding: "20px", textAlign: "center", color: "#94a3b8", fontSize: "12px" }}>No new notifications</div>
+                            )}
+                        </div>
+                        <div style={{ padding: "10px", borderTop: "1px solid #f1f5f9", textAlign: "center", backgroundColor: "#f8fafc" }}>
+                            <Link to="/portal/notifications" onClick={() => setIsNotifOpen(false)} style={{ fontSize: "11px", fontWeight: "600", color: "#3b82f6", textDecoration: "none" }}>
+                                View All Notifications
+                            </Link>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            <div style={{ width: "1px", height: "20px", backgroundColor: "#e2e8f0" }}></div>
             <div style={{ position: "relative" }} ref={profileRef}>
                 <div 
                     onClick={() => setProfileOpen(!profileOpen)}

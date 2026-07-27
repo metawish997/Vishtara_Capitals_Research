@@ -4,6 +4,17 @@ import { Link } from "react-router-dom";
 export default function Contact() {
   return (
     <main>
+         <style>{`
+            .contact-submit-btn {
+               color: #222F30 !important;
+            }
+            html[data-theme="dark"] .contact-submit-btn,
+            body.high-contrast .contact-submit-btn {
+               background-color: #FBB040 !important;
+               border-color: #FBB040 !important;
+               color: #222F30 !important;
+            }
+         `}</style>
          
          <div className="tp-breadcrumb-ptb upt-90 upb-70 z-index-1">
             <div className="tp-cc-chose-bg">
@@ -105,7 +116,7 @@ export default function Contact() {
                                     <textarea placeholder="How can we help? Feel free to write here" name="message" required></textarea>
                                  </div>
                                  <div className="tp-contact-input-btn">
-                                    <button className="tp-btn w-100" type="submit" style={{ backgroundColor: "var(--primary)", borderColor: "var(--primary)" }}>
+                                    <button className="tp-btn w-100 contact-submit-btn" type="submit" style={{ backgroundColor: "var(--primary)", borderColor: "var(--primary)" }}>
                                        Send your message
                                     </button>
                                     <p className="ajax-response umt-5"></p>

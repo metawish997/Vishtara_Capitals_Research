@@ -1,6 +1,17 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useTheme } from "../context/ThemeContext";
 
 export default function Home() {
+   const { theme } = useTheme();
+   const isDark = theme === 'black-green';
+   const sliderTextColor = isDark ? '#ffffff' : '#1B2B40';
+
+   const [activeFaq, setActiveFaq] = useState('collapseOne');
+
+   const toggleFaq = (id) => {
+      setActiveFaq(activeFaq === id ? null : id);
+   };
+
    useEffect(() => {
       if (window.Swiper) {
          var thumbSwiper = new window.Swiper(".tp-testimonial-bottom-thumb-active", {
@@ -50,12 +61,24 @@ export default function Home() {
 
    return (
       <main>
-
-
-
-
+         <style>{`
+            body.high-contrast .tp-fi-hero-wrapper h3.tp-fi-hero-title.tp-fi-hero-title,
+            body.high-contrast .tp-fi-hero-wrapper div.tp-fi-hero-trust.tp-fi-hero-trust,
+            body.high-contrast .tp-fi-hero-wrapper p.text.text {
+               color: #222F30 !important;
+            }
+            body.high-contrast div.tp-fi-cta-wrapper.tp-fi-cta-wrapper.tp-fi-cta-wrapper h3.tp-fi-cta-title,
+            body.high-contrast div.tp-fi-cta-wrapper.tp-fi-cta-wrapper.tp-fi-cta-wrapper p,
+            body.high-contrast div.tp-fi-cta-wrapper.tp-fi-cta-wrapper.tp-fi-cta-wrapper input {
+               color: #111111 !important;
+            }
+            body.high-contrast .tp-fi-text-slider-wrapper div.tp-fi-text-slider-item.tp-fi-text-slider-item.tp-fi-text-slider-item p,
+            body.high-contrast .tp-fi-text-slider-wrapper div.tp-fi-text-slider-item.tp-fi-text-slider-item.tp-fi-text-slider-item span {
+               color: #222F30 !important;
+            }
+         `}</style>
          <div className="tp-fi-hero-ptb tp-fi-hero-overlay include-bg upt-140 upb-100 p-relative fix"
-            style={{ backgroundImage: "url(/assets/img/finance/hero/bg.jpg)" }}>
+            style={{ backgroundColor: "#ffffff", backgroundImage: "url(/assets/img/finance/hero/bg.jpg)" }}>
             <div className="tp-fi-hero-shape">
                <svg xmlns="http://www.w3.org/2000/svg" width="747" height="600" viewBox="0 0 747 600" fill="none"
                   className="tp-svg-drawing">
@@ -70,9 +93,9 @@ export default function Home() {
                   <div className="col-lg-12">
                      <div className="tp-fi-hero-wrapper z-index-1">
                         <div className="tp-fi-hero-content upb-145">
-                           <h3 className="tp-fi-hero-title" data-text-split data-letters-fade-in>Empowering Decisions <br />
+                           <h3 className="tp-fi-hero-title" style={{ color: "#222F30" }} data-text-split data-letters-fade-in>Empowering Decisions <br />
                               Through Research.</h3>
-                           <div className="tp-fi-hero-trust umb-15 tp-fade-anim" style={{ fontWeight: 700, color: "var(--tp-theme-primary)", letterSpacing: "2px", fontSize: "12px", textTransform: "uppercase" }}>
+                           <div className="tp-fi-hero-trust umb-15 tp-fade-anim" style={{ fontWeight: 700, color: "#222F30", letterSpacing: "2px", fontSize: "12px", textTransform: "uppercase" }}>
                               SEBI REGISTERED &nbsp;•&nbsp; BSE ENLISTED &nbsp;•&nbsp; NISM CERTIFIED
                            </div>
                            <div className="tp-fi-hero-sub tp-fade-anim">
@@ -83,14 +106,14 @@ export default function Home() {
                                     <path d="M36.7533 0.946655L0.740005 36.96" stroke="#222F30" strokeWidth="1.4" />
                                  </svg>
                               </span>
-                              <p className="text">
+                              <p className="text" style={{ color: "#222F30" }}>
                                  Disciplined, research-driven market insights across Equity, F&O, and <br /> Commodities with a strong emphasis on risk management.
                               </p>
                            </div>
                         </div>
                         <div className="tp-fi-hero-bottom">
                            <div className="tp-fi-hero-btn umb-15 tp-fade-anim" data-delay=".5">
-                              <a href="#services" className="tp-btn-event">
+                              <a href="/services" className="tp-btn-event">
                                  <div className="button-text">View Our Services</div>
                                  <div className="button-icon-wrapper">
                                     <img src="/assets/img/finance/hero/btn-arrow.svg" loading="lazy" width="16"
@@ -131,57 +154,57 @@ export default function Home() {
                            Built on experience, research, <br /> and disciplined market strategies.
                         </h3>
                         <div className="tp-fade-anim" data-delay=".3">
-                           <a className="tp-btn-underline" href="#services">Explore our services</a>
+                           <a className="tp-btn-underline" href="/services">Explore our services</a>
                         </div>
                      </div>
-                     <div className="tp-fi-brand-wrapper">``
+                     <div className="tp-fi-brand-wrapper">
                         <div className="tp-fi-brand-slider">
                            <div className="swiper tp-brand-slider-active">
                               <div className="swiper-wrapper">
                                  <div className="swiper-slide">
-                                    <div className="tp-fi-brand-slider-item d-flex align-items-center justify-content-center gap-2" style={{ color: "#8C8C8A", fontWeight: 700, letterSpacing: "1px" }}>
+                                    <div className="tp-fi-brand-slider-item d-flex align-items-center justify-content-center gap-2" style={{ color: sliderTextColor, opacity: 1, fontWeight: 700, letterSpacing: "1px" }}>
                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                           <line x1="18" y1="20" x2="18" y2="10"></line>
                                           <line x1="12" y1="20" x2="12" y2="4"></line>
                                           <line x1="6" y1="20" x2="6" y2="14"></line>
                                        </svg>
-                                       <span>CASH EQUITY</span>
+                                       <span style={{ color: sliderTextColor }}>CASH EQUITY</span>
                                     </div>
                                  </div>
                                  <div className="swiper-slide">
-                                    <div className="tp-fi-brand-slider-item d-flex align-items-center justify-content-center gap-2" style={{ color: "#8C8C8A", fontWeight: 700, letterSpacing: "1px" }}>
+                                    <div className="tp-fi-brand-slider-item d-flex align-items-center justify-content-center gap-2" style={{ color: sliderTextColor, opacity: 1, fontWeight: 700, letterSpacing: "1px" }}>
                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                           <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
                                           <polyline points="16 7 22 7 22 13"></polyline>
                                        </svg>
-                                       <span>INDEX F&O</span>
+                                       <span style={{ color: sliderTextColor }}>INDEX F&O</span>
                                     </div>
                                  </div>
                                  <div className="swiper-slide">
-                                    <div className="tp-fi-brand-slider-item d-flex align-items-center justify-content-center gap-2" style={{ color: "#8C8C8A", fontWeight: 700, letterSpacing: "1px" }}>
+                                    <div className="tp-fi-brand-slider-item d-flex align-items-center justify-content-center gap-2" style={{ color: sliderTextColor, opacity: 1, fontWeight: 700, letterSpacing: "1px" }}>
                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                           <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
                                           <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
                                        </svg>
-                                       <span>STOCK F&O</span>
+                                       <span style={{ color: sliderTextColor }}>STOCK F&O</span>
                                     </div>
                                  </div>
                                  <div className="swiper-slide">
-                                    <div className="tp-fi-brand-slider-item d-flex align-items-center justify-content-center gap-2" style={{ color: "#8C8C8A", fontWeight: 700, letterSpacing: "1px" }}>
+                                    <div className="tp-fi-brand-slider-item d-flex align-items-center justify-content-center gap-2" style={{ color: sliderTextColor, opacity: 1, fontWeight: 700, letterSpacing: "1px" }}>
                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                           <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
                                           <path d="M2 17l10 5 10-5"></path>
                                           <path d="M2 12l10 5 10-5"></path>
                                        </svg>
-                                       <span>COMMODITIES</span>
+                                       <span style={{ color: sliderTextColor }}>COMMODITIES</span>
                                     </div>
                                  </div>
                                  <div className="swiper-slide">
-                                    <div className="tp-fi-brand-slider-item d-flex align-items-center justify-content-center gap-2" style={{ color: "#8C8C8A", fontWeight: 700, letterSpacing: "1px" }}>
+                                    <div className="tp-fi-brand-slider-item d-flex align-items-center justify-content-center gap-2" style={{ color: sliderTextColor, opacity: 1, fontWeight: 700, letterSpacing: "1px" }}>
                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                                        </svg>
-                                       <span>RISK FOCUS</span>
+                                       <span style={{ color: sliderTextColor }}>RISK FOCUS</span>
                                     </div>
                                  </div>
                               </div>
@@ -211,19 +234,19 @@ export default function Home() {
                            investment decisions with clarity <br />
                            and conviction.</p>
                         <div className="tp-fi-stories-btn">
-                           <a className="tp-btn-underline" href="#services">View subscriptions</a>
+                           <a className="tp-btn-underline" href="/services">View subscriptions</a>
                         </div>
                      </div>
                   </div>
                   <div className="col-xl-3 col-lg-4 col-md-6">
                      <div className="tp-fi-stories-item umb-30 tp-fade-anim" data-delay=".5"
-                        style={{ backgroundImage: "url(/assets/img/finance/stories/card-bg.jpg)" }}>
+                        style={{ backgroundColor: "#111111", backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(/assets/img/finance/stories/card-bg.jpg)" }}>
                         <div className="tp-fi-stories-item-logo">
                            <img src="/assets/img/finance/stories/logo-2.png" alt="" />
                         </div>
                         <div className="tp-fi-stories-item-content">
-                           <span>Professional market experience</span>
-                           <h4 className="tp-fi-stories-item-title">5+ Years</h4>
+                           <span style={{ color: "#f1f1f1" }}>Professional market experience</span>
+                           <h4 className="tp-fi-stories-item-title" style={{ color: "#fff" }}>5+ Years</h4>
                         </div>
                      </div>
                   </div>
@@ -242,7 +265,7 @@ export default function Home() {
                      <div className="tp-fi-stories-item style-3 umb-30 tp-fade-anim" data-delay=".9">
                         <div className="tp-fi-stories-item-content style-2 upb-195">
                            <span>Segments covered</span>
-                           <h4 className="tp-fi-stories-item-title" style={{ fontSize: "26px", lineHeight: "1.2" }}>Equity & F&O</h4>
+                           <h4 className="tp-fi-stories-item-title" style={{ color: "var(--text-h)", fontWeight: "bold" }}>Equity & F&O</h4>
                         </div>
                         <div className="tp-fi-stories-item-icon">
                            <img src="/assets/img/finance/stories/logo-3.png" alt="" />
@@ -281,7 +304,7 @@ export default function Home() {
                                  <div className="button-dot"></div>
                               </div>
                            </a>
-                           <a href="#services" className="tp-btn-event tp-btn-border">
+                           <a href="/services" className="tp-btn-event tp-btn-border">
                               <div className="button-text">Our offerings</div>
                               <div className="button-icon-wrapper">
                                  <img src="/assets/img/finance/hero/btn-arrow.svg" loading="lazy" width="16"
@@ -355,7 +378,7 @@ export default function Home() {
                   </div>
                   <div className="col-lg-4">
                      <div className="tp-fi-service-right text-lg-end umb-60 tp-fade-anim">
-                        <a href="#services" className="tp-btn-event">
+                        <a href="/services" className="tp-btn-event">
                            <div className="button-text">View Pricing</div>
                            <div className="button-icon-wrapper">
                               <img src="/assets/img/finance/hero/btn-arrow.svg" loading="lazy" width="16" height="16"
@@ -396,7 +419,7 @@ export default function Home() {
                         </div>
                         <div className="tp-fi-service-item-content">
                            <h3 className="tp-fi-service-item-title">
-                              <a className="tp-line-anim" href="#services">Cash Market Research</a>
+                              <a className="tp-line-anim" href="/services">Cash Market Research</a>
                            </h3>
                            <p>
                               Swing and positional opportunities <br />
@@ -405,7 +428,7 @@ export default function Home() {
                            </p>
                         </div>
                         <div className="tp-fi-service-item-btn">
-                           <a href="#services">
+                           <a href="/services">
                               <span>
                                  Read more
                               </span>
@@ -451,7 +474,7 @@ export default function Home() {
                         </div>
                         <div className="tp-fi-service-item-content">
                            <h3 className="tp-fi-service-item-title">
-                              <a className="tp-line-anim" href="#services">Index F&O Strategy</a>
+                              <a className="tp-line-anim" href="/services">Index F&O Strategy</a>
                            </h3>
                            <p>
                               Strategic Nifty and Bank Nifty <br />
@@ -460,7 +483,7 @@ export default function Home() {
                            </p>
                         </div>
                         <div className="tp-fi-service-item-btn">
-                           <a href="#services">
+                           <a href="/services">
                               <span>
                                  Read more
                               </span>
@@ -506,7 +529,7 @@ export default function Home() {
                         </div>
                         <div className="tp-fi-service-item-content">
                            <h3 className="tp-fi-service-item-title">
-                              <a className="tp-line-anim" href="#services">Stock F&O Insight</a>
+                              <a className="tp-line-anim" href="/services">Stock F&O Insight</a>
                            </h3>
                            <p>
                               Actionable derivative trading ideas <br />
@@ -515,7 +538,7 @@ export default function Home() {
                            </p>
                         </div>
                         <div className="tp-fi-service-item-btn">
-                           <a href="#services">
+                           <a href="/services">
                               <span>
                                  Read more
                               </span>
@@ -533,7 +556,7 @@ export default function Home() {
                   </div>
                   <div className="col-xl-3 col-lg-4 col-md-6">
                      <div className="tp-fi-service-item-2 umb-30 tp-fade-anim" data-delay=".9"
-                        style={{ backgroundImage: "url(/assets/img/finance/about/service-1.jpg)" }}>
+                        style={{ backgroundColor: "#111111", backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(/assets/img/finance/about/service-1.jpg)" }}>
                         <div className="tp-fi-service-item-2-content">
                            <div className="tp-fi-service-item-2-icon">
                               <svg xmlns="http://www.w3.org/2000/svg" width="46" height="43" viewBox="0 0 46 43"
@@ -543,11 +566,14 @@ export default function Home() {
                                     stroke="var(--tp-theme-primary)" strokeWidth="2" />
                                  <path d="M24.7655 40.8091V12.0591" stroke="var(--tp-theme-primary)" strokeWidth="2" />
                                  <path
-                                    d="M24.7654 6.05908C26.4222 6.05908 27.7654 7.40223 27.7654 9.05908C27.7654 10.7159 26.4222 12.0591 24.7654 12.0591C23.1085 12.0591 21.7654 10.7159 21.7654 9.05908C21.7654 7.40223 23.1085 6.05908 24.7654 6.05908Z"
+                                    d="M24.7654 40.8091V12.0591"
+                                    stroke="var(--tp-theme-primary)" strokeWidth="2" />
+                                 <path
+                                    d="M24.7654 6.05908C26.4222 6.05908 27.7654 7.40223 27.7654 9.05908C27.7654 10.7159 26.4222 12.0591 24.7654 12.0591C23.1085 12.0591 21.7654 10.7159 24.7654 9.05908C21.7654 7.40223 23.1085 6.05908 24.7654 6.05908Z"
                                     stroke="var(--tp-theme-primary)" strokeWidth="2" />
                               </svg>
                            </div>
-                           <h3 className="tp-fi-service-item-2-title">Commodities Research <br />
+                           <h3 className="tp-fi-service-item-2-title" style={{ color: "#fff", position: "relative", zIndex: 10 }}>Commodities Research <br />
                               Gold, Silver & Crude <br />
                               market sentiment analysis</h3>
                         </div>
@@ -568,7 +594,7 @@ export default function Home() {
                </div>
             </div>
          </div>
-         <div className="tp-fi-text-ptb upt-20 upb-20" style={{ backgroundColor: "var(--tp-theme-primary)" }}>
+         <div className="tp-fi-text-ptb upt-10 upb-10" style={{ backgroundColor: "var(--tp-theme-primary)" }}>
             <div className="tp-fi-text-slider-wrapper">
                <div className="swiper tp-text-slider-active">
                   <div className="swiper-wrapper tp-slide-transtion">
@@ -1048,25 +1074,25 @@ export default function Home() {
          </div>
 
 
-         <div className="tp-fi-partner-ptb tp-sec-ptb upt-80 upb-60" style={{ background: "linear-gradient(160deg, #243F63 0%, #324E73 60%, #243F63 100%)" }}>
+         <div className="tp-fi-partner-ptb tp-sec-ptb upt-80 upb-60" style={{ backgroundColor: "#243F63", backgroundImage: "linear-gradient(160deg, #243F63 0%, #324E73 60%, #243F63 100%)" }}>
             <div className="container">
                <div className="row align-items-center">
                   <div className="col-lg-7">
                      <div className="tp-fi-partner-wrapper umb-30">
                         <div className="tp-fi-partner-heading" style={{ marginBottom: "40px" }}>
                            <span className="tp-section-sub primary-color tp-fade-anim">Trusted Advisory</span>
-                           <h3 className="tp-section-title white-color" data-text-split data-letters-fade-in>SEBI Registered <br />
+                           <h3 className="tp-section-title" style={{ color: "#ffffff" }} data-text-split data-letters-fade-in>SEBI Registered <br />
                               Research Analyst <br />
                               INH000027779</h3>
                         </div>
                         <div className="tp-fi-partner-wrap">
                            <div className="tp-fade-anim" data-delay=".5">
-                              <p>Vishtara Capital Research is committed to delivering disciplined, objective insights with <br />
+                              <p style={{ color: "#F8FAFC", fontSize: "16px", lineHeight: "1.7", opacity: 0.9 }}>Vishtara Capital Research is committed to delivering disciplined, objective insights with <br />
                                  a strict emphasis on risk management. Every research recommendation is backed by <br />
                                  structured technical analysis and market signals to support your financial decisions.</p>
                            </div>
                            <div className="tp-fi-partner-btn-wrap tp-fade-anim" data-delay=".7">
-                              <a href="#services" className="tp-btn-event theme-bg-color">
+                              <a href="/services" className="tp-btn-event theme-bg-color">
                                  <div className="button-text">Explore Subscriptions</div>
                                  <div className="button-icon-wrapper">
                                     <img src="/assets/img/finance/hero/btn-arrow.svg" loading="lazy" width="16"
@@ -1075,13 +1101,18 @@ export default function Home() {
                                  </div>
                               </a>
                               <div className="tp-fi-hero-contact">
-                                 <a href="tel:08602027324">
-                                    <span>
+                                 <a href="tel:08602027324" style={{ color: "#ffffff", fontWeight: "bold", display: "flex", alignItems: "center", gap: "10px", opacity: 1, textDecoration: "none" }}>
+                                    <span style={{
+                                       display: "flex", alignItems: "center", justifyContent: "center",
+                                       width: "45px", height: "45px", borderRadius: "50%",
+                                       backgroundColor: isDark ? "#1E293B" : "#0F172A",
+                                       border: "none", opacity: 1
+                                    }}>
                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                           viewBox="0 0 18 18" fill="none">
                                           <path
                                              d="M13.2811 17.9971C7.18994 18.2031 -3.78322 7.31835 1.31157 1.41675L2.17306 0.667624C2.60914 0.246066 3.19368 0.0131721 3.80018 0.0193408C4.40667 0.0255095 4.98635 0.270245 5.41377 0.700585C5.43687 0.724111 5.45839 0.749136 5.47819 0.775498L6.82662 2.5277C7.2364 2.96132 7.46409 3.5357 7.4627 4.13232C7.46131 4.72894 7.23093 5.30225 6.81912 5.73395L5.95164 6.82468C6.43192 7.99112 7.13782 9.05123 8.02883 9.94417C8.91984 10.8371 9.97842 11.5453 11.1438 12.0281L12.2405 11.1554C12.6778 10.7537 13.2498 10.5305 13.8435 10.5296C14.4373 10.5288 15.0098 10.7505 15.4483 11.1509L17.2012 12.4993C17.2274 12.519 17.2524 12.5403 17.2761 12.563C17.7084 12.9993 17.951 13.5886 17.951 14.2028C17.951 14.817 17.7084 15.4063 17.2761 15.8426L16.5937 16.6292C16.1608 17.0668 15.6447 17.4133 15.0757 17.6483C14.5068 17.8832 13.8966 18.0018 13.2811 17.9971ZM3.77394 1.51638C3.66628 1.5163 3.55967 1.53743 3.46018 1.57856C3.36069 1.61969 3.27028 1.68002 3.19412 1.7561L2.33187 2.50523C-1.89768 7.59028 11.0449 19.8122 15.497 15.6059L16.1802 14.8186C16.2614 14.7463 16.3275 14.6587 16.3747 14.5607C16.4219 14.4628 16.4492 14.3565 16.4551 14.2479C16.4611 14.1393 16.4454 14.0307 16.4092 13.9282C16.3729 13.8257 16.3167 13.7314 16.2438 13.6507L14.5006 12.312C14.4739 12.2924 14.4489 12.2706 14.4257 12.2468C14.2694 12.0979 14.0618 12.0148 13.8459 12.0148C13.63 12.0148 13.4224 12.0979 13.2661 12.2468C13.2462 12.267 13.2252 12.286 13.2032 12.3038L11.7364 13.4724C11.6345 13.5535 11.5134 13.6066 11.3848 13.6265C11.2562 13.6465 11.1246 13.6326 11.003 13.5863C9.49284 13.0237 8.12126 12.1431 6.98116 11.0042C5.84106 9.86524 4.95908 8.49455 4.39496 6.98499C4.34502 6.86166 4.32883 6.72726 4.34805 6.59559C4.36727 6.46393 4.42122 6.33977 4.50433 6.23587L5.66847 4.77058C5.68579 4.74838 5.70456 4.72736 5.72466 4.70765C5.87768 4.55332 5.96353 4.34479 5.96353 4.12745C5.96353 3.91012 5.87768 3.70159 5.72466 3.54726C5.70131 3.52396 5.67977 3.49892 5.66023 3.47235L4.32454 1.73138C4.17362 1.59502 3.97734 1.51971 3.77394 1.52013V1.51638ZM16.8784 9.43912C20.6165 3.9368 14.0317 -2.64126 8.53537 1.09612C8.45248 1.15146 8.38147 1.22278 8.32649 1.30591C8.27152 1.38904 8.23368 1.4823 8.2152 1.58024C8.19672 1.67817 8.19797 1.77881 8.21887 1.87625C8.23977 1.9737 8.27991 2.06599 8.33692 2.14773C8.39394 2.22947 8.4667 2.29902 8.55093 2.35228C8.63516 2.40555 8.72918 2.44148 8.82747 2.45796C8.92576 2.47444 9.02635 2.47114 9.12335 2.44825C9.22035 2.42537 9.3118 2.38336 9.39236 2.32469C13.4931 -0.491271 18.4642 4.48516 15.6498 8.58287C15.5898 8.66336 15.5467 8.75508 15.5229 8.85257C15.4991 8.95006 15.4951 9.05134 15.5112 9.1504C15.5273 9.24946 15.5631 9.34428 15.6165 9.42923C15.67 9.51417 15.7399 9.58751 15.8223 9.6449C15.9046 9.70228 15.9976 9.74254 16.0958 9.76327C16.194 9.78401 16.2954 9.7848 16.3939 9.76561C16.4924 9.74641 16.586 9.70762 16.6693 9.65154C16.7525 9.59545 16.8236 9.52322 16.8784 9.43912ZM13.9882 8.042C14.1287 7.90152 14.2076 7.71101 14.2076 7.51237C14.2076 7.31373 14.1287 7.12322 13.9882 6.98274L12.7102 5.70399V3.76375C12.7102 3.56507 12.6313 3.37453 12.4908 3.23404C12.3503 3.09356 12.1598 3.01463 11.9611 3.01463C11.7624 3.01463 11.5719 3.09356 11.4314 3.23404C11.2909 3.37453 11.212 3.56507 11.212 3.76375V6.01113C11.212 6.20979 11.291 6.4003 11.4315 6.54076L12.9297 8.03901C13.0702 8.17945 13.2607 8.25834 13.4594 8.25834C13.658 8.25834 13.8485 8.17945 13.989 8.03901L13.9882 8.042Z"
-                                             fill="currentColor"></path>
+                                             fill="#D2AF4D"></path>
                                        </svg>
                                     </span>
                                     +91 8602027324
@@ -1144,17 +1175,17 @@ export default function Home() {
                            Dedicated to providing disciplined, objective research insights across Cash Equity, Index F&O, Stock F&O, and Commodities segments. His research philosophy is built entirely on rule-based trading, data integrity, and strict risk-to-reward ratios, helping market participants make structured, informed decisions.
                         </p>
                         <ul className="tp-fi-hero-list" style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                           <li className="d-flex align-items-center umb-15" style={{ fontSize: "16px", fontWeight: "500", color: "#222F30" }}>
-                              <span style={{ color: "#D0A85C", marginRight: "10px", fontWeight: "bold" }}>✓</span> SEBI Registration No: INH000027779
+                           <li className="d-flex align-items-center umb-15" style={{ fontSize: "16px", fontWeight: "500", color: "var(--text-h)" }}>
+                              <span style={{ color: "#7A5C00", marginRight: "10px", fontWeight: "bold" }}>✓</span> SEBI Registration No: INH000027779
                            </li>
-                           <li className="d-flex align-items-center umb-15" style={{ fontSize: "16px", fontWeight: "500", color: "#222F30" }}>
-                              <span style={{ color: "#D0A85C", marginRight: "10px", fontWeight: "bold" }}>✓</span> Academic Qualification: MBA
+                           <li className="d-flex align-items-center umb-15" style={{ fontSize: "16px", fontWeight: "500", color: "var(--text-h)" }}>
+                              <span style={{ color: "#7A5C00", marginRight: "10px", fontWeight: "bold" }}>✓</span> Academic Qualification: MBA
                            </li>
-                           <li className="d-flex align-items-center umb-15" style={{ fontSize: "16px", fontWeight: "500", color: "#222F30" }}>
-                              <span style={{ color: "#D0A85C", marginRight: "10px", fontWeight: "bold" }}>✓</span> NISM Certified Research Analyst
+                           <li className="d-flex align-items-center umb-15" style={{ fontSize: "16px", fontWeight: "500", color: "var(--text-h)" }}>
+                              <span style={{ color: "#7A5C00", marginRight: "10px", fontWeight: "bold" }}>✓</span> NISM Certified Research Analyst
                            </li>
-                           <li className="d-flex align-items-center umb-15" style={{ fontSize: "16px", fontWeight: "500", color: "#222F30" }}>
-                              <span style={{ color: "#D0A85C", marginRight: "10px", fontWeight: "bold" }}>✓</span> 5+ Years Active Market Experience
+                           <li className="d-flex align-items-center umb-15" style={{ fontSize: "16px", fontWeight: "500", color: "var(--text-h)" }}>
+                              <span style={{ color: "#7A5C00", marginRight: "10px", fontWeight: "bold" }}>✓</span> 5+ Years Active Market Experience
                            </li>
                         </ul>
                      </div>
@@ -1170,13 +1201,13 @@ export default function Home() {
             <div className="tp-fi-banner-wrapper">
                <img src="/assets/img/finance/banner/banner-bg-2.webp" alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </div>
-            <div className="tp-fi-banner-wrap" style={{ background: "linear-gradient(160deg, #243F63 0%, #324E73 60%, #243F63 100%)" }}>
+            <div className="tp-fi-banner-wrap" style={{ backgroundColor: "#243F63", backgroundImage: "linear-gradient(160deg, #243F63 0%, #324E73 60%, #243F63 100%)" }}>
                <div className="container">
                   <div className="row justify-content-center">
                      <div className="col-lg-8">
-                        <p className="tp-fi-banner-text">
+                        <p className="tp-fi-banner-text" style={{ color: "#ffffff" }}>
                            Access research-backed insights to navigate the markets with confidence.
-                           <a className="link tp-btn-underline" href="#services">Subscribe to our services today.</a>
+                           <a className="link tp-btn-underline" href="/services" style={{ color: "#ffffff" }}>Subscribe to our services today.</a>
                         </p>
                      </div>
                   </div>
@@ -1202,17 +1233,19 @@ export default function Home() {
                            <div className="accordion" id="accordionExample">
                               <div className="accordion-items">
                                  <div className="accordion-header">
-                                    <button className="accordion-buttons" type="button" data-bs-toggle="collapse"
-                                       data-bs-target="#collapseOne" aria-expanded="true"
-                                       aria-controls="collapseOne">
+                                    <button
+                                       className={`accordion-buttons ${activeFaq === 'collapseOne' ? '' : 'collapsed'}`}
+                                       type="button"
+                                       onClick={() => toggleFaq('collapseOne')}
+                                       aria-expanded={activeFaq === 'collapseOne'}
+                                    >
                                        Is Vishtara Capital Research SEBI registered?
                                        <span className="tp-faq-icon"></span>
                                     </button>
                                  </div>
-                                 <div id="collapseOne" className="accordion-collapse collapse show"
-                                    data-bs-parent="#accordionExample">
+                                 <div id="collapseOne" style={{ display: activeFaq === 'collapseOne' ? 'block' : 'none', marginTop: '15px' }}>
                                     <div className="accordion-body">
-                                       <p>
+                                       <p style={{ color: 'var(--text-secondary, #4f5568)', fontSize: '16px', lineHeight: '1.6', margin: 0 }}>
                                           Yes, Vishtara Capital Research is a SEBI Registered Research Analyst with Registration No. INH000027779. We operate in strict compliance with the SEBI (Research Analysts) Regulations, 2014.
                                        </p>
                                     </div>
@@ -1220,17 +1253,19 @@ export default function Home() {
                               </div>
                               <div className="accordion-items">
                                  <div className="accordion-header">
-                                    <button className="accordion-buttons collapsed" type="button"
-                                       data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false"
-                                       aria-controls="collapseTwo">
+                                    <button
+                                       className={`accordion-buttons ${activeFaq === 'collapseTwo' ? '' : 'collapsed'}`}
+                                       type="button"
+                                       onClick={() => toggleFaq('collapseTwo')}
+                                       aria-expanded={activeFaq === 'collapseTwo'}
+                                    >
                                        What market segments do you cover in your research?
                                        <span className="tp-faq-icon"></span>
                                     </button>
                                  </div>
-                                 <div id="collapseTwo" className="accordion-collapse collapse"
-                                    data-bs-parent="#accordionExample">
+                                 <div id="collapseTwo" style={{ display: activeFaq === 'collapseTwo' ? 'block' : 'none', marginTop: '15px' }}>
                                     <div className="accordion-body">
-                                       <p>
+                                       <p style={{ color: 'var(--text-secondary, #4f5568)', fontSize: '16px', lineHeight: '1.6', margin: 0 }}>
                                           We provide structured research coverage across Cash Equities (swing and positional opportunities), Index F&O (Nifty and Bank Nifty), Stock F&O, and Commodities (Gold, Silver, and Crude Oil).
                                        </p>
                                     </div>
@@ -1238,17 +1273,19 @@ export default function Home() {
                               </div>
                               <div className="accordion-items">
                                  <div className="accordion-header">
-                                    <button className="accordion-buttons collapsed" type="button"
-                                       data-bs-toggle="collapse" data-bs-target="#collapseThree"
-                                       aria-expanded="false" aria-controls="collapseThree">
+                                    <button
+                                       className={`accordion-buttons ${activeFaq === 'collapseThree' ? '' : 'collapsed'}`}
+                                       type="button"
+                                       onClick={() => toggleFaq('collapseThree')}
+                                       aria-expanded={activeFaq === 'collapseThree'}
+                                    >
                                        Do you provide guaranteed returns or manage client portfolios?
                                        <span className="tp-faq-icon"></span>
                                     </button>
                                  </div>
-                                 <div id="collapseThree" className="accordion-collapse collapse"
-                                    data-bs-parent="#accordionExample">
+                                 <div id="collapseThree" style={{ display: activeFaq === 'collapseThree' ? 'block' : 'none', marginTop: '15px' }}>
                                     <div className="accordion-body">
-                                       <p>
+                                       <p style={{ color: 'var(--text-secondary, #4f5568)', fontSize: '16px', lineHeight: '1.6', margin: 0 }}>
                                           No. Under SEBI regulations, Research Analysts are strictly prohibited from offering guaranteed returns, profit-sharing models, or portfolio management services. All stock market investments carry risk, and our research recommendations are designed with structured risk-to-reward parameters to manage that risk.
                                        </p>
                                     </div>
@@ -1256,17 +1293,19 @@ export default function Home() {
                               </div>
                               <div className="accordion-items">
                                  <div className="accordion-header">
-                                    <button className="accordion-buttons collapsed" type="button"
-                                       data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false"
-                                       aria-controls="collapseFour">
+                                    <button
+                                       className={`accordion-buttons ${activeFaq === 'collapseFour' ? '' : 'collapsed'}`}
+                                       type="button"
+                                       onClick={() => toggleFaq('collapseFour')}
+                                       aria-expanded={activeFaq === 'collapseFour'}
+                                    >
                                        How are research recommendations delivered to subscribers?
                                        <span className="tp-faq-icon"></span>
                                     </button>
                                  </div>
-                                 <div id="collapseFour" className="accordion-collapse collapse"
-                                    data-bs-parent="#accordionExample">
+                                 <div id="collapseFour" style={{ display: activeFaq === 'collapseFour' ? 'block' : 'none', marginTop: '15px' }}>
                                     <div className="accordion-body">
-                                       <p>
+                                       <p style={{ color: 'var(--text-secondary, #4f5568)', fontSize: '16px', lineHeight: '1.6', margin: 0 }}>
                                           All active research recommendations, market updates, and detailed technical chart analyses are shared instantly with our subscribers through our official channels (Telegram/WhatsApp/Email) to ensure real-time execution support.
                                        </p>
                                     </div>
@@ -1350,7 +1389,7 @@ export default function Home() {
                   <div className="row align-items-center">
                      <div className="col-lg-6">
                         <div className="tp-fi-cta-wrapper">
-                           <h3 className="tp-fi-cta-title" data-text-split data-letters-fade-in>Fresh perspectives, news <br /> &
+                           <h3 className="tp-fi-cta-title" style={{ color: "#111111" }} data-text-split data-letters-fade-in>Fresh perspectives, news <br /> &
                               Financial resources</h3>
                            <div className="tp-fi-cta-input d-flex tp-fade-anim">
                               <input type="text" placeholder="Your email address" />
@@ -1363,7 +1402,7 @@ export default function Home() {
                                  </i>
                               </button>
                            </div>
-                           <p>Over $100 million in contracts closed</p>
+                           <p style={{ color: "#111111" }}>Over $100 million in contracts closed</p>
                         </div>
                      </div>
                      <div className="col-lg-6">

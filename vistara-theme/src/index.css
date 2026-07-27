@@ -34,6 +34,34 @@
   }
 }
 
+html[data-theme='light'] {
+  --text: #6b6375;
+  --text-h: #08060d;
+  --bg: #fff;
+  --border: #e5e4e7;
+  --code-bg: #f4f3ec;
+  --accent: #aa3bff;
+  --accent-bg: rgba(170, 59, 255, 0.1);
+  --accent-border: rgba(170, 59, 255, 0.5);
+  --social-bg: rgba(244, 243, 236, 0.5);
+  --shadow:
+    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+}
+
+html[data-theme='dark'] {
+  --text: #9ca3af;
+  --text-h: #f3f4f6;
+  --bg: #16171d;
+  --border: #2e303a;
+  --code-bg: #1f2028;
+  --accent: #c084fc;
+  --accent-bg: rgba(192, 132, 252, 0.15);
+  --accent-border: rgba(192, 132, 252, 0.5);
+  --social-bg: rgba(47, 48, 58, 0.5);
+  --shadow:
+    rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --text: #9ca3af;
@@ -322,4 +350,52 @@ body.admin-dashboard-active ::-webkit-scrollbar-thumb {
 body.admin-dashboard-active ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
   /* slate-400 */
+}
+
+/* Fix section subtitle underline positioning */
+.tp-section-sub::before,
+.tp-section-sub.primary-color::before,
+.tp-cc-about-style .tp-section-sub::before {
+  bottom: 0px !important;
+  height: 4px !important;
+}
+
+/* Banner Overlay for All Pages (About, Services, Blog, Contact, etc.) */
+.tp-breadcrumb-ptb .tp-cc-chose-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.tp-breadcrumb-ptb .tp-cc-chose-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tp-breadcrumb-ptb .tp-cc-chose-bg::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.65); /* Dark overlay */
+  z-index: 1;
+}
+
+.tp-breadcrumb-ptb .container {
+  position: relative;
+  z-index: 2; /* Text above overlay */
+}
+
+/* Ensure Breadcrumb text is white for contrast against dark overlay */
+.tp-breadcrumb-ptb .tp-breadcrumb-title,
+.tp-breadcrumb-ptb p,
+.tp-breadcrumb-ptb .tp-breadcrumb-list li,
+.tp-breadcrumb-ptb .tp-breadcrumb-list li a {
+  color: #ffffff !important;
 }

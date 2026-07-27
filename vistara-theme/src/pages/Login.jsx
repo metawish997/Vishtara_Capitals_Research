@@ -161,11 +161,46 @@ export default function Login() {
 
    return (
       <main>
-         <div className="tp-contact-ptb tp-sec-ptb upt-180 upb-120" style={{ backgroundColor: "#f8fafc" }}>
+         <style>{`
+            html[data-theme="dark"] .login-page-bg,
+            body.high-contrast .login-page-bg {
+               background-color: #0d131c !important;
+            }
+            html[data-theme="dark"] .login-page-card,
+            body.high-contrast .login-page-card {
+               background-color: #1A2735 !important;
+               border-color: rgba(255, 255, 255, 0.1) !important;
+            }
+            html[data-theme="dark"] .login-page-card h3,
+            html[data-theme="dark"] .login-page-card label,
+            html[data-theme="dark"] .login-page-card p,
+            html[data-theme="dark"] .login-page-card span,
+            body.high-contrast .login-page-card h3,
+            body.high-contrast .login-page-card label,
+            body.high-contrast .login-page-card p,
+            body.high-contrast .login-page-card span {
+               color: #ffffff !important;
+            }
+            html[data-theme="dark"] .login-page-card input,
+            body.high-contrast .login-page-card input {
+               background-color: #121A24 !important;
+               border-color: rgba(255,255,255,0.2) !important;
+               color: #ffffff !important;
+            }
+            html[data-theme="dark"] .login-page-card input::placeholder,
+            body.high-contrast .login-page-card input::placeholder {
+               color: #A0ABBB !important;
+            }
+            html[data-theme="dark"] .login-page-card a,
+            body.high-contrast .login-page-card a {
+               color: var(--primary) !important;
+            }
+         `}</style>
+         <div className="tp-contact-ptb tp-sec-ptb upt-180 upb-120 login-page-bg" style={{ backgroundColor: "#f8fafc" }}>
             <div className="container">
                <div className="row justify-content-center">
                   <div className="col-lg-6 col-md-10">
-                     <div style={{ padding: "40px", borderRadius: "10px", border: "1px solid var(--card-border, #D9E1EA)", background: "#ffffff", boxShadow: "0 10px 30px rgba(0,0,0,0.03)" }}>
+                     <div className="login-page-card" style={{ padding: "40px", borderRadius: "10px", border: "1px solid var(--card-border, #D9E1EA)", background: "#ffffff", boxShadow: "0 10px 30px rgba(0,0,0,0.03)" }}>
 
                         <div className="text-center umb-40">
                            <img src="/vistaralogo.svg" alt="Vishtara Logo" style={{ width: "60px", marginBottom: "15px" }} />
@@ -174,7 +209,7 @@ export default function Login() {
                               {(viewMode === 'register' || viewMode === 'registerOtp') && "Create Account"}
                               {(viewMode === 'forgotPassword' || viewMode === 'resetPassword') && "Reset Password"}
                            </h3>
-                           <p style={{ fontSize: "14px", color: "var(--text-muted, #6F7D90)" }}>
+                           <p style={{ fontSize: "14px", color: "#4A5568", fontWeight: "500" }}>
                               {viewMode === 'login' && "Enter your email and password to log in"}
                               {(viewMode === 'register' || viewMode === 'registerOtp') && "Register to access your portfolio portal"}
                               {viewMode === 'forgotPassword' && "Enter your email or phone to receive an OTP"}
@@ -221,7 +256,7 @@ export default function Login() {
                               </div>
                               <div style={{ marginBottom: "20px", display: "flex", alignItems: "flex-start", gap: "10px" }}>
                                  <input type="checkbox" name="agree" id="agree" checked={formData.agree} onChange={handleChange} required style={{ marginTop: "4px" }} />
-                                 <label htmlFor="agree" style={{ fontSize: "13px", color: "var(--text-muted, #6F7D90)", lineHeight: "1.5" }}>
+                                 <label htmlFor="agree" style={{ fontSize: "13px", color: "#4A5568", fontWeight: "500", lineHeight: "1.5" }}>
                                     I agree to the <Link to="/terms-and-conditions" style={{ color: "var(--primary)", fontWeight: "600" }}>Terms &amp; Services</Link> and <Link to="/privacy-policy" style={{ color: "var(--primary)", fontWeight: "600" }}>Privacy Policy</Link>.
                                  </label>
                               </div>
@@ -279,7 +314,7 @@ export default function Login() {
                         {/* Footer Toggles */}
                         {(viewMode === 'login' || viewMode === 'register' || viewMode === 'forgotPassword') && (
                            <div className="text-center umt-30" style={{ fontSize: "14px" }}>
-                              <span style={{ color: "var(--text-muted, #6F7D90)" }}>
+                              <span style={{ color: "#4A5568", fontWeight: "500" }}>
                                  {viewMode === 'login' ? "Don't have an account?" : "Already have an account?"}
                               </span>{" "}
                               <button

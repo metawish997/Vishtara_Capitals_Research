@@ -1,25 +1,66 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import aboutMain from "../assets/images/about_us_main.png";
+import aboutSecondary from "../assets/images/about_us_secondary.png";
+import professionalResearchBg from "../assets/images/professional_research_bg.png";
+import ctaBannerBg from "../assets/images/cta_banner_bg.png";
 
 export default function About() {
   return (
     <main>
 
-
-
+         <style>{`
+            body.high-contrast .tp-breadcrumb-content h2.tp-breadcrumb-title,
+            body.high-contrast .tp-breadcrumb-content p,
+            body.high-contrast .tp-breadcrumb-list li {
+               color: #ffffff !important;
+            }
+            body.high-contrast .tp-about-wrapper h3.tp-section-title,
+            body.high-contrast .tp-about-wrapper p {
+               color: #222F30 !important;
+            }
+            body.high-contrast div.tp-cn-success-item.tp-cn-success-item.tp-cn-success-item h3,
+            body.high-contrast div.tp-cn-success-item.tp-cn-success-item.tp-cn-success-item > div > span,
+            body.high-contrast div.tp-cn-success-item.tp-cn-success-item.tp-cn-success-item > div > p,
+            body.high-contrast div.tp-cn-success-item.tp-cn-success-item.tp-cn-success-item .tp-cn-success-item-wrap p,
+            body.high-contrast div.tp-cn-success-item.tp-cn-success-item.tp-cn-success-item .tp-cn-success-item-wrap span {
+               color: #222F30 !important;
+            }
+            body.high-contrast div.tp-cn-success-item-2.tp-cn-success-item-2.tp-cn-success-item-2 span,
+            body.high-contrast div.tp-cn-success-item-2.tp-cn-success-item-2.tp-cn-success-item-2 p {
+               color: #222F30 !important;
+            }
+            
+            html[data-theme="dark"] div.tp-cn-success-item.tp-cn-success-item.tp-cn-success-item h3,
+            html[data-theme="dark"] div.tp-cn-success-item.tp-cn-success-item.tp-cn-success-item > div > span,
+            html[data-theme="dark"] div.tp-cn-success-item.tp-cn-success-item.tp-cn-success-item > div > p,
+            html[data-theme="dark"] div.tp-cn-success-item.tp-cn-success-item.tp-cn-success-item .tp-cn-success-item-wrap p,
+            html[data-theme="dark"] div.tp-cn-success-item.tp-cn-success-item.tp-cn-success-item .tp-cn-success-item-wrap span {
+               color: #222F30 !important;
+            }
+            html[data-theme="dark"] div.tp-cn-success-item-2.tp-cn-success-item-2.tp-cn-success-item-2 span,
+            html[data-theme="dark"] div.tp-cn-success-item-2.tp-cn-success-item-2.tp-cn-success-item-2 p {
+               color: #222F30 !important;
+            }
+            
+            body.high-contrast div.tp-cn-success-item a.tp-btn span.btn-text,
+            html[data-theme="dark"] div.tp-cn-success-item a.tp-btn span.btn-text {
+               color: #ffffff !important;
+            }
+         `}</style>
          
          <div className="tp-breadcrumb-ptb upt-90 upb-70 z-index-1">
             <div className="tp-cc-chose-bg">
-               <img src="/assets/img/breadcrumb/image-1.jpg" alt="" />
+               <img src="/assets/img/breadcrumb/image-1.jpg" alt="Vishtara Capital Research Team" />
             </div>
             <div className="container">
                <div className="row">
                   <div className="col-lg-5">
                      <div className="tp-breadcrumb-content p-relative">
-                        <ul className="tp-breadcrumb-list">
+                        <ul className="tp-breadcrumb-list" aria-label="Breadcrumb">
                            <li><Link to="/">Home</Link></li>
-                           <li>&gt;</li>
-                           <li>About</li>
+                           <li aria-hidden="true">&gt;</li>
+                           <li aria-current="page">About</li>
                         </ul>
                         <h2 className="tp-breadcrumb-title">About us</h2>
                         <p>Providing disciplined, objective market research and analytics <br /> across Equity, F&O, and Commodities.</p>
@@ -37,7 +78,7 @@ export default function About() {
                <div className="row">
                   <div className="col-lg-5">
                      <div className="tp-about-thumb-wrap umb-30 tp-fade-anim" data-fade-from="left">
-                        <img className="radius-6" src="/assets/img/finance/about/about-1.jpg" alt="" />
+                        <img className="radius-6" src={aboutMain} alt="Financial analysis charts on desk" style={{ width: '100%', height: 'auto', objectFit: 'cover' }} />
                      </div>
                   </div>
                   <div className="col-lg-7">
@@ -54,23 +95,17 @@ export default function About() {
                         <div className="row align-items-center">
                            <div className="col-lg-5">
                               <div className="tp-about-thumb umb-30 tp-fade-anim" data-delay=".5" data-fade-from="left">
-                                 <img className="radius-6" src="/assets/img/finance/about/about-2.jpg" alt="" />
+                                 <img className="radius-6" src={aboutSecondary} alt="Professional discussing market strategy" style={{ width: '100%', height: 'auto', objectFit: 'cover' }} />
                               </div>
                            </div>
                            <div className="col-lg-7">
-                              <div className="tp-about-fact-wrap tp-fade-anim" data-delay=".7">
-                                 <div className="tp-about-fact-item">
-                                    <h3 className="tp-about-fact-item-title"><span className="purecounter">5</span>+</h3>
-                                    <p>Active years of technical market research.</p>
-                                 </div>
-                                 <div className="tp-about-fact-item">
-                                    <h3 className="tp-about-fact-item-title"><span className="purecounter">1000</span>+</h3>
-                                    <p>Active subscribers and market participants.</p>
-                                 </div>
-                                 <div className="tp-about-fact-item m-0 p-0 border-0">
-                                    <h3 className="tp-about-fact-item-title"><span className="purecounter">100</span>%</h3>
-                                    <p>SEBI compliant advisory and execution.</p>
-                                 </div>
+                              <div className="tp-about-feature umb-30 tp-fade-anim" data-delay=".7">
+                                 <h4 className="tp-about-feature-title">Certified & Regulated</h4>
+                                 <ul>
+                                    <li><i className="fa-regular fa-check"></i> SEBI Registered (INH000027779)</li>
+                                    <li><i className="fa-regular fa-check"></i> NISM Certified Professionals</li>
+                                    <li><i className="fa-regular fa-check"></i> BSE Enlisted Firm</li>
+                                 </ul>
                               </div>
                            </div>
                         </div>
@@ -83,7 +118,7 @@ export default function About() {
 
 
          
-         <div className="tp-about-vision-ptb upt-80 upb-50" style={{backgroundColor: "#F4F6F9"}} >
+         <div className="tp-about-vision-ptb upt-80 upb-50" style={{backgroundColor: "#F4F5F7"}} >
             <div className="container">
                <div className="row">
                   <div className="col-lg-12">
@@ -95,10 +130,10 @@ export default function About() {
                </div>
                <div className="row">
                   <div className="col-lg-6">
-                     <div className="tp-about-vision-item umb-30 tp-fade-anim" data-delay=".5">
+                     <div className="tp-about-vision-item umb-30 tp-fade-anim" data-fade-from="left">
                         <div className="tp-about-vision-item-icon">
                            <span>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 45 45" fill="none">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 45 45" fill="none" aria-hidden="true">
                                  <path d="M40.9706 6.87414C36.4697 2.47269 30.3652 0 24 0C17.6348 -7.5e-07 11.5303 2.47269 7.02944 6.87414C2.52857 11.2755 7.5e-07 17.2451 0 23.4697C-7.5e-07 29.6942 2.52856 35.6638 7.02944 40.0652L40.9706 6.87414Z" fill="#8FA5C2"/>
                                  <path d="M44.8086 23.2827H23.8086V44.2827H44.8086V23.2827H" fill="#243F63"/>
                               </svg>
@@ -114,7 +149,7 @@ export default function About() {
                      <div className="tp-about-vision-item umb-30 tp-fade-anim" data-delay=".7">
                         <div className="tp-about-vision-item-icon">
                            <span>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true">
                                  <path d="M12 24C18.6274 24 24 18.6274 24 12C24 5.37258 18.6274 0 12 0C5.37258 0 0 5.37258 0 12C0 18.6274 5.37258 24 12 24Z" fill="#8FA5C2"/>
                                  <path d="M12 48C18.6274 48 24 42.6274 24 36C24 29.3726 18.6274 24 12 24C5.37258 24 0 29.3726 0 36C0 42.6274 5.37258 48 12 48Z" fill="#243F63"/>
                                  <path d="M36 24C42.6274 24 48 18.6274 48 12C48 5.37258 42.6274 0 36 0C29.3726 0 24 5.37258 24 12C24 18.6274 29.3726 24 36 24Z" fill="#243F63"/>
@@ -141,11 +176,11 @@ export default function About() {
                   <div className="col-lg-6">
                      <div className="tp-fi-value-thumb-wrapper p-relative umb-30 umt-30">
                         <div className="tp-fi-value-thumb-main tp-fade-anim" data-fade-from="left">
-                           <img src="/assets/img/finance/value/thumb-1.jpg" alt="" />
+                           <img src="/assets/img/finance/value/thumb-1.jpg" alt="Graph data presentation" />
                         </div>
-                        <div className="tp-fi-value-graph p-relative tp-fade-anim" data-delay=".5" style={{ background: "linear-gradient(135deg, #243F63, #324E73)" }}>
+                        <div className="tp-fi-value-graph p-relative tp-fade-anim" data-delay=".5" style={{ backgroundColor: "#243F63", backgroundImage: "linear-gradient(135deg, #243F63, #324E73)" }}>
                            <div className="tp-fi-value-graph-icon" style={{ backgroundColor: "#8FA5C2" }}>
-                              <span>
+                              <span aria-hidden="true">
                                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="14" viewBox="0 0 15 14" fill="none">
                                     <path d="M7.16797 8.79303C8.27254 8.79303 9.16797 7.8976 9.16797 6.79303C9.16797 5.68846 8.27254 4.79303 7.16797 4.79303C6.0634 4.79303 5.16797 5.68846 5.16797 6.79303C5.16797 7.8976 6.0634 8.79303 7.16797 8.79303Z" stroke="#ffffff" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
                                     <path d="M0.5 7.37976V6.20642C0.5 5.51309 1.06667 4.93976 1.76667 4.93976C2.97333 4.93976 3.46667 4.08642 2.86 3.03976C2.51333 2.43976 2.72 1.65976 3.32667 1.31309L4.48 0.653089C5.00667 0.339756 5.68667 0.526423 6 1.05309L6.07333 1.17976C6.67333 2.22642 7.66 2.22642 8.26667 1.17976L8.34 1.05309C8.65333 0.526423 9.33333 0.339756 9.86 0.653089L11.0133 1.31309C11.62 1.65976 11.8267 2.43976 11.48 3.03976C10.8733 4.08642 11.3667 4.93976 12.5733 4.93976C13.2667 4.93976 13.84 5.50642 13.84 6.20642V7.37976C13.84 8.07309 13.2733 8.64642 12.5733 8.64642C11.3667 8.64642 10.8733 9.49975 11.48 10.5464C11.8267 11.1531 11.62 11.9264 11.0133 12.2731L9.86 12.9331C9.33333 13.2464 8.65333 13.0598 8.34 12.5331L8.26667 12.4064C7.66667 11.3598 6.68 11.3598 6.07333 12.4064L6 12.5331C5.68667 13.0598 5.00667 13.2464 4.48 12.9331L3.32667 12.2731C2.72 11.9264 2.51333 11.1464 2.86 10.5464C3.46667 9.49975 2.97333 8.64642 1.76667 8.64642C1.06667 8.64642 0.5 8.07309 0.5 7.37976Z" stroke="#ffffff" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
@@ -153,12 +188,12 @@ export default function About() {
                               </span>
                            </div>
                            <h3 className="tp-fi-value-graph-title" style={{ color: "#ffffff" }}>Target accuracy</h3>
-                           <span className="tp-fi-value-graph-date" style={{ color: "#8FA5C2" }}>Equity / F&O / Commodity</span>
+                           <span className="tp-fi-value-graph-date" style={{ color: "#ffffff" }}>Equity / F&O / Commodity</span>
                            <div className="tp-fi-value-graph-count d-flex justify-content-between">
                               <span style={{ color: "#ffffff" }}>1:2+ R:R</span>
-                              <p style={{ color: "#8FA5C2" }}>Risk-to-reward ratio <br /> discipline</p>
+                              <p style={{ color: "#ffffff" }}>Risk-to-reward ratio <br /> discipline</p>
                            </div>
-                           <div className="tp-fi-value-graph-range" style={{ backgroundColor: "#8FA5C2" }}></div>
+                           <div className="tp-fi-value-graph-range" style={{ backgroundColor: "#ffffff" }}></div>
                         </div>
                      </div>
                   </div>
@@ -218,10 +253,10 @@ export default function About() {
              <div className="container">
                 <div className="row">
                    <div className="col-lg-6">
-                      <div className="tp-cn-success-item umb-30 radius-6 p-relative" style={{backgroundImage: "url(assets/img/consulting/success/bg.jpg)"}}>
+                      <div className="tp-cn-success-item umb-30 radius-6 p-relative" style={{backgroundColor: "#ffffff", backgroundImage: "url(assets/img/consulting/success/bg.jpg)"}}>
                          <div className="tp-cn-success-item-content upb-200">
-                            <span className="tp-cn-success-item-sub tp-fade-anim">Vishtara Capital Research</span> 
-                            <h3 className="tp-cn-success-item-title" data-text-split data-letters-fade-in>Empowering clients with accurate <br />
+                            <span className="tp-cn-success-item-sub tp-fade-anim" style={{ color: "#243F63", fontWeight: "600" }}>Vishtara Capital Research</span> 
+                            <h3 className="tp-cn-success-item-title" data-text-split data-letters-fade-in style={{ color: "#243F63" }}>Empowering clients with accurate <br />
                             technical analysis & premium <br />
                             market research alerts.</h3>
                             <div className="tp-fade-anim" data-delay=".5">
@@ -245,8 +280,8 @@ export default function About() {
                                </span>
                             </div>
                             <div className="tp-cn-success-item-wrap">
-                               <span>1:2+</span>
-                               <p>Target Risk-to-Reward ratio <br /> maintained on alerts</p>
+                               <span style={{ color: "#243F63" }}>1:2+</span>
+                               <p style={{ color: "#243F63" }}>Target Risk-to-Reward ratio <br /> maintained on alerts</p>
                             </div>
                          </div>
                          <div className="tp-cn-success-item-shape">
@@ -255,7 +290,7 @@ export default function About() {
                       </div>
                    </div>
                    <div className="col-lg-6">
-                      <div className="tp-cn-success-item-2 umb-30" style={{backgroundImage: "url(assets/img/consulting/success/thumb-1.jpg)"}}>
+                      <div className="tp-cn-success-item-2 umb-30" style={{backgroundColor: "#CEF79E", backgroundImage: `url(${professionalResearchBg})`, backgroundSize: 'cover', backgroundPosition: 'center'}}>
                          <div className="tp-cn-success-item-2-shape">
                             <img src="/assets/img/consulting/success/shape.png" alt="" />
                          </div>
@@ -273,8 +308,9 @@ export default function About() {
  
           
           <div className="tp-fa-cta-ptb">
-             <div className="tp-fa-cta-thumb">
-                <img src="/assets/img/advisory/cta/thumb.jpg" alt="" />
+             <div className="tp-fa-cta-thumb" style={{ position: 'relative', height: '21rem', width: '100%', overflow: 'hidden' }}>
+                <img src={ctaBannerBg} alt="Premium financial advisory CTA banner" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.4)' }}></div>
              </div>
           </div>
          

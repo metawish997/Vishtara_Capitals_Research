@@ -39,11 +39,14 @@ const NewsCreate = () => {
         fetchInitialData();
     }, [id]);
 
+    const isInitializingRef = useRef(false);
+
     useEffect(() => {
         // Initialize CKEditor
         if (window.ClassicEditor && !loading) {
             const editorElement = document.querySelector('#editor');
-            if (editorElement && !editorRef.current) {
+            if (editorElement && !editorRef.current && !isInitializingRef.current) {
+                isInitializingRef.current = true;
                 window.ClassicEditor
                     .create(editorElement, {
                         toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'undo', 'redo'],
@@ -51,6 +54,7 @@ const NewsCreate = () => {
                     })
                     .then(editor => {
                         editorRef.current = editor;
+                        isInitializingRef.current = false;
                         editor.setData(formData.content);
                         editor.model.document.on('change:data', () => {
                             const data = editor.getData();
@@ -58,6 +62,7 @@ const NewsCreate = () => {
                         });
                     })
                     .catch(error => {
+                        isInitializingRef.current = false;
                         console.error(error);
                     });
             }
