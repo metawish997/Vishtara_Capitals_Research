@@ -930,3 +930,42 @@
         box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
     }
 }
+
+/* --------------------------------------------------------------------------
+   Accessibility Fix: Banner text color in light mode
+   -------------------------------------------------------------------------- */
+body:not(.high-contrast) .tp-breadcrumb-content .tp-breadcrumb-title,
+body:not(.high-contrast) .tp-breadcrumb-content p,
+body:not(.high-contrast) .tp-breadcrumb-list li,
+body:not(.high-contrast) .tp-breadcrumb-list li a,
+body:not(.high-contrast) .tp-breadcrumb-list li span,
+body:not(.high-contrast) .tp-breadcrumb-content span {
+    color: #211e4d !important;
+}
+
+/* White gradient shade on the left side of the banner for light mode */
+body:not(.high-contrast) .tp-cc-chose-bg::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 35%, rgba(255, 255, 255, 0) 70%);
+    z-index: 1;
+    pointer-events: none;
+}
+body:not(.high-contrast) .tp-cc-chose-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+body:not(.high-contrast) .tp-breadcrumb-ptb {
+    position: relative;
+}
+body:not(.high-contrast) .tp-breadcrumb-ptb .container {
+    position: relative;
+    z-index: 2;
+}
