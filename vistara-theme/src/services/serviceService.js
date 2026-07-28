@@ -2,7 +2,7 @@ import api from './api';
 
 const serviceService = {
     getServicePlans: async () => {
-        const response = await api.get('/services');
+        const response = await api.get(`/services?t=${new Date().getTime()}`);
         return response.data;
     },
     createServicePlan: async (data) => {
@@ -24,7 +24,7 @@ const serviceService = {
     
     // Plan Durations
     getPlanDurations: async (planId) => {
-        const response = await api.get(`/services/${planId}/durations`);
+        const response = await api.get(`/services/${planId}/durations?t=${new Date().getTime()}`);
         return response.data;
     },
     createPlanDuration: async (data) => {
@@ -42,7 +42,7 @@ const serviceService = {
 
     // Plan Features
     getDurationFeatures: async (durationId) => {
-        const response = await api.get(`/services/durations/${durationId}/features`);
+        const response = await api.get(`/services/durations/${durationId}/features?t=${new Date().getTime()}`);
         return response.data;
     },
     createPlanFeature: async (data) => {

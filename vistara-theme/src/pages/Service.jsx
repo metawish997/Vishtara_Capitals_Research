@@ -53,17 +53,38 @@ const PricingCard = ({ service }) => {
             ))}
          </div>
 
-         <div style={{ textAlign: 'center', marginBottom: '35px' }}>
+         <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px', marginBottom: '20px', justifyContent: 'center' }}>
             <h2 style={{ fontSize: '2.5rem', color: '#ffffff', margin: 0, fontWeight: '700' }}>₹{currentPlan.price}</h2>
             <span style={{ color: '#8FA5C2', fontSize: '13px' }}>/ {currentPlan.duration}</span>
          </div>
+
+         {service.tagline && (
+            <div style={{
+               borderLeft: '3px solid #84cc16',
+               paddingLeft: '12px',
+               marginBottom: '25px',
+               color: '#94a3b8',
+               fontSize: '13px',
+               lineHeight: '1.5',
+               textAlign: 'left'
+            }}>
+               {service.tagline}
+            </div>
+         )}
 
          <div style={{ marginBottom: '30px', flexGrow: 1, paddingLeft: '15px' }}>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, textAlign: 'left' }}>
                {currentPlan.features && currentPlan.features.map((feature, idx) => (
                   <li key={feature._id || `inc-${idx}`} style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '13px', lineHeight: '1.4' }}>
-                     <span style={{ color: '#ffffff' }} aria-hidden="true">✓</span>
-                     <span style={{ color: '#ffffff' }}>{feature.text}</span>
+                     <span aria-hidden="true" style={{ 
+                        color: feature.svg_icon === '✖' ? '#ef4444' : 
+                               feature.svg_icon === 'Premium' ? '#f59e0b' : '#10b981',
+                        fontWeight: 'bold',
+                        minWidth: '16px'
+                     }}>
+                        {feature.svg_icon === 'Premium' ? '★' : feature.svg_icon || '✔'}
+                     </span>
+                     <span style={{ color: feature.svg_icon === '✖' ? '#8FA5C2' : '#ffffff', textDecoration: feature.svg_icon === '✖' ? 'line-through' : 'none' }}>{feature.text}</span>
                   </li>
                ))}
             </ul>
@@ -129,16 +150,24 @@ export default function Service() {
             .tp-cn-counter-number .tp-cn-counter-prefix {
                color: inherit !important;
             }
+            /* Global visibility fix for section titles after removing GSAP animations */
+            .tp-section-title,
+            #services-counter-section p {
+               opacity: 1 !important;
+               visibility: visible !important;
+               transform: none !important;
+            }
+
             /* Light mode explicit styling for counter */
-            .custom-counter-section {
+            #services-counter-section {
                background-color: #ffffff;
             }
-            .custom-counter-section .tp-section-title,
-            .custom-counter-section p,
-            .custom-counter-section .tp-cn-counter-title,
-            .custom-counter-section .tp-cn-counter-number,
-            .custom-counter-section .tp-cn-counter-suffix,
-            .custom-counter-section .tp-cn-counter-prefix {
+            #services-counter-section .tp-section-title,
+            #services-counter-section p,
+            #services-counter-section .tp-cn-counter-title,
+            #services-counter-section .tp-cn-counter-number,
+            #services-counter-section .tp-cn-counter-suffix,
+            #services-counter-section .tp-cn-counter-prefix {
                color: #01373D !important;
             }
             .custom-counter-wrapper {
@@ -150,22 +179,22 @@ export default function Service() {
             }
 
             /* Dark mode overrides for counter */
-            html[data-theme="dark"] .custom-counter-section,
-            body.high-contrast .custom-counter-section {
+            html[data-theme="dark"] #services-counter-section,
+            body.high-contrast #services-counter-section {
                background-color: transparent !important;
             }
-            html[data-theme="dark"] .custom-counter-section .tp-section-title,
-            html[data-theme="dark"] .custom-counter-section p,
-            html[data-theme="dark"] .custom-counter-section .tp-cn-counter-title,
-            html[data-theme="dark"] .custom-counter-section .tp-cn-counter-number,
-            html[data-theme="dark"] .custom-counter-section .tp-cn-counter-suffix,
-            html[data-theme="dark"] .custom-counter-section .tp-cn-counter-prefix,
-            body.high-contrast .custom-counter-section .tp-section-title,
-            body.high-contrast .custom-counter-section p,
-            body.high-contrast .custom-counter-section .tp-cn-counter-title,
-            body.high-contrast .custom-counter-section .tp-cn-counter-number,
-            body.high-contrast .custom-counter-section .tp-cn-counter-suffix,
-            body.high-contrast .custom-counter-section .tp-cn-counter-prefix {
+            html[data-theme="dark"] #services-counter-section .tp-section-title,
+            html[data-theme="dark"] #services-counter-section p,
+            html[data-theme="dark"] #services-counter-section .tp-cn-counter-title,
+            html[data-theme="dark"] #services-counter-section .tp-cn-counter-number,
+            html[data-theme="dark"] #services-counter-section .tp-cn-counter-suffix,
+            html[data-theme="dark"] #services-counter-section .tp-cn-counter-prefix,
+            body.high-contrast #services-counter-section .tp-section-title,
+            body.high-contrast #services-counter-section p,
+            body.high-contrast #services-counter-section .tp-cn-counter-title,
+            body.high-contrast #services-counter-section .tp-cn-counter-number,
+            body.high-contrast #services-counter-section .tp-cn-counter-suffix,
+            body.high-contrast #services-counter-section .tp-cn-counter-prefix {
                color: #ffffff !important;
             }
             html[data-theme="dark"] .custom-counter-wrapper,
@@ -225,12 +254,12 @@ export default function Service() {
 
 
 
-         <div className="tp-cn-counter-ptb tp-sec-ptb fix upt-140 upb-110 custom-counter-section">
+         <div id="services-counter-section" className="tp-cn-counter-ptb tp-sec-ptb fix upt-140 upb-110 custom-counter-section">
             <div className="container">
                <div className="row">
                   <div className="col-lg-6">
                      <div className="tp-cn-counter-heading umb-30">
-                        <h3 className="tp-section-title" data-text-split data-letters-fade-in>
+                        <h3 className="tp-section-title">
                            Gain disciplined, <br /> mathematical setups
                         </h3>
                         <p>High-probability research alerts with strict target stop-losses <br /> across multiple asset segments.</p>
@@ -387,7 +416,7 @@ export default function Service() {
                   <div className="col-lg-12">
                      <div className="tp-fi-service-heading text-center umb-60">
                         <span className="tp-section-sub tp-fade-anim">What we provide</span>
-                        <h3 className="tp-section-title" data-text-split data-letters-fade-in>Disciplined market research &amp; advisory</h3>
+                        <h3 className="tp-section-title">Disciplined market research &amp; advisory</h3>
                      </div>
                   </div>
                </div>

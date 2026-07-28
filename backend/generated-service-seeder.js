@@ -1,8 +1,8 @@
 
 const axios = require('axios');
 
-// const API_URL = 'http://localhost:5001/api/v1/services';
-const API_URL = 'https://therapidinvestors.com/api/v1/services';
+const API_URL = 'http://localhost:5001/api/v1/services';
+// const API_URL = 'https://therapidinvestors.com/api/v1/services';
 
 const servicesToAdd = [
     {
@@ -774,6 +774,25 @@ const servicesToAdd = [
 ];
 
 async function seedServices() {
+    try {
+        console.log('Fetching existing services...');
+        const res = await axios.get(API_URL);
+        const existingPlans = res.data.data || [];
+        
+        console.log(`Found ${existingPlans.length} existing plans. Deleting them...`);
+        for (const plan of existingPlans) {
+            try {
+                await axios.delete(`${API_URL}/${plan._id}`);
+                console.log(`Deleted existing plan: ${plan.name}`);
+            } catch (delError) {
+                console.error(`Error deleting ${plan.name}:`, delError.message);
+            }
+        }
+    } catch (err) {
+        console.error('Error fetching existing plans:', err.message);
+    }
+
+    console.log('Adding new services...');
     for (const service of servicesToAdd) {
         try {
             console.log(`Adding ${service.name}...`);

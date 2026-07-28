@@ -14,7 +14,6 @@ export default function Footer() {
                 margin-top: 4px;
                 transition: color 0.3s ease;
             }
-            html[data-theme="dark"] .social-name,
             body.high-contrast .social-name {
                 color: #e2e8f0;
             }

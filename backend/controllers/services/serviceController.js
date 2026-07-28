@@ -134,9 +134,22 @@ exports.updateServicePlan = async (req, res, next) => {
 
 exports.deleteServicePlan = async (req, res, next) => {
   try {
-    await ServicePlan.findByIdAndDelete(req.params.id);
-    // Ideally should delete durations and features too (cascade)
-    await ServicePlanDuration.deleteMany({ service_plan: req.params.id });
+    const planId = req.params.id;
+    
+    // Find all durations for this plan to delete their features
+    const durations = await ServicePlanDuration.find({ service_plan: planId });
+    const durationIds = durations.map(d => d._id);
+    
+    if (durationIds.length > 0) {
+      await ServicePlanFeature.deleteMany({ service_plan_duration: { $in: durationIds } });
+    }
+    
+    // Delete all durations for this plan
+    await ServicePlanDuration.deleteMany({ service_plan: planId });
+    
+    // Finally, delete the plan itself
+    await ServicePlan.findByIdAndDelete(planId);
+    
     res.status(200).json({ success: true, data: {} });
   } catch (error) { next(error); }
 };

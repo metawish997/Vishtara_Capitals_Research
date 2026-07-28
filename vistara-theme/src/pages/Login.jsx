@@ -8,10 +8,10 @@ export default function Login() {
    const navigate = useNavigate();
    const { login, register } = useAuth();
    const [loading, setLoading] = useState(false);
-   
+
    // 'login' | 'register' | 'registerOtp' | 'forgotPassword' | 'resetPassword'
-   const [viewMode, setViewMode] = useState('login'); 
-   
+   const [viewMode, setViewMode] = useState('login');
+
    const [formData, setFormData] = useState({
       name: "",
       email: "",
@@ -87,22 +87,22 @@ export default function Login() {
             annual_income: "0-1L", // default behind the scenes
             is_age_verified: true   // default behind the scenes
          });
-         
+
          if (res.success) {
             toast.success("Account created successfully!");
-            
+
             // clear passwords
             setFormData(prev => ({ ...prev, password: '', otp: '' }));
-            
+
             // Auto login logic: check if user is returned and redirect
             if (res.user) {
-                if (res.user.role === 'admin' || res.user.role === 'superadmin' || res.user.role === 'super admin') {
-                    navigate("/admin/dashboard");
-                } else {
-                    navigate("/portal");
-                }
+               if (res.user.role === 'admin' || res.user.role === 'superadmin' || res.user.role === 'super admin') {
+                  navigate("/admin/dashboard");
+               } else {
+                  navigate("/portal");
+               }
             } else {
-                setViewMode('login');
+               setViewMode('login');
             }
          }
       } catch (error) {
@@ -162,38 +162,28 @@ export default function Login() {
    return (
       <main>
          <style>{`
-            html[data-theme="dark"] .login-page-bg,
             body.high-contrast .login-page-bg {
                background-color: #0d131c !important;
             }
-            html[data-theme="dark"] .login-page-card,
             body.high-contrast .login-page-card {
                background-color: #1A2735 !important;
                border-color: rgba(255, 255, 255, 0.1) !important;
             }
-            html[data-theme="dark"] .login-page-card h3,
-            html[data-theme="dark"] .login-page-card label,
-            html[data-theme="dark"] .login-page-card p,
-            html[data-theme="dark"] .login-page-card span,
             body.high-contrast .login-page-card h3,
             body.high-contrast .login-page-card label,
             body.high-contrast .login-page-card p,
-            body.high-contrast .login-page-card span {
+            body.high-contrast .login-page-card span,
+            body.high-contrast .login-page-card a,
+            body.high-contrast .login-page-card button:not(.tp-btn) {
                color: #ffffff !important;
             }
-            html[data-theme="dark"] .login-page-card input,
             body.high-contrast .login-page-card input {
                background-color: #121A24 !important;
                border-color: rgba(255,255,255,0.2) !important;
                color: #ffffff !important;
             }
-            html[data-theme="dark"] .login-page-card input::placeholder,
             body.high-contrast .login-page-card input::placeholder {
                color: #A0ABBB !important;
-            }
-            html[data-theme="dark"] .login-page-card a,
-            body.high-contrast .login-page-card a {
-               color: var(--primary) !important;
             }
          `}</style>
          <div className="tp-contact-ptb tp-sec-ptb upt-180 upb-120 login-page-bg" style={{ backgroundColor: "#f8fafc" }}>

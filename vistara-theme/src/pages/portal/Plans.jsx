@@ -406,7 +406,7 @@ const Plans = () => {
                                     <div 
                                         onClick={() => handlePlanSelect(plan)}
                                         style={{
-                                            padding: "24px",
+                                            padding: "16px",
                                             borderRadius: "16px",
                                             backgroundColor: "#ffffff",
                                             border: isCurrentPlanSelected ? "2px solid #011D52" : "1px solid #e2e8f0",
@@ -420,25 +420,39 @@ const Plans = () => {
                                         }}
                                     >
                                         {isBestValue && (
-                                            <div style={{ position: "absolute", top: "-10px", right: "24px", backgroundColor: "#011D52", color: "#ffffff", fontSize: "10px", fontWeight: "800", padding: "4px 12px", borderRadius: "20px", textTransform: "uppercase", letterSpacing: "1px", boxShadow: "0 4px 10px rgba(1, 29, 82, 0.3)" }}>
+                                            <div style={{ position: "absolute", top: "-10px", right: "16px", backgroundColor: "#011D52", color: "#ffffff", fontSize: "10px", fontWeight: "800", padding: "4px 12px", borderRadius: "20px", textTransform: "uppercase", letterSpacing: "1px", boxShadow: "0 4px 10px rgba(1, 29, 82, 0.3)" }}>
                                                 Recommended
                                             </div>
                                         )}
 
-                                        <h3 style={{ fontSize: "20px", color: "#011D52", fontWeight: "800", marginBottom: "16px" }}>{plan.name}</h3>
+                                        <h3 style={{ fontSize: "18px", color: "#011D52", fontWeight: "800", marginBottom: "8px" }}>{plan.name}</h3>
 
-                                        <div style={{ marginBottom: "20px", display: "flex", alignItems: "baseline", gap: "4px" }}>
-                                            <span style={{ fontSize: "16px", fontWeight: "700", color: "#1B2B40" }}>₹</span>
-                                            <span style={{ fontSize: "32px", fontWeight: "900", color: "#011D52", lineHeight: "1" }}>
+                                        <div style={{ marginBottom: "12px", display: "flex", alignItems: "baseline", gap: "4px" }}>
+                                            <span style={{ fontSize: "14px", fontWeight: "700", color: "#1B2B40" }}>₹</span>
+                                            <span style={{ fontSize: "28px", fontWeight: "900", color: "#011D52", lineHeight: "1" }}>
                                                 {(Number(displayDuration?.price) || 0).toLocaleString('en-IN')}
                                             </span>
-                                            <span style={{ fontSize: "12px", color: "#64748b", fontWeight: "600", marginLeft: "4px" }}>
+                                            <span style={{ fontSize: "11px", color: "#64748b", fontWeight: "600", marginLeft: "4px" }}>
                                                 / {displayDuration?.duration || 'Start'}
                                             </span>
                                         </div>
 
+                                        {plan.tagline && (
+                                            <div style={{
+                                                borderLeft: '3px solid #84cc16',
+                                                paddingLeft: '10px',
+                                                marginBottom: '16px',
+                                                color: '#64748b',
+                                                fontSize: '11px',
+                                                lineHeight: '1.4',
+                                                textAlign: 'left'
+                                            }}>
+                                                {plan.tagline}
+                                            </div>
+                                        )}
+
                                         {/* Durations Toggle */}
-                                        <div style={{ display: "flex", backgroundColor: "#f1f5f9", borderRadius: "8px", padding: "4px", marginBottom: "24px", gap: "4px" }}>
+                                        <div style={{ display: "flex", backgroundColor: "#f1f5f9", borderRadius: "8px", padding: "4px", marginBottom: "16px", gap: "4px" }}>
                                             {plan.durations?.map((d) => {
                                                 const isSelected = isCurrentPlanSelected && selectedDuration?._id === d._id;
                                                 return (
@@ -473,12 +487,14 @@ const Plans = () => {
                                             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                                                 {displayDuration?.features?.map((f, fi) => (
                                                     <div key={fi} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                                        {f.svg_icon === '✓' ? (
-                                                            <div style={{ width: "16px", height: "16px", borderRadius: "50%", backgroundColor: "rgba(40, 199, 111, 0.15)", display: "flex", alignItems: "center", justifyContent: "center", color: "#16a34a", fontSize: "10px", fontWeight: "bold" }}>✓</div>
+                                                        {f.svg_icon === 'Premium' ? (
+                                                            <div style={{ width: "16px", height: "16px", borderRadius: "50%", backgroundColor: "rgba(245, 158, 11, 0.15)", display: "flex", alignItems: "center", justifyContent: "center", color: "#f59e0b", fontSize: "10px", fontWeight: "bold" }}>★</div>
+                                                        ) : f.svg_icon === '✖' ? (
+                                                            <div style={{ width: "16px", height: "16px", borderRadius: "50%", backgroundColor: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", color: "#94a3b8", fontSize: "10px", fontWeight: "bold" }}>✖</div>
                                                         ) : (
-                                                            <div style={{ width: "16px", height: "16px", borderRadius: "50%", backgroundColor: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", color: "#94a3b8", fontSize: "10px", fontWeight: "bold" }}>✕</div>
+                                                            <div style={{ width: "16px", height: "16px", borderRadius: "50%", backgroundColor: "rgba(40, 199, 111, 0.15)", display: "flex", alignItems: "center", justifyContent: "center", color: "#16a34a", fontSize: "10px", fontWeight: "bold" }}>✔</div>
                                                         )}
-                                                        <span style={{ fontSize: "12px", color: f.svg_icon === '✓' ? "#1B2B40" : "#94a3b8", fontWeight: f.svg_icon === '✓' ? "600" : "400" }}>{f.text}</span>
+                                                        <span style={{ fontSize: "12px", color: f.svg_icon === '✖' ? "#94a3b8" : "#1B2B40", fontWeight: f.svg_icon === '✖' ? "400" : "600", textDecoration: f.svg_icon === '✖' ? 'line-through' : 'none' }}>{f.text}</span>
                                                     </div>
                                                 ))}
                                             </div>

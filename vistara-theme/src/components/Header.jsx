@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import marqueeService from "../services/marqueeService";
+import { useTheme } from "../context/ThemeContext";
 
 export default function Header() {
    const { user } = useAuth();
+   const { theme, setTheme } = useTheme();
    const [zoomStep, setZoomStep] = useState(localStorage.getItem('user-zoom-step') !== null ? parseInt(localStorage.getItem('user-zoom-step')) : 1);
-   const [contrastState, setContrastState] = useState("reset"); // 'high', 'reset'
    const [buttonText, setButtonText] = useState("Sign Up");
    const [fadeState, setFadeState] = useState("fade-in");
    const [isAccessOpen, setIsAccessOpen] = useState(false);
@@ -96,181 +97,9 @@ export default function Header() {
 
    const toggleContrast = (action) => {
       if (action === "high") {
-         document.body.classList.add("high-contrast");
-         setContrastState("high");
-         if (!document.getElementById("high-contrast-styles")) {
-            const style = document.createElement("style");
-            style.id = "high-contrast-styles";
-            style.innerHTML = `
-          body.high-contrast {
-            background-color: #121A24 !important;
-            color: #E2E8F0 !important;
-          }
-          body.high-contrast p:not(.tp-fi-hero-content p):not(.tp-cn-success-item p), 
-          body.high-contrast span:not(.tp-fi-hero-content span):not(.tp-cn-success-item span),
-          body.high-contrast h1,
-          body.high-contrast h2,
-          body.high-contrast h3:not(.tp-fi-hero-content h3):not(.tp-cn-success-item h3),
-          body.high-contrast h4,
-          body.high-contrast h5,
-          body.high-contrast h6,
-          body.high-contrast li,
-          body.high-contrast td,
-          body.high-contrast th,
-          body.high-contrast strong,
-          body.high-contrast b,
-          body.high-contrast a:not(.tp-btn-event) {
-            color: #F8FAFC !important;
-          }
-          body.high-contrast .tp-btn-border,
-          body.high-contrast .tp-btn-border .button-text {
-            color: #F8FAFC !important;
-            border-color: #F8FAFC !important;
-          }
-          body.high-contrast .tp-btn-border img {
-            filter: brightness(0) invert(1);
-          }
-          body.high-contrast .tp-footer-area,
-          body.high-contrast .tp-header-area,
-          body.high-contrast .tp-fi-about-ptb,
-          body.high-contrast .tp-fi-testimonial-ptb,
-          body.high-contrast .tp-about-vision-ptb {
-            background-color: #0A0F15 !important;
-          }
-          body.high-contrast .tp-fi-service-item,
-          body.high-contrast .tp-fi-stories-item,
-          body.high-contrast .tp-fi-value-graph,
-          body.high-contrast .tp-fi-about-thumb-shape,
-          body.high-contrast .tp-header-lan-content,
-          body.high-contrast .tp-about-vision-item,
-          body.high-contrast .tp-cn-blog-item,
-          body.high-contrast .payments-page-card {
-            background-color: #1E293B !important;
-            border-color: #334155 !important;
-          }
-          body.high-contrast .tp-contact-city-item {
-            background-color: #1E293B !important;
-            border-color: #334155 !important;
-            border: 1px solid #334155 !important;
-            padding: 40px 30px !important;
-            border-radius: 12px !important;
-          }
-          body.high-contrast .tp-contact-city-item-dvdr {
-            border-color: #334155 !important;
-          }
-          body.high-contrast input,
-          body.high-contrast textarea {
-            background-color: #0F172A !important;
-            border-color: #334155 !important;
-            color: #F8FAFC !important;
-          }
-          body.high-contrast {
-            --policy-sidebar-text: #F8FAFC;
-          }
-          body.high-contrast input::placeholder,
-          body.high-contrast textarea::placeholder {
-            color: #94A3B8 !important;
-            opacity: 1 !important;
-          }
-          body.high-contrast .payments-page-card table,
-          body.high-contrast .payments-page-card table tbody,
-          body.high-contrast .payments-page-card table thead,
-          body.high-contrast .payments-page-card table tr,
-          body.high-contrast .payments-page-card table td,
-          body.high-contrast .payments-page-card table th {
-            background-color: transparent !important;
-            border-color: #334155 !important;
-            color: #E2E8F0 !important;
-          }
-          body.high-contrast .payments-page-card table thead tr th {
-             background-color: #334155 !important;
-             color: #F8FAFC !important;
-          }
-          body.high-contrast .payments-page-card table tbody tr:nth-child(even) td {
-             background-color: rgba(255, 255, 255, 0.05) !important;
-          }
-          body.high-contrast .bank-item {
-            border-color: #334155 !important;
-          }
-          body.high-contrast .bank-item-val {
-            color: #E2E8F0 !important;
-          }
-          body.high-contrast .payment-note,
-          body.high-contrast .payment-upi-id,
-          body.high-contrast .qr-container {
-            background-color: #0F172A !important;
-            border-color: #334155 !important;
-            color: #E2E8F0 !important;
-          }
-          body.high-contrast .payment-note strong,
-          body.high-contrast .payment-note a,
-          body.high-contrast .payment-upi-id span,
-          body.high-contrast .payment-upi-id strong {
-            color: #E2E8F0 !important;
-          }
-          body.high-contrast .tp-cn-blog-item:hover {
-            background-color: #0F172A !important;
-          }
-          body.high-contrast .tp-cn-blog-item .tp-btn {
-            background-color: #334155 !important;
-            color: #F8FAFC !important;
-          }
-          body.high-contrast .tp-fi-banner-content {
-            background-color: transparent !important;
-          }
-          body.high-contrast .tp-fi-about-content {
-            background-color: #1E293B !important;
-            border-color: #334155 !important;
-            padding: 40px !important;
-            border-radius: 12px !important;
-          }
-          body.high-contrast .tp-fi-stories-item {
-             height: 420px !important;
-          }
-          body.high-contrast .tp-faq-wrap .accordion-items,
-          body.high-contrast .tp-faq-wrap .accordion-buttons {
-            background-color: transparent !important;
-            color: #F8FAFC !important;
-            border-color: #334155 !important;
-          }
-          body.high-contrast .tp-faq-wrap .accordion-body p {
-            color: #F8FAFC !important;
-          }
-          body.high-contrast .tp-faq-icon::before,
-          body.high-contrast .tp-faq-icon::after {
-            background-color: #F8FAFC !important;
-          }
-          body.high-contrast .tp-fi-faq-support,
-          body.high-contrast .postbox-details-quote,
-          body.high-contrast .tp-blog-details-info {
-             background-color: #0A0F15 !important;
-          }
-          body.high-contrast .tp-fi-stories-item-content span,
-          body.high-contrast .tp-fi-value-graph-date,
-          body.high-contrast .tp-fi-service-item p {
-             color: #94A3B8 !important;
-          }
-          body.high-contrast .tp-fi-service-item-icon svg path,
-          body.high-contrast svg path:not(.tp-cn-success-item svg path):not(.tp-cn-success-item-wrap svg path):not(.tp-cn-success-item-icon svg path) {
-            fill: #E2E8F0;
-            stroke: #E2E8F0;
-          }
-          body.high-contrast .tp-fi-hero-content h3,
-          body.high-contrast .tp-fi-hero-content p,
-          body.high-contrast .tp-fi-hero-content span {
-             color: #222F30 !important;
-          }
-          body.high-contrast .tp-fi-brand-slider-item {
-             color: #F8FAFC !important;
-          }
-        `;
-            document.head.appendChild(style);
-         }
+         setTheme('black-green');
       } else {
-         document.body.classList.remove("high-contrast");
-         setContrastState("reset");
-         const style = document.getElementById("high-contrast-styles");
-         if (style) style.remove();
+         setTheme('light');
       }
    };
 
@@ -371,7 +200,10 @@ export default function Header() {
                                 .tp-header-action .tp-header-lan { margin: 0 0 0 10px !important; }
                              }
 
-                             /* Accessibility Menu Buttons */
+                             /* Accessibility Menu Buttons & Text */
+                             .access-title {
+                                color: #243F63 !important; /* Strict dark blue for light mode */
+                             }
                              .access-btn {
                                 background: none;
                                 border: none;
@@ -379,29 +211,31 @@ export default function Header() {
                                 padding: 4px 8px;
                                 font-size: 14px;
                                 font-weight: 600;
-                                color: #334155;
+                                color: #243F63 !important; /* Strict dark blue for light mode */
                                 cursor: pointer;
                                 outline: none;
                                 transition: all 0.2s ease;
                              }
                              .access-btn.active {
                                 font-weight: 700;
-                                color: #9B6800;
+                                color: #9B6800 !important;
                              }
                              
-                             /* Dark mode & High contrast styles for Access Buttons */
-                             html[data-theme="dark"] .access-btn,
-                             body.high-contrast .access-btn {
-                                color: #94A3B8;
+                             .access-separator {
+                                color: #243F63 !important; /* Strict dark blue for light mode */
                              }
-                             html[data-theme="dark"] .access-btn.active,
+                             
+                             /* Dark mode & High contrast styles */
+                             body.high-contrast .access-btn,
+                             body.high-contrast .access-separator {
+                                color: #F8FAFC !important; /* Dark white for dark mode */
+                             }
                              body.high-contrast .access-btn.active {
-                                color: #FBB040;
+                                color: #FBB040 !important;
                              }
                              
-                             html[data-theme="dark"] .tp-header-lan-content .access-title,
                              body.high-contrast .tp-header-lan-content .access-title {
-                                color: #F8FAFC !important;
+                                color: #F8FAFC !important; /* Dark white for dark mode */
                              }
                           `}</style>
                         {user ? (
@@ -435,18 +269,18 @@ export default function Header() {
                                  <div className="access-title" style={{ fontWeight: "700", color: "var(--text-dark, #1B2B40)", marginBottom: "6px", fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Font Size</div>
                                  <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
                                     <button onClick={() => adjustFontSize("up")} className={`access-btn ${zoomStep > 0 ? "active" : ""}`}>A+</button>
-                                    <span style={{ color: "#64748B" }}>|</span>
+                                    <span className="access-separator">|</span>
                                     <button onClick={() => adjustFontSize("reset")} className={`access-btn ${zoomStep === 0 ? "active" : ""}`}>Reset</button>
-                                    <span style={{ color: "#64748B" }}>|</span>
+                                    <span className="access-separator">|</span>
                                     <button onClick={() => adjustFontSize("down")} className={`access-btn ${zoomStep < 0 ? "active" : ""}`}>A-</button>
                                  </div>
                               </div>
                               <div>
                                  <div className="access-title" style={{ fontWeight: "700", color: "var(--text-dark, #1B2B40)", marginBottom: "6px", fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Contrast</div>
                                  <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
-                                    <button onClick={() => toggleContrast("high")} className={`access-btn ${contrastState === "high" ? "active" : ""}`}>High Contrast</button>
-                                    <span style={{ color: "#64748B" }}>|</span>
-                                    <button onClick={() => toggleContrast("reset")} className={`access-btn ${contrastState === "reset" ? "active" : ""}`}>Reset</button>
+                                    <button onClick={() => toggleContrast("high")} className={`access-btn ${theme === "black-green" ? "active" : ""}`}>High Contrast</button>
+                                    <span className="access-separator">|</span>
+                                    <button onClick={() => toggleContrast("reset")} className={`access-btn ${theme !== "black-green" ? "active" : ""}`}>Reset</button>
                                  </div>
                               </div>
                            </div>

@@ -119,7 +119,10 @@ const CreateService = () => {
                     duration_type: p.type,
                     duration_months: p.months,
                     price: parseFloat(p.price) || 0,
-                    features: p.features.filter(f => f.text.trim())
+                    features: p.features.filter(f => f.text.trim()).map(f => ({
+                        svg_icon: f.svg,
+                        text: f.text
+                    }))
                 }))
             };
 
