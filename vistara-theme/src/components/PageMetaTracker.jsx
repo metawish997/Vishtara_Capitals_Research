@@ -60,6 +60,9 @@ export default function PageMetaTracker() {
       case "/login":
         pageTitle = `Login | ${baseTitle}`;
         break;
+      case "/sitemap":
+        pageTitle = `Sitemap | ${baseTitle}`;
+        break;
       default:
         // Handle dynamic paths like /blog-details or admin routes
         if (location.pathname.startsWith('/admin')) {

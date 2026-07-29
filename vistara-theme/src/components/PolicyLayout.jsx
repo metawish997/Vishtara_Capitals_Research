@@ -39,7 +39,7 @@ export default function PolicyLayout({ title, description, children }) {
           
           .payments-page-card p,
           .payments-page-card li {
-             color: #4A5568 !important;
+             color: #334155 !important;
              font-weight: 500 !important;
           }
           
@@ -123,7 +123,7 @@ export default function PolicyLayout({ title, description, children }) {
                            <li>&gt;</li>
                            <li>Policies &amp; Legal</li>
                         </ul>
-                        <h2 className="tp-breadcrumb-title">{title}</h2>
+                        <h1 className="tp-breadcrumb-title">{title}</h1>
                         <p>{description}</p>
                      </div>
                   </div>

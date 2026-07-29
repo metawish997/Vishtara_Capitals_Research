@@ -98,7 +98,7 @@ export default function Payments() {
                            <li>&gt;</li>
                            <li>Payments</li>
                         </ul>
-                        <h2 className="tp-breadcrumb-title">Payments</h2>
+                        <h1 className="tp-breadcrumb-title">Payments</h1>
                         <p>Secure bank transfer options and instant UPI payment methods for Vishtara advisory subscriptions.</p>
                      </div>
                   </div>
@@ -177,7 +177,7 @@ export default function Payments() {
                                  <div className="qr-container mb-4" style={{ display: "inline-block", padding: "15px", border: "1px solid var(--card-border, #D9E1EA)", borderRadius: "10px", background: "#fcfcfc" }}>
                                     <img 
                                        src={getImageUrl(upi.qr_code_image) || "/assets/img/upi_qr.png"} 
-                                       alt="UPI Payment QR Code" 
+                                       alt="UPI payment QR code for Vishtara Capital Research UPI ID: vishatracapital@hdfcbank." 
                                        style={{ maxWidth: "260px", height: "auto", borderRadius: "6px" }} 
                                     />
                                  </div>

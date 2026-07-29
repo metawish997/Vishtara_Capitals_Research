@@ -1,7 +1,40 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function Contact() {
+  const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
+  const [errors, setErrors] = useState({});
+  const [submitStatus, setSubmitStatus] = useState("");
+
+  const validate = () => {
+    const newErrors = {};
+    if (!formData.name.trim()) newErrors.name = "Full name is required. Please enter your full name.";
+    if (!formData.email.trim() || !/^\\S+@\\S+\\.\\S+$/.test(formData.email)) newErrors.email = "A valid email address is required. For example: name@domain.com.";
+    if (!formData.subject.trim()) newErrors.subject = "Mobile number is required. Please enter a valid 10-digit number.";
+    if (!formData.message.trim()) newErrors.message = "Message cannot be empty. Please provide details of your inquiry.";
+    return newErrors;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      setSubmitStatus("Error: Please correct the invalid fields below.");
+    } else {
+      setErrors({});
+      setSubmitStatus("Success: Your message has been sent successfully!");
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    }
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (errors[e.target.name]) {
+       setErrors({ ...errors, [e.target.name]: null });
+    }
+  };
+
   return (
     <main>
          <style>{`
@@ -29,7 +62,7 @@ export default function Contact() {
                            <li>&gt;</li>
                            <li>Contact us</li>
                         </ul>
-                        <h2 className="tp-breadcrumb-title">Contact us</h2>
+                        <h1 className="tp-breadcrumb-title">Contact us</h1>
                         <p>Get in touch with Vishtara Capital Research for SEBI compliant advisory, equity research, and asset allocation queries.</p>
                      </div>
                   </div>
@@ -47,7 +80,7 @@ export default function Contact() {
                      <div className="tp-contact-wrapper umb-30">
                         <div className="tp-contact-heading umb-60">
                            <span className="tp-section-sub tp-fade-anim">Let’s Connect</span>
-                           <h3 className="tp-section-title" data-text-split data-letters-fade-in>We’re ready to support <br /> your financial journey.</h3>
+                           <h2 className="tp-section-title" data-text-split data-letters-fade-in>We’re ready to support <br /> your financial journey.</h2>
                         </div>
                         <div className="tp-contact-info tp-fade-anim" data-delay=".5">
                            <div className="tp-contact-info-item umb-30">
@@ -62,7 +95,7 @@ export default function Contact() {
                                  </span>
                               </div>
                               <div className="tp-contact-info-content">
-                                 <h4 className="tp-contact-info-title">Call Us Directly</h4>
+                                 <h3 className="tp-contact-info-title">Call Us Directly</h3>
                                  <p><a className="tp-line-anim" href="tel:+918602027324">+91 86020 27324</a></p>
                               </div>
                            </div>
@@ -78,7 +111,7 @@ export default function Contact() {
                                  </span>
                               </div>
                               <div className="tp-contact-info-content">
-                                 <h4 className="tp-contact-info-title">Need Support?</h4>
+                                 <h3 className="tp-contact-info-title">Need Support?</h3>
                                  <p><a className="tp-line-anim" href="mailto:chouhananujay@gmail.com">chouhananujay@gmail.com</a></p>
                               </div>
                            </div>
@@ -100,26 +133,50 @@ export default function Contact() {
                   </div>
                   <div className="col-lg-7">
                      <div className="tp-contact-from umb-30 tp-fade-anim" data-delay=".5" data-fade-from="right">
-                        <form id="contact-form" action="#" method="POST" onSubmit={(e) => e.preventDefault()}>
+                        <form id="contact-form" onSubmit={handleSubmit} noValidate>
                            <div className="row">
                               <div className="col-12">
+                                 {submitStatus && (
+                                    <div className={`alert ${submitStatus.startsWith('Error') ? 'alert-danger' : 'alert-success'} mb-4`} role="alert" aria-live="polite">
+                                       {submitStatus}
+                                    </div>
+                                 )}
                                  <div className="tp-contact-input umb-15">
-                                    <input placeholder="Your full name*" name="name" type="text" required />
+                                    <label htmlFor="contact_name" className="visually-hidden">Your full name</label>
+                                    <input id="contact_name" placeholder="Your full name*" name="name" type="text" 
+                                           required aria-required="true" 
+                                           aria-invalid={!!errors.name} aria-describedby={errors.name ? "name_error" : undefined}
+                                           value={formData.name} onChange={handleChange} />
+                                    {errors.name && <span id="name_error" className="text-danger mt-1 d-block" style={{ fontSize: '13px' }}>{errors.name}</span>}
                                  </div>
                                  <div className="tp-contact-input umb-15">
-                                    <input placeholder="Email address*" name="email" type="email" required />
+                                    <label htmlFor="contact_email" className="visually-hidden">Email address</label>
+                                    <input id="contact_email" placeholder="Email address*" name="email" type="email" 
+                                           required aria-required="true" 
+                                           aria-invalid={!!errors.email} aria-describedby={errors.email ? "email_error" : undefined}
+                                           value={formData.email} onChange={handleChange} />
+                                    {errors.email && <span id="email_error" className="text-danger mt-1 d-block" style={{ fontSize: '13px' }}>{errors.email}</span>}
                                  </div>
                                  <div className="tp-contact-input umb-15">
-                                    <input placeholder="Mobile Number*" name="subject" type="text" required />
+                                    <label htmlFor="contact_subject" className="visually-hidden">Mobile Number</label>
+                                    <input id="contact_subject" placeholder="Mobile Number*" name="subject" type="text" 
+                                           required aria-required="true" 
+                                           aria-invalid={!!errors.subject} aria-describedby={errors.subject ? "subject_error" : undefined}
+                                           value={formData.subject} onChange={handleChange} />
+                                    {errors.subject && <span id="subject_error" className="text-danger mt-1 d-block" style={{ fontSize: '13px' }}>{errors.subject}</span>}
                                  </div>
                                  <div className="tp-contact-input umb-15">
-                                    <textarea placeholder="How can we help? Feel free to write here" name="message" required></textarea>
+                                    <label htmlFor="contact_message" className="visually-hidden">How can we help? Feel free to write here</label>
+                                    <textarea id="contact_message" placeholder="How can we help? Feel free to write here" name="message" 
+                                              required aria-required="true" 
+                                              aria-invalid={!!errors.message} aria-describedby={errors.message ? "message_error" : undefined}
+                                              value={formData.message} onChange={handleChange}></textarea>
+                                    {errors.message && <span id="message_error" className="text-danger mt-1 d-block" style={{ fontSize: '13px' }}>{errors.message}</span>}
                                  </div>
                                  <div className="tp-contact-input-btn">
                                     <button className="tp-btn w-100 contact-submit-btn" type="submit" style={{ backgroundColor: "var(--primary)", borderColor: "var(--primary)" }}>
                                        Send your message
                                     </button>
-                                    <p className="ajax-response umt-5"></p>
                                  </div>
                               </div>
                            </div>
@@ -154,7 +211,7 @@ export default function Contact() {
                   <div className="col-lg-12">
                      <div className="tp-contact-city-heading text-center umb-70">
                         <span className="tp-section-sub tp-fade-anim">Our details</span>
-                        <h3 className="tp-section-title" data-text-split data-letters-fade-in>Registered office address &amp; licensing details</h3>
+                        <h2 className="tp-section-title" data-text-split data-letters-fade-in>Registered office address &amp; licensing details</h2>
                      </div>
                   </div>
                </div>

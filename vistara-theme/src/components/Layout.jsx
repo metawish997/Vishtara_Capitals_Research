@@ -1,18 +1,59 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Header from "./Header";
 import Footer from "./Footer";
 import { Outlet } from "react-router-dom";
 
 export default function Layout() {
    const [showModal, setShowModal] = useState(false);
+   const modalRef = useRef(null);
+   const [previouslyFocused, setPreviouslyFocused] = useState(null);
 
    useEffect(() => {
       const today = new Date().toISOString().split("T")[0];
       const lastShown = localStorage.getItem("vishtara_complaint_modal_last_shown");
       if (lastShown !== today) {
+         setPreviouslyFocused(document.activeElement);
          setShowModal(true);
       }
    }, []);
+
+   useEffect(() => {
+      if (showModal && modalRef.current) {
+         const focusableElements = modalRef.current.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+         );
+         const firstElement = focusableElements[0];
+         const lastElement = focusableElements[focusableElements.length - 1];
+
+         if (firstElement) {
+            firstElement.focus();
+         }
+
+         const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+               closeModal();
+            }
+            if (e.key === 'Tab') {
+               if (e.shiftKey) {
+                  if (document.activeElement === firstElement) {
+                     e.preventDefault();
+                     lastElement.focus();
+                  }
+               } else {
+                  if (document.activeElement === lastElement) {
+                     e.preventDefault();
+                     firstElement.focus();
+                  }
+               }
+            }
+         };
+
+         document.addEventListener('keydown', handleKeyDown);
+         return () => document.removeEventListener('keydown', handleKeyDown);
+      } else if (!showModal && previouslyFocused) {
+         previouslyFocused.focus();
+      }
+   }, [showModal, previouslyFocused]);
 
    // Dismiss preloader from React so it works even if jQuery/main.js fails to load
    useEffect(() => {
@@ -32,6 +73,7 @@ export default function Layout() {
 
    return (
       <>
+         <a href="#main-content" className="skip-link">Skip to Main Content</a>
          {showModal && (
             <div className="complaint-modal-overlay" style={{
                position: "fixed",
@@ -46,7 +88,7 @@ export default function Layout() {
                zIndex: 99999,
                padding: "20px"
             }}>
-               <div style={{
+               <div ref={modalRef} style={{
                   backgroundColor: "#ffffff",
                   borderRadius: "10px",
                   width: "100%",
@@ -86,13 +128,13 @@ export default function Layout() {
                         <table className="table" style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "14px" }}>
                            <thead>
                               <tr style={{ backgroundColor: "#6E87A8", color: "#ffffff" }}>
-                                 <th style={{ padding: "12px 15px", fontWeight: "600", textTransform: "uppercase", fontSize: "12px" }}>Source</th>
-                                 <th style={{ padding: "12px 15px", fontWeight: "600", textTransform: "uppercase", fontSize: "12px", textAlign: "center" }}>Pending (Prev.)</th>
-                                 <th style={{ padding: "12px 15px", fontWeight: "600", textTransform: "uppercase", fontSize: "12px", textAlign: "center" }}>Received</th>
-                                 <th style={{ padding: "12px 15px", fontWeight: "600", textTransform: "uppercase", fontSize: "12px", textAlign: "center" }}>Resolved</th>
-                                 <th style={{ padding: "12px 15px", fontWeight: "600", textTransform: "uppercase", fontSize: "12px", textAlign: "center" }}>Total Pending</th>
-                                 <th style={{ padding: "12px 15px", fontWeight: "600", textTransform: "uppercase", fontSize: "12px", textAlign: "center" }}>Pending &gt;3M</th>
-                                 <th style={{ padding: "12px 15px", fontWeight: "600", textTransform: "uppercase", fontSize: "12px", textAlign: "center" }}>Avg. Days</th>
+                                 <th scope="col" style={{ padding: "12px 15px", fontWeight: "600", textTransform: "uppercase", fontSize: "12px" }}>Source</th>
+                                 <th scope="col" style={{ padding: "12px 15px", fontWeight: "600", textTransform: "uppercase", fontSize: "12px", textAlign: "center" }}>Pending (Prev.)</th>
+                                 <th scope="col" style={{ padding: "12px 15px", fontWeight: "600", textTransform: "uppercase", fontSize: "12px", textAlign: "center" }}>Received</th>
+                                 <th scope="col" style={{ padding: "12px 15px", fontWeight: "600", textTransform: "uppercase", fontSize: "12px", textAlign: "center" }}>Resolved</th>
+                                 <th scope="col" style={{ padding: "12px 15px", fontWeight: "600", textTransform: "uppercase", fontSize: "12px", textAlign: "center" }}>Total Pending</th>
+                                 <th scope="col" style={{ padding: "12px 15px", fontWeight: "600", textTransform: "uppercase", fontSize: "12px", textAlign: "center" }}>Pending &gt;3M</th>
+                                 <th scope="col" style={{ padding: "12px 15px", fontWeight: "600", textTransform: "uppercase", fontSize: "12px", textAlign: "center" }}>Avg. Days</th>
                               </tr>
                            </thead>
                            <tbody>
@@ -100,9 +142,9 @@ export default function Layout() {
                                  { source: "Directly from Investors", pendingPrev: 0, received: 0, resolved: 0, totalPending: 0, pendingOver3m: 0, avgDays: 0 },
                                  { source: "SEBI (SCORES)", pendingPrev: 0, received: 0, resolved: 0, totalPending: 0, pendingOver3m: 0, avgDays: 0 },
                                  { source: "Other Sources", pendingPrev: 0, received: 0, resolved: 0, totalPending: 0, pendingOver3m: 0, avgDays: 0 }
-                              ].map((row, index) => (
+                               ].map((row, index) => (
                                  <tr key={index} style={{ borderBottom: "1px solid #e9ecef" }}>
-                                    <td style={{ padding: "12px 15px", fontWeight: "500", color: "#1B2B40" }}>{row.source}</td>
+                                    <th scope="row" style={{ padding: "12px 15px", fontWeight: "500", color: "#1B2B40" }}>{row.source}</th>
                                     <td style={{ padding: "12px 15px", textAlign: "center", color: "#1B2B40" }}>{row.pendingPrev}</td>
                                     <td style={{ padding: "12px 15px", textAlign: "center", color: "#1B2B40" }}>{row.received}</td>
                                     <td style={{ padding: "12px 15px", textAlign: "center", color: "#1B2B40" }}>{row.resolved}</td>
@@ -112,7 +154,7 @@ export default function Layout() {
                                  </tr>
                               ))}
                               <tr style={{ backgroundColor: "#f8fafc", fontWeight: "bold", borderBottom: "2px solid #e2e8f0" }}>
-                                 <td style={{ padding: "12px 15px", color: "var(--primary)" }}>Grand Total</td>
+                                 <th scope="row" style={{ padding: "12px 15px", color: "var(--primary)" }}>Grand Total</th>
                                  <td style={{ padding: "12px 15px", textAlign: "center", color: "var(--primary)" }}>0</td>
                                  <td style={{ padding: "12px 15px", textAlign: "center", color: "var(--primary)" }}>0</td>
                                  <td style={{ padding: "12px 15px", textAlign: "center", color: "var(--primary)" }}>0</td>
@@ -126,7 +168,7 @@ export default function Layout() {
 
                      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", marginTop: "20px", padding: "15px", borderRadius: "6px", backgroundColor: "#f8fafc", borderLeft: "4px solid var(--tp-finance-primary)", fontSize: "13px", color: "#1B2B40" }}>
                         <div>
-                           <strong>Data for month ending:</strong> June 2026
+                           <strong>Data for month ending:</strong> 
                         </div>
                         <div style={{ marginLeft: "auto" }}>
                            <strong>Impersonation complaints:</strong> 0
@@ -298,7 +340,7 @@ export default function Layout() {
                color: #ffffff !important;
             }
          `}</style>
-         <div className="tp-offcanvas-area">
+         <div id="mobile-menu" className="tp-offcanvas-area">
             <div className="tp-offcanvas-wrapper">
                <div className="tp-offcanvas-top d-flex align-items-center justify-content-between">
                   <div className="tp-offcanvas-logo">
@@ -311,6 +353,7 @@ export default function Layout() {
                      <button className="tp-offcanvas-close-btn" aria-label="Close menu" onClick={() => {
                         document.querySelector('.tp-offcanvas-area')?.classList.remove('opened');
                         document.querySelector('.body-overlay')?.classList.remove('opened');
+                        setTimeout(() => document.querySelector('.tp-offcanvas-open-btn')?.focus(), 100);
                      }}>
                         <svg width="37" height="38" viewBox="0 0 37 38" fill="none" xmlns="http://www.w3.org/2000/svg">
                            <path d="M9.19141 9.80762L27.5762 28.1924" stroke="currentColor" strokeWidth="1.5"
@@ -332,6 +375,7 @@ export default function Layout() {
                            if (e.target.tagName === 'A') {
                               document.querySelector('.tp-offcanvas-area')?.classList.remove('opened');
                               document.querySelector('.body-overlay')?.classList.remove('opened');
+                              setTimeout(() => document.querySelector('.tp-offcanvas-open-btn')?.focus(), 100);
                            }
                         }}>
                            <li><a href="/" className="mobile-nav-link" style={{ display: "block", padding: "12px 0", borderBottom: "1px solid #eaeaea", fontSize: "16px", fontWeight: "600", textDecoration: "none", color: "#1B2B40" }}>Home</a></li>
@@ -388,6 +432,7 @@ export default function Layout() {
          <div className="body-overlay" onClick={() => {
             document.querySelector('.tp-offcanvas-area')?.classList.remove('opened');
             document.querySelector('.body-overlay')?.classList.remove('opened');
+            setTimeout(() => document.querySelector('.tp-offcanvas-open-btn')?.focus(), 100);
          }}></div>
 
          <div className="tp-search-area p-relative">
@@ -423,7 +468,9 @@ export default function Layout() {
 
 
          <Header />
-         <Outlet />
+         <main id="main-content">
+            <Outlet />
+         </main>
          <Footer />
       </>
    );

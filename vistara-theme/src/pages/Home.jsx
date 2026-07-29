@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useTheme } from "../context/ThemeContext";
 
 export default function Home() {
@@ -11,6 +11,7 @@ export default function Home() {
    const toggleFaq = (id) => {
       setActiveFaq(activeFaq === id ? null : id);
    };
+   const [subscribeStatus, setSubscribeStatus] = useState("");
 
    useEffect(() => {
       if (window.Swiper) {
@@ -62,9 +63,12 @@ export default function Home() {
    return (
       <main>
          <style>{`
-            body.high-contrast .tp-fi-hero-wrapper h3.tp-fi-hero-title.tp-fi-hero-title,
+            body.high-contrast .tp-fi-hero-wrapper h1.tp-fi-hero-title.tp-fi-hero-title,
+            html[data-theme="dark"] .tp-fi-hero-wrapper h1.tp-fi-hero-title.tp-fi-hero-title,
             body.high-contrast .tp-fi-hero-wrapper div.tp-fi-hero-trust.tp-fi-hero-trust,
-            body.high-contrast .tp-fi-hero-wrapper p.text.text {
+            html[data-theme="dark"] .tp-fi-hero-wrapper div.tp-fi-hero-trust.tp-fi-hero-trust,
+            body.high-contrast .tp-fi-hero-wrapper p.text.text,
+            html[data-theme="dark"] .tp-fi-hero-wrapper p.text.text {
                color: #222F30 !important;
             }
             body.high-contrast div.tp-fi-cta-wrapper.tp-fi-cta-wrapper.tp-fi-cta-wrapper h3.tp-fi-cta-title,
@@ -111,8 +115,8 @@ export default function Home() {
                   <div className="col-lg-12">
                      <div className="tp-fi-hero-wrapper z-index-1">
                         <div className="tp-fi-hero-content upb-145">
-                           <h3 className="tp-fi-hero-title" style={{ color: "#222F30" }} data-text-split data-letters-fade-in>Empowering Decisions <br />
-                              Through Research.</h3>
+                           <h1 className="tp-fi-hero-title" style={{ color: "#222F30" }} data-text-split data-letters-fade-in>Empowering Decisions <br />
+                              Through Research.</h1>
                            <div className="tp-fi-hero-trust umb-15 tp-fade-anim" style={{ fontWeight: 700, color: "#222F30", letterSpacing: "2px", fontSize: "12px", textTransform: "uppercase" }}>
                               SEBI REGISTERED &nbsp;•&nbsp; BSE ENLISTED &nbsp;•&nbsp; NISM CERTIFIED
                            </div>
@@ -168,9 +172,9 @@ export default function Home() {
                <div className="row justify-content-center">
                   <div className="col-lg-8">
                      <div className="tp-fi-brand-top text-center upb-70">
-                        <h3 className="tp-section-title umb-20" data-text-split data-letters-fade-in>
+                        <h2 className="tp-section-title umb-20" data-text-split data-letters-fade-in>
                            Built on experience, research, <br /> and disciplined market strategies.
-                        </h3>
+                        </h2>
                         <div className="tp-fade-anim" data-delay=".3">
                            <a className="tp-btn-underline" href="/services">Explore our services</a>
                         </div>
@@ -242,7 +246,7 @@ export default function Home() {
                <div className="row">
                   <div className="col-xl-3 col-lg-4 col-md-6 mb-4">
                      <div className="tp-fi-stories-content h-100 tp-fade-anim">
-                        <div className="tp-fi-stories-logo umb-55">
+                        <div className="tp-fi-stories-logo umb-55" style={{ display: 'none' }}>
                            <img src="/assets/img/finance/stories/logo-1.png" alt="" />
                         </div>
                         <p>Vishtara Capital Research delivers <br />
@@ -259,7 +263,7 @@ export default function Home() {
                   <div className="col-xl-3 col-lg-4 col-md-6 mb-4">
                      <div className="tp-fi-stories-item h-100 tp-fade-anim" data-delay=".5"
                         style={{ backgroundColor: "#111111", backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(/assets/img/finance/stories/card-bg.jpg)" }}>
-                        <div className="tp-fi-stories-item-logo">
+                        <div className="tp-fi-stories-item-logo" style={{ display: 'none' }}>
                            <img src="/assets/img/finance/stories/logo-2.png" alt="" />
                         </div>
                         <div className="tp-fi-stories-item-content">
@@ -271,7 +275,7 @@ export default function Home() {
                   <div className="col-xl-3 col-lg-4 col-md-6 mb-4">
                      <div className="tp-fi-stories-item d-flex flex-column h-100 tp-fade-anim" data-delay=".7" style={{ backgroundColor: "#F7F7F5" }}>
                         <div className="tp-fi-stories-item-thumb flex-grow-1 d-flex align-items-center justify-content-center pb-4">
-                           <img src="/assets/img/finance/stories/mba_qualification.png" alt="" style={{ height: "220px", width: "100%", objectFit: "cover" }} />
+                           {/* <img src="/assets/img/finance/stories/mba_qualification.png" alt="" style={{ height: "220px", width: "100%", objectFit: "cover" }} /> */}
                         </div>
                         <div className="tp-fi-stories-item-content style-2" style={{ position: "relative", bottom: "auto", paddingBottom: "30px" }}>
                            <span>Academic qualification</span>
@@ -285,7 +289,7 @@ export default function Home() {
                            <span>Segments covered</span>
                            <h4 className="tp-fi-stories-item-title sebi-list-item" style={{ color: "#1B2B40", fontWeight: "bold" }}>Equity & F&O</h4>
                         </div>
-                        <div className="tp-fi-stories-item-icon">
+                        <div className="tp-fi-stories-item-icon" style={{ display: 'none' }}>
                            <img src="/assets/img/finance/stories/logo-3.png" alt="" />
                         </div>
                      </div>
@@ -303,9 +307,9 @@ export default function Home() {
                   <div className="col-lg-6 mb-4">
                      <div className="tp-fi-about-content h-100 d-flex flex-column justify-content-center align-items-start umb-30">
                         <span className="tp-section-sub tp-fade-anim">About Vishtara Capital</span>
-                        <h3 className="tp-section-title umb-30" data-text-split data-letters-fade-in>Guided by research, <br />
+                        <h2 className="tp-section-title umb-30" data-text-split data-letters-fade-in>Guided by research, <br />
                            driven by discipline, <br />
-                           focused on risk.</h3>
+                           focused on risk.</h2>
                         <div className="tp-fade-anim" data-delay=".5">
                            <p>Vishtara Capital Research is dedicated to delivering objective, structured <br />
                               market insights with a strict emphasis on risk management. Founded by a NISM <br />
@@ -318,7 +322,7 @@ export default function Home() {
                               <div className="button-text">Compliance details</div>
                               <div className="button-icon-wrapper">
                                  <img src="/assets/img/finance/hero/btn-arrow.svg" loading="lazy" width="16"
-                                    height="16" alt="" className="button-image" />
+                                    height="16" alt="Arrow icon" className="button-image" />
                                  <div className="button-dot"></div>
                               </div>
                            </a>
@@ -326,7 +330,7 @@ export default function Home() {
                               <div className="button-text">Our offerings</div>
                               <div className="button-icon-wrapper">
                                  <img src="/assets/img/finance/hero/btn-arrow.svg" loading="lazy" width="16"
-                                    height="16" alt="" className="button-image" />
+                                    height="16" alt="Arrow icon" className="button-image" />
                                  <div className="button-dot"></div>
                               </div>
                            </a>
@@ -335,7 +339,7 @@ export default function Home() {
                   </div>
                   <div className="col-lg-6 mb-4">
                      <div className="tp-fi-about-thumb-wrap h-100 p-relative text-xl-end umb-30">
-                        <img src="/assets/img/finance/about/thumb-1.jpg" alt="" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "10px" }} />
+                        <img src="/assets/img/finance/about/thumb-1.jpg" alt="About Vishtara Capital" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "10px" }} />
                         <div className="tp-fi-about-thumb-shape" style={{ background: "white", padding: "20px", borderRadius: "10px", boxShadow: "0 10px 30px rgba(0,0,0,0.08)", width: "172px", height: "160px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                            <img src="/vistaralogo.svg" alt="Vishtara Logo" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
                         </div>
@@ -389,9 +393,8 @@ export default function Home() {
                   <div className="col-lg-8">
                      <div className="tp-fi-service-heading umb-60">
                         <span className="tp-section-sub tp-fade-anim">What We Offer</span>
-                        <h3 className="tp-section-title" data-text-split data-letters-fade-in>Research-backed insights <br />
-                           designed for structured <br />
-                           decisions.</h3>
+                        <h2 className="tp-section-title" data-text-split data-letters-fade-in>Research-backed insights <br />
+                           for objective decisions.</h2>
                      </div>
                   </div>
                   <div className="col-lg-4">
@@ -400,7 +403,7 @@ export default function Home() {
                            <div className="button-text">View Pricing</div>
                            <div className="button-icon-wrapper">
                               <img src="/assets/img/finance/hero/btn-arrow.svg" loading="lazy" width="16" height="16"
-                                 alt="" className="button-image" />
+                                 alt="Arrow icon" className="button-image" />
                               <div className="button-dot"></div>
                            </div>
                         </a>
@@ -446,7 +449,7 @@ export default function Home() {
                            </p>
                         </div>
                         <div className="tp-fi-service-item-btn">
-                           <a href="/services">
+                           <a href="/services" aria-label="Read more about Cash Market Research">
                               <span>
                                  Read more
                               </span>
@@ -479,7 +482,7 @@ export default function Home() {
                                        d="M36 24C42.6274 24 48 18.6274 48 12C48 5.37258 42.6274 0 36 0C29.3726 0 24 5.37258 24 12C24 18.6274 29.3726 24 36 24Z"
                                        fill="#222F30" fill-opacity="0.1" />
                                     <path
-                                       d="M36 48C42.6274 48 48 42.6274 48 36C48 29.3726 42.6274 24 36 24C29.3726 24 24 29.3726 24 36C24 42.6274 29.3726 48 36 48Z"
+                                       d="M36 48C42.6274 48 48 42.6274 48 36C48 29.3726 42.6274 24 36 24C29.3726 24 24 29.3726 36 48Z"
                                        fill="#222F30" />
                                  </g>
                                  <defs>
@@ -501,7 +504,7 @@ export default function Home() {
                            </p>
                         </div>
                         <div className="tp-fi-service-item-btn">
-                           <a href="/services">
+                           <a href="/services" aria-label="Read more about Index F&O Strategy">
                               <span>
                                  Read more
                               </span>
@@ -556,7 +559,7 @@ export default function Home() {
                            </p>
                         </div>
                         <div className="tp-fi-service-item-btn">
-                           <a href="/services">
+                           <a href="/services" aria-label="Read more about Stock F&O Insight">
                               <span>
                                  Read more
                               </span>
@@ -602,13 +605,13 @@ export default function Home() {
          </div>
          <div className="tp-fi-banner-ptb">
             <div className="tp-fi-banner-wrapper p-relative fix">
-               <img src="/assets/img/finance/banner/banner-bg.jpg" alt="" />
+               <img src="/assets/img/finance/banner/banner-bg.jpg" alt="Banner background" />
                <div className="tp-fi-banner-content tp-fade-anim" data-delay=".5" data-fade-from="right">
                   <h3 className="tp-fi-banner-title">Research-Driven Advisory</h3>
                   <p>Helping investors make informed, structured, and risk-managed <br /> decisions in complex financial markets.</p>
                </div>
                <div className="tp-cn-success-item-2-shape">
-                  <img src="/assets/img/consulting/success/shape.png" alt="" />
+                  <img src="/assets/img/consulting/success/shape.png" alt="Shape" />
                </div>
             </div>
          </div>
@@ -698,7 +701,7 @@ export default function Home() {
                   <div className="col-lg-6">
                      <div className="tp-fi-value-thumb-wrapper p-relative  umb-30 umt-30">
                         <div className="tp-fi-value-thumb-main">
-                           <img src="/assets/img/finance/value/thumb-1.jpg" alt="" />
+                           <img src="/assets/img/finance/value/thumb-1.jpg" alt="Value Thumbnail" />
                         </div>
                         <div className="tp-fi-value-graph p-relative tp-fade-anim">
                            <div className="tp-fi-value-graph-icon">
@@ -730,9 +733,8 @@ export default function Home() {
                      <div className="tp-fi-value-content umb-30">
                         <div className="tp-fi-value-heading">
                            <span className="tp-section-sub tp-fade-anim">Our Core Values</span>
-                           <h3 className="tp-section-title umb-30" data-text-split data-letters-fade-in>Research-backed. <br />
-                              Risk-conscious. <br />
-                              Client-focused.</h3>
+                           <h2 className="tp-section-title umb-30" data-text-split data-letters-fade-in>Research-backed. <br />
+                           Client-focused.</h2>
                            <div className="tp-fade-anim" data-delay=".5">
                               <p>At Vishtara Capital, we believe that successful trading is built on rigorous <br />
                                  analysis and strict emotional discipline. Every insight is grounded in technical <br />
@@ -786,10 +788,6 @@ export default function Home() {
                </div>
             </div>
          </div>
-
-
-
-
          <div className="tp-fi-testimonial-ptb tp-sec-ptb upt-130 upb-130" style={{ backgroundColor: "#F7F7F5" }}>
             <div className="container">
                <div className="row">
@@ -801,52 +799,28 @@ export default function Home() {
                         <div className="swiper tp-testimonial-content-active">
                            <div className="swiper-wrapper">
                               <div className="swiper-slide">
-                                 <h3 className="tp-fi-testimonial-title">“ We utilize technical chart patterns, support & resistance zones, <br />
+                                 <p className="tp-fi-testimonial-title" style={{ fontSize: "24px", fontWeight: 600, color: "var(--text-dark)", lineHeight: 1.5 }}>“ We utilize technical chart patterns, support & resistance zones, <br />
                                     and momentum indicators to identify high-probability <br />
                                     entry and exit points for swing and positional opportunities. “
-                                 </h3>
+                                 </p>
                               </div>
                               <div className="swiper-slide">
-                                 <h3 className="tp-fi-testimonial-title">“ Every trade research setup comes with a pre-defined stoploss <br />
+                                 <p className="tp-fi-testimonial-title" style={{ fontSize: "24px", fontWeight: 600, color: "var(--text-dark)", lineHeight: 1.5 }}>“ Every trade research setup comes with a pre-defined stoploss <br />
                                     and target level, ensuring capital protection is <br />
                                     always prioritized above all else. “
-                                 </h3>
+                                 </p>
                               </div>
                               <div className="swiper-slide">
-                                 <h3 className="tp-fi-testimonial-title">“ Our analysis is entirely data-driven, filtering out speculative <br />
+                                 <p className="tp-fi-testimonial-title" style={{ fontSize: "24px", fontWeight: 600, color: "var(--text-dark)", lineHeight: 1.5 }}>“ Our analysis is entirely data-driven, filtering out speculative <br />
                                     rumors and media noise to deliver clear, <br />
                                     unbiased market insights. “
-                                 </h3>
+                                 </p>
                               </div>
                               <div className="swiper-slide">
-                                 <h3 className="tp-fi-testimonial-title">“ We provide structured, disciplined research coverage across <br />
+                                 <p className="tp-fi-testimonial-title" style={{ fontSize: "24px", fontWeight: 600, color: "var(--text-dark)", lineHeight: 1.5 }}>“ We provide structured, disciplined research coverage across <br />
                                     Cash Equity (Swing & Positional), Index F&O, <br />
                                     Stock F&O, and Commodities. “
-                                 </h3>
-                              </div>
-                              <div className="swiper-slide">
-                                 <h3 className="tp-fi-testimonial-title">“ We utilize technical chart patterns, support & resistance zones, <br />
-                                    and momentum indicators to identify high-probability <br />
-                                    entry and exit points for swing and positional opportunities. “
-                                 </h3>
-                              </div>
-                              <div className="swiper-slide">
-                                 <h3 className="tp-fi-testimonial-title">“ Every trade research setup comes with a pre-defined stoploss <br />
-                                    and target level, ensuring capital protection is <br />
-                                    always prioritized above all else. “
-                                 </h3>
-                              </div>
-                              <div className="swiper-slide">
-                                 <h3 className="tp-fi-testimonial-title">“ Our analysis is entirely data-driven, filtering out speculative <br />
-                                    rumors and media noise to deliver clear, <br />
-                                    unbiased market insights. “
-                                 </h3>
-                              </div>
-                              <div className="swiper-slide">
-                                 <h3 className="tp-fi-testimonial-title">“ We provide structured, disciplined research coverage across <br />
-                                    Cash Equity (Swing & Positional), Index F&O, <br />
-                                    Stock F&O, and Commodities. “
-                                 </h3>
+                                 </p>
                               </div>
                            </div>
                         </div>
@@ -942,90 +916,6 @@ export default function Home() {
                                     </div>
                                  </div>
                               </div>
-                              <div className="swiper-slide">
-                                 <div className="tp-fi-testimonial-quote d-flex align-items-center">
-                                    <div className="tp-fi-testimonial-quote-icon">
-                                       <span>
-                                          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="20" viewBox="0 0 28 20"
-                                             fill="none">
-                                             <path
-                                                d="M6.47189 0C10.2296 0 12.9422 3.10229 12.9421 7.69573C12.9181 14.3697 7.90087 19.0885 0.662843 19.9946C-0.00867188 20.0787 -0.2676 19.1485 0.35078 18.8735C3.12807 17.6386 4.53074 16.0715 4.71192 14.5204C4.84728 13.3616 4.21731 12.3464 3.42628 12.1563C1.37556 11.6636 0.00155861 9.10975 0.00155861 6.47033C0.00155861 2.89687 2.89842 0 6.47189 0Z"
-                                                fill="currentColor" />
-                                             <path
-                                                d="M20.5891 0C24.3468 0 27.0594 3.10229 27.0593 7.69573C27.0353 14.3697 22.0181 19.0885 14.78 19.9946C14.1085 20.0787 13.8496 19.1485 14.468 18.8735C17.2453 17.6386 18.6479 16.0715 18.8291 14.5204C18.9645 13.3616 18.3345 12.3464 17.5435 12.1563C15.4927 11.6636 14.1187 9.10975 14.1187 6.47033C14.1187 2.89687 17.0156 0 20.5891 0Z"
-                                                fill="currentColor" />
-                                          </svg>
-                                       </span>
-                                    </div>
-                                    <div className="tp-fi-testimonial-quote-content">
-                                       <span>Technical Analysis</span>
-                                       <p>Vishtara Methodology</p>
-                                    </div>
-                                 </div>
-                              </div>
-                              <div className="swiper-slide">
-                                 <div className="tp-fi-testimonial-quote d-flex align-items-center">
-                                    <div className="tp-fi-testimonial-quote-icon">
-                                       <span>
-                                          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="20" viewBox="0 0 28 20"
-                                             fill="none">
-                                             <path
-                                                d="M6.47189 0C10.2296 0 12.9422 3.10229 12.9421 7.69573C12.9181 14.3697 7.90087 19.0885 0.662843 19.9946C-0.00867188 20.0787 -0.2676 19.1485 0.35078 18.8735C3.12807 17.6386 4.53074 16.0715 4.71192 14.5204C4.84728 13.3616 4.21731 12.3464 3.42628 12.1563C1.37556 11.6636 0.00155861 9.10975 0.00155861 6.47033C0.00155861 2.89687 2.89842 0 6.47189 0Z"
-                                                fill="currentColor" />
-                                             <path
-                                                d="M20.5891 0C24.3468 0 27.0594 3.10229 27.0593 7.69573C27.0353 14.3697 22.0181 19.0885 14.78 19.9946C14.1085 20.0787 13.8496 19.1485 14.468 18.8735C17.2453 17.6386 18.6479 16.0715 18.8291 14.5204C18.9645 13.3616 18.3345 12.3464 17.5435 12.1563C15.4927 11.6636 14.1187 9.10975 14.1187 6.47033C14.1187 2.89687 17.0156 0 20.5891 0Z"
-                                                fill="currentColor" />
-                                          </svg>
-                                       </span>
-                                    </div>
-                                    <div className="tp-fi-testimonial-quote-content">
-                                       <span>Risk Management</span>
-                                       <p>Vishtara Methodology</p>
-                                    </div>
-                                 </div>
-                              </div>
-                              <div className="swiper-slide">
-                                 <div className="tp-fi-testimonial-quote d-flex align-items-center">
-                                    <div className="tp-fi-testimonial-quote-icon">
-                                       <span>
-                                          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="20" viewBox="0 0 28 20"
-                                             fill="none">
-                                             <path
-                                                d="M6.47189 0C10.2296 0 12.9422 3.10229 12.9421 7.69573C12.9181 14.3697 7.90087 19.0885 0.662843 19.9946C-0.00867188 20.0787 -0.2676 19.1485 0.35078 18.8735C3.12807 17.6386 4.53074 16.0715 4.71192 14.5204C4.84728 13.3616 4.21731 12.3464 3.42628 12.1563C1.37556 11.6636 0.00155861 9.10975 0.00155861 6.47033C0.00155861 2.89687 2.89842 0 6.47189 0Z"
-                                                fill="currentColor" />
-                                             <path
-                                                d="M20.5891 0C24.3468 0 27.0594 3.10229 27.0593 7.69573C27.0353 14.3697 22.0181 19.0885 14.78 19.9946C14.1085 20.0787 13.8496 19.1485 14.468 18.8735C17.2453 17.6386 18.6479 16.0715 18.8291 14.5204C18.9645 13.3616 18.3345 12.3464 17.5435 12.1563C15.4927 11.6636 14.1187 9.10975 14.1187 6.47033C14.1187 2.89687 17.0156 0 20.5891 0Z"
-                                                fill="currentColor" />
-                                          </svg>
-                                       </span>
-                                    </div>
-                                    <div className="tp-fi-testimonial-quote-content">
-                                       <span>Data Integrity</span>
-                                       <p>Vishtara Methodology</p>
-                                    </div>
-                                 </div>
-                              </div>
-                              <div className="swiper-slide">
-                                 <div className="tp-fi-testimonial-quote d-flex align-items-center">
-                                    <div className="tp-fi-testimonial-quote-icon">
-                                       <span>
-                                          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="20" viewBox="0 0 28 20"
-                                             fill="none">
-                                             <path
-                                                d="M6.47189 0C10.2296 0 12.9422 3.10229 12.9421 7.69573C12.9181 14.3697 7.90087 19.0885 0.662843 19.9946C-0.00867188 20.0787 -0.2676 19.1485 0.35078 18.8735C3.12807 17.6386 4.53074 16.0715 4.71192 14.5204C4.84728 13.3616 4.21731 12.3464 3.42628 12.1563C1.37556 11.6636 0.00155861 9.10975 0.00155861 6.47033C0.00155861 2.89687 2.89842 0 6.47189 0Z"
-                                                fill="currentColor" />
-                                             <path
-                                                d="M20.5891 0C24.3468 0 27.0594 3.10229 27.0593 7.69573C27.0353 14.3697 22.0181 19.0885 14.78 19.9946C14.1085 20.0787 13.8496 19.1485 14.468 18.8735C17.2453 17.6386 18.6479 16.0715 18.8291 14.5204C18.9645 13.3616 18.3345 12.3464 17.5435 12.1563C15.4927 11.6636 14.1187 9.10975 14.1187 6.47033C14.1187 2.89687 17.0156 0 20.5891 0Z"
-                                                fill="currentColor" />
-                                          </svg>
-                                       </span>
-                                    </div>
-                                    <div className="tp-fi-testimonial-quote-content">
-                                       <span>Segment Coverage</span>
-                                       <p>Vishtara Methodology</p>
-                                    </div>
-                                 </div>
-                              </div>
                            </div>
                         </div>
                      </div>
@@ -1036,42 +926,22 @@ export default function Home() {
                            <div className="swiper-wrapper">
                               <div className="swiper-slide">
                                  <div className="tp-fi-testimonial-slider-thumb">
-                                    <img src="/assets/img/finance/testimonial/thumb-1.jpg" alt="" />
+                                    <img src="/assets/img/finance/testimonial/thumb-1.jpg" alt="Author 1" />
                                  </div>
                               </div>
                               <div className="swiper-slide">
                                  <div className="tp-fi-testimonial-slider-thumb">
-                                    <img src="/assets/img/finance/testimonial/thumb-2.jpg" alt="" />
+                                    <img src="/assets/img/finance/testimonial/thumb-2.jpg" alt="Author 2" />
                                  </div>
                               </div>
                               <div className="swiper-slide">
                                  <div className="tp-fi-testimonial-slider-thumb">
-                                    <img src="/assets/img/finance/testimonial/thumb-3.jpg" alt="" />
+                                    <img src="/assets/img/finance/testimonial/thumb-3.jpg" alt="Author 3" />
                                  </div>
                               </div>
                               <div className="swiper-slide">
                                  <div className="tp-fi-testimonial-slider-thumb">
-                                    <img src="/assets/img/finance/testimonial/thumb-4.jpg" alt="" />
-                                 </div>
-                              </div>
-                              <div className="swiper-slide">
-                                 <div className="tp-fi-testimonial-slider-thumb">
-                                    <img src="/assets/img/finance/testimonial/thumb-1.jpg" alt="" />
-                                 </div>
-                              </div>
-                              <div className="swiper-slide">
-                                 <div className="tp-fi-testimonial-slider-thumb">
-                                    <img src="/assets/img/finance/testimonial/thumb-2.jpg" alt="" />
-                                 </div>
-                              </div>
-                              <div className="swiper-slide">
-                                 <div className="tp-fi-testimonial-slider-thumb">
-                                    <img src="/assets/img/finance/testimonial/thumb-3.jpg" alt="" />
-                                 </div>
-                              </div>
-                              <div className="swiper-slide">
-                                 <div className="tp-fi-testimonial-slider-thumb">
-                                    <img src="/assets/img/finance/testimonial/thumb-4.jpg" alt="" />
+                                    <img src="/assets/img/finance/testimonial/thumb-4.jpg" alt="Author 4" />
                                  </div>
                               </div>
                            </div>
@@ -1090,8 +960,6 @@ export default function Home() {
                </div>
             </div>
          </div>
-
-
          <div className="tp-fi-partner-ptb tp-sec-ptb upt-80 upb-60" style={{ backgroundColor: "#243F63", backgroundImage: "linear-gradient(160deg, #243F63 0%, #324E73 60%, #243F63 100%)" }}>
             <div className="container">
                <div className="row align-items-center">
@@ -1099,9 +967,9 @@ export default function Home() {
                      <div className="tp-fi-partner-wrapper umb-30">
                         <div className="tp-fi-partner-heading" style={{ marginBottom: "40px" }}>
                            <span className="tp-section-sub primary-color tp-fade-anim">Trusted Advisory</span>
-                           <h3 className="tp-section-title" style={{ color: "#ffffff" }} data-text-split data-letters-fade-in>SEBI Registered <br />
+                           <h2 className="tp-section-title" style={{ color: "#ffffff" }} data-text-split data-letters-fade-in>SEBI Registered <br />
                               Research Analyst <br />
-                              INH000027779</h3>
+                              INH000027779</h2>
                         </div>
                         <div className="tp-fi-partner-wrap">
                            <div className="tp-fade-anim" data-delay=".5">
@@ -1114,7 +982,7 @@ export default function Home() {
                                  <div className="button-text">Explore Subscriptions</div>
                                  <div className="button-icon-wrapper">
                                     <img src="/assets/img/finance/hero/btn-arrow.svg" loading="lazy" width="16"
-                                       height="16" alt="" className="button-image" />
+                                       height="16" alt="Arrow icon" className="button-image" />
                                     <div className="button-dot"></div>
                                  </div>
                               </a>
@@ -1143,7 +1011,7 @@ export default function Home() {
                   <div className="col-lg-5">
                      <div className="tp-fi-partner-thumb-wrap text-lg-end p-relative fix umb-30">
                         <div className="main-thumb">
-                           <img className="radius-6" src="/assets/img/finance/partner/thumb-1.jpg?v=2" alt="" />
+                           <img className="radius-6" src="/assets/img/finance/partner/thumb-1.jpg?v=2" alt="Partner Thumbnail" />
                         </div>
                         <div className="shape-1" style={{ background: "white", padding: "15px 25px", borderRadius: "8px", boxShadow: "0 8px 24px rgba(0,0,0,0.06)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                            <img src="/vistaralogo.svg" alt="Vishtara Logo" style={{ maxHeight: "45px", objectFit: "contain" }} />
@@ -1162,10 +1030,6 @@ export default function Home() {
                </div>
             </div>
          </div>
-
-
-
-
          <div className="tp-fi-team-ptb tp-sec-ptb upt-130 upb-90">
             <div className="container">
                <div className="row align-items-center">
@@ -1183,7 +1047,7 @@ export default function Home() {
                   <div className="col-lg-7 tp-fade-anim" data-delay=".5">
                      <div className="tp-fi-team-heading umb-30">
                         <span className="tp-section-sub tp-fade-anim">Founder & Lead Analyst</span>
-                        <h3 className="tp-section-title">Anujay Chouhan</h3>
+                        <h2 className="tp-section-title">Anujay Chouhan</h2>
                      </div>
                      <div className="tp-fi-team-details-content">
                         <p style={{ fontSize: "18px", lineHeight: "1.8", marginBottom: "25px" }}>
@@ -1194,13 +1058,13 @@ export default function Home() {
                         </p>
                         <ul className="tp-fi-hero-list" style={{ listStyle: "none", padding: 0, margin: 0 }}>
                            <li className="sebi-list-item d-flex align-items-center umb-15" style={{ fontSize: "16px", fontWeight: "500", color: "#1B2B40" }}>
-                              <span style={{ color: "#7A5C00", marginRight: "10px", fontWeight: "bold" }}>✓</span> SEBI Registration No: INH000027779
+                              <span style={{ color: "#594300", marginRight: "10px", fontWeight: "bold" }}>✓</span> SEBI Registration No: INH000027779
                            </li>
                            <li className="sebi-list-item d-flex align-items-center umb-15" style={{ fontSize: "16px", fontWeight: "500", color: "#1B2B40" }}>
                               <span style={{ color: "#7A5C00", marginRight: "10px", fontWeight: "bold" }}>✓</span> Academic Qualification: MBA
                            </li>
                            <li className="sebi-list-item d-flex align-items-center umb-15" style={{ fontSize: "16px", fontWeight: "500", color: "#1B2B40" }}>
-                              <span style={{ color: "#7A5C00", marginRight: "10px", fontWeight: "bold" }}>✓</span> NISM Certified Research Analyst
+                              <span style={{ color: "#594300", marginRight: "10px", fontWeight: "bold" }}>✓</span> Name of Investment Adviser: Anujay Chouhan
                            </li>
                            <li className="sebi-list-item d-flex align-items-center umb-15" style={{ fontSize: "16px", fontWeight: "500", color: "#1B2B40" }}>
                               <span style={{ color: "#7A5C00", marginRight: "10px", fontWeight: "bold" }}>✓</span> 5+ Years Active Market Experience
@@ -1211,13 +1075,9 @@ export default function Home() {
                </div>
             </div>
          </div>
-
-
-
-
          <div className="tp-fi-banner-ptb">
             <div className="tp-fi-banner-wrapper">
-               <img src="/assets/img/finance/banner/banner-bg-2.webp" alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+               <img src="/assets/img/finance/banner/banner-bg-2.webp" alt="Secondary banner" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </div>
             <div className="tp-fi-banner-wrap" style={{ backgroundColor: "#243F63", backgroundImage: "linear-gradient(160deg, #243F63 0%, #324E73 60%, #243F63 100%)" }}>
                <div className="container">
@@ -1232,10 +1092,6 @@ export default function Home() {
                </div>
             </div>
          </div>
-
-
-
-
          <div className="tp-fi-faq-ptb tp-sec-ptb upt-130 upb-90">
             <div className="container">
                <div className="row">
@@ -1243,9 +1099,9 @@ export default function Home() {
                      <div className="tp-fi-faq-wrapper umb-30">
                         <div className="tp-fi-faq-heading umb-60">
                            <span className="tp-section-sub tp-fade-anim">Vishtara FAQ</span>
-                           <h3 className="tp-section-title" data-text-split data-letters-fade-in>
+                           <h2 className="tp-section-title" data-text-split data-letters-fade-in>
                               Simplifying regulatory and <br /> research questions.
-                           </h3>
+                           </h2>
                         </div>
                         <div className="tp-faq-wrap tp-fade-anim" data-delay=".5">
                            <div className="accordion" id="accordionExample">
@@ -1337,9 +1193,9 @@ export default function Home() {
                      <div className="d-flex justify-content-lg-end tp-fade-anim" data-delay=".7">
                         <div className="tp-fi-faq-support p-relative" style={{ backgroundColor: "#F7F7F5" }}>
                            <div className="tp-fi-faq-support-shape">
-                              <img src="/assets/img/finance/banner/faq-bg.png" alt="" />
+                              <img src="/assets/img/finance/banner/faq-bg.png" alt="Support Shape" />
                            </div>
-                           <h3 className="tp-fi-faq-support-title">Hey, do you have any <br /> more questions?</h3>
+                           <h2 className="tp-fi-faq-support-title">Hey, do you have any <br /> more questions?</h2>
                            <div className="tp-fi-faq-support-list upb-60">
                               <ul>
                                  <li>
@@ -1389,7 +1245,7 @@ export default function Home() {
                                  <div className="button-text">Schedule a free consultation</div>
                                  <div className="button-icon-wrapper">
                                     <img src="/assets/img/finance/hero/btn-arrow.svg" loading="lazy" width="16"
-                                       height="16" alt="" className="button-image" />
+                                       height="16" alt="Arrow icon" className="button-image" />
                                     <div className="button-dot"></div>
                                  </div>
                               </a>
@@ -1400,27 +1256,22 @@ export default function Home() {
                </div>
             </div>
          </div>
-
          <div className="tp-fi-cta-ptb upb-80">
             <div className="container">
                <div className="tp-fi-cta-bg radius-6 include-bg" style={{ backgroundColor: "var(--tp-theme-primary)", backgroundImage: "url(/assets/img/finance/cta/cta-bg.png)" }}>
                   <div className="row align-items-center">
                      <div className="col-lg-6">
                         <div className="tp-fi-cta-wrapper">
-                           <h3 className="tp-fi-cta-title" style={{ color: "#111111" }} data-text-split data-letters-fade-in>Fresh perspectives, news <br /> &
-                              Financial resources</h3>
-                           <div className="tp-fi-cta-input d-flex tp-fade-anim">
-                              <input type="text" placeholder="Your email address" />
-                              <button className="tp-btn-event">
-                                 <i className="button-text">Subscribe</i>
-                                 <i className="button-icon-wrapper">
-                                    <img src="/assets/img/finance/hero/btn-arrow.svg" loading="lazy" width="16"
-                                       height="16" alt="" className="button-image" />
-                                    <i className="button-dot"></i>
-                                 </i>
-                              </button>
-                           </div>
-                           <p style={{ color: "#111111" }}>Over $100 million in contracts closed</p>
+                           <h2 className="tp-fi-cta-title" style={{ color: "#111111" }} data-text-split data-letters-fade-in>Fresh perspectives, news <br /> &
+                              Financial resources</h2>
+                           <form onSubmit={(e) => { e.preventDefault(); setSubscribeStatus("Successfully subscribed to newsletter!"); setTimeout(() => setSubscribeStatus(""), 3000); }}>
+                              <div className="tp-fi-cta-form-input p-relative">
+                                 <input type="email" placeholder="Enter Your Email" aria-label="Enter your email" required />
+                                 <button type="submit" className="tp-btn-event">Subscribe</button>
+                              </div>
+                              {subscribeStatus && <p role="status" aria-live="polite" style={{ color: "#15803d", marginTop: "10px", fontWeight: "bold" }}>{subscribeStatus}</p>}
+                           </form>
+                           <p style={{ color: "#111111" }}>Over $100 million in contracts closed</p>
                         </div>
                      </div>
                      <div className="col-lg-6">

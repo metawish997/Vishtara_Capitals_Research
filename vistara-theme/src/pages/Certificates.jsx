@@ -75,7 +75,7 @@ export default function Certificates() {
                          <li>&gt;</li>
                          <li>Certificates</li>
                       </ul>
-                      <h2 className="tp-breadcrumb-title">Certificates & Credentials</h2>
+                      <h1 className="tp-breadcrumb-title">Certificates & Credentials</h1>
                       <p>View our official registrations, certifications, and licenses authorizing us to provide research and advisory services.</p>
                    </div>
                 </div>

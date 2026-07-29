@@ -13,13 +13,13 @@ export default function Complaints() {
             <table className="table" style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "15px" }}>
                <thead>
                   <tr style={{ backgroundColor: "#6E87A8", color: "#ffffff" }}>
-                     <th style={{ padding: "16px 20px", fontWeight: "600", textTransform: "uppercase", fontSize: "13px", letterSpacing: "0.5px" }}>Source</th>
-                     <th style={{ padding: "16px 20px", fontWeight: "600", textTransform: "uppercase", fontSize: "13px", letterSpacing: "0.5px", textAlign: "center" }}>Pending (Prev.)</th>
-                     <th style={{ padding: "16px 20px", fontWeight: "600", textTransform: "uppercase", fontSize: "13px", letterSpacing: "0.5px", textAlign: "center" }}>Received</th>
-                     <th style={{ padding: "16px 20px", fontWeight: "600", textTransform: "uppercase", fontSize: "13px", letterSpacing: "0.5px", textAlign: "center" }}>Resolved</th>
-                     <th style={{ padding: "16px 20px", fontWeight: "600", textTransform: "uppercase", fontSize: "13px", letterSpacing: "0.5px", textAlign: "center" }}>Total Pending</th>
-                     <th style={{ padding: "16px 20px", fontWeight: "600", textTransform: "uppercase", fontSize: "13px", letterSpacing: "0.5px", textAlign: "center" }}>Pending &gt;3M</th>
-                     <th style={{ padding: "16px 20px", fontWeight: "600", textTransform: "uppercase", fontSize: "13px", letterSpacing: "0.5px", textAlign: "center" }}>Avg. Days</th>
+                     <th scope="col" style={{ padding: "16px 20px", fontWeight: "600", textTransform: "uppercase", fontSize: "13px", letterSpacing: "0.5px" }}>Source</th>
+                     <th scope="col" style={{ padding: "16px 20px", fontWeight: "600", textTransform: "uppercase", fontSize: "13px", letterSpacing: "0.5px", textAlign: "center" }}>Pending (Prev.)</th>
+                     <th scope="col" style={{ padding: "16px 20px", fontWeight: "600", textTransform: "uppercase", fontSize: "13px", letterSpacing: "0.5px", textAlign: "center" }}>Received</th>
+                     <th scope="col" style={{ padding: "16px 20px", fontWeight: "600", textTransform: "uppercase", fontSize: "13px", letterSpacing: "0.5px", textAlign: "center" }}>Resolved</th>
+                     <th scope="col" style={{ padding: "16px 20px", fontWeight: "600", textTransform: "uppercase", fontSize: "13px", letterSpacing: "0.5px", textAlign: "center" }}>Total Pending</th>
+                     <th scope="col" style={{ padding: "16px 20px", fontWeight: "600", textTransform: "uppercase", fontSize: "13px", letterSpacing: "0.5px", textAlign: "center" }}>Pending &gt;3M</th>
+                     <th scope="col" style={{ padding: "16px 20px", fontWeight: "600", textTransform: "uppercase", fontSize: "13px", letterSpacing: "0.5px", textAlign: "center" }}>Avg. Days</th>
                   </tr>
                </thead>
                <tbody>
@@ -29,7 +29,7 @@ export default function Complaints() {
                      { source: "Other Sources", pendingPrev: 0, received: 0, resolved: 0, totalPending: 0, pendingOver3m: 0, avgDays: 0 }
                   ].map((row, index) => (
                      <tr key={index} className="bank-item" style={{ borderBottom: "1px solid #e9ecef" }}>
-                        <td className="bank-item-val" style={{ padding: "18px 20px", fontWeight: "500" }}>{row.source}</td>
+                        <th scope="row" className="bank-item-val" style={{ padding: "18px 20px", fontWeight: "500" }}>{row.source}</th>
                         <td className="bank-item-val" style={{ padding: "18px 20px", textAlign: "center" }}>{row.pendingPrev}</td>
                         <td className="bank-item-val" style={{ padding: "18px 20px", textAlign: "center" }}>{row.received}</td>
                         <td className="bank-item-val" style={{ padding: "18px 20px", textAlign: "center" }}>{row.resolved}</td>
@@ -39,7 +39,7 @@ export default function Complaints() {
                      </tr>
                   ))}
                   <tr className="payment-note" style={{ backgroundColor: "#f8fafc", fontWeight: "bold", borderBottom: "2px solid #e2e8f0" }}>
-                     <td style={{ padding: "18px 20px", color: "var(--primary)" }}>Grand Total</td>
+                     <th scope="row" style={{ padding: "18px 20px", color: "var(--primary)" }}>Grand Total</th>
                      <td style={{ padding: "18px 20px", textAlign: "center", color: "var(--primary)" }}>0</td>
                      <td style={{ padding: "18px 20px", textAlign: "center", color: "var(--primary)" }}>0</td>
                      <td style={{ padding: "18px 20px", textAlign: "center", color: "var(--primary)" }}>0</td>

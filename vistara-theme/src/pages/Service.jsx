@@ -54,7 +54,7 @@ const PricingCard = ({ service }) => {
          </div>
 
          <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px', marginBottom: '20px', justifyContent: 'center' }}>
-            <h2 style={{ fontSize: '2.5rem', color: '#ffffff', margin: 0, fontWeight: '700' }}>₹{currentPlan.price}</h2>
+            <p style={{ fontSize: '2.5rem', color: '#ffffff', margin: 0, fontWeight: '700' }}>₹{currentPlan.price}</p>
             <span style={{ color: '#8FA5C2', fontSize: '13px' }}>/ {currentPlan.duration}</span>
          </div>
 
@@ -243,7 +243,7 @@ export default function Service() {
                            <li>&gt;</li>
                            <li>Services</li>
                         </ul>
-                        <h2 className="tp-breadcrumb-title">Services</h2>
+                        <h1 className="tp-breadcrumb-title">Services</h1>
                         <p>Disciplined, data-driven market intelligence to optimize <br /> execution accuracy and capital protection.</p>
                      </div>
                   </div>
@@ -259,9 +259,9 @@ export default function Service() {
                <div className="row">
                   <div className="col-lg-6">
                      <div className="tp-cn-counter-heading umb-30">
-                        <h3 className="tp-section-title">
+                        <h2 className="tp-section-title">
                            Gain disciplined, <br /> mathematical setups
-                        </h3>
+                        </h2>
                         <p>High-probability research alerts with strict target stop-losses <br /> across multiple asset segments.</p>
                      </div>
                   </div>
@@ -269,22 +269,22 @@ export default function Service() {
                      <div className="tp-cn-counter-wrapper custom-counter-wrapper umb-30" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', borderRadius: '8px', overflow: 'hidden' }}>
                         <div className="tp-cn-counter-item custom-counter-item" style={{ padding: '40px 30px', borderRightStyle: 'solid', borderRightWidth: '1px', borderBottomStyle: 'solid', borderBottomWidth: '1px' }}>
                            <span className="tp-cn-counter-title" style={{ fontSize: '13px' }}>Active subscribers</span>
-                           <h2 className="tp-cn-counter-number" style={{ marginTop: '15px' }}><span className="purecounter">1000</span><span className="tp-cn-counter-suffix">+</span></h2>
+                           <p className="tp-cn-counter-number" style={{ marginTop: '15px', fontSize: '2rem', fontWeight: 'bold' }}><span className="purecounter">1000</span><span className="tp-cn-counter-suffix">+</span></p>
                         </div>
 
                         <div className="tp-cn-counter-item custom-counter-item" style={{ padding: '40px 30px', borderBottomStyle: 'solid', borderBottomWidth: '1px' }}>
                            <span className="tp-cn-counter-title" style={{ fontSize: '13px' }}>SEBI Registered</span>
-                           <h2 className="tp-cn-counter-number" style={{ marginTop: '15px' }}><span className="purecounter">100</span><span className="tp-cn-counter-suffix">% <span style={{fontSize:'20px', fontWeight: '500'}}>compliant</span></span></h2>
+                           <p className="tp-cn-counter-number" style={{ marginTop: '15px', fontSize: '2rem', fontWeight: 'bold' }}><span className="purecounter">100</span><span className="tp-cn-counter-suffix">% <span style={{fontSize:'20px', fontWeight: '500'}}>compliant</span></span></p>
                         </div>
 
                         <div className="tp-cn-counter-item custom-counter-item" style={{ padding: '40px 30px', borderRightStyle: 'solid', borderRightWidth: '1px' }}>
                            <span className="tp-cn-counter-title" style={{ fontSize: '13px' }}>Market research</span>
-                           <h2 className="tp-cn-counter-number" style={{ marginTop: '15px' }}><span className="purecounter">5</span><span className="tp-cn-counter-suffix">+ years</span></h2>
+                           <p className="tp-cn-counter-number" style={{ marginTop: '15px', fontSize: '2rem', fontWeight: 'bold' }}><span className="purecounter">5</span><span className="tp-cn-counter-suffix">+ years</span></p>
                         </div>
 
                         <div className="tp-cn-counter-item custom-counter-item" style={{ padding: '40px 30px' }}>
                            <span className="tp-cn-counter-title" style={{ fontSize: '13px' }}>Accuracy focus</span>
-                           <h2 className="tp-cn-counter-number" style={{ marginTop: '15px' }}><span className="tp-cn-counter-prefix">&gt;</span><span className="purecounter">90</span><span className="tp-cn-counter-suffix">% <span style={{fontSize:'20px', fontWeight: '500'}}>target setups</span></span></h2>
+                           <p className="tp-cn-counter-number" style={{ marginTop: '15px', fontSize: '2rem', fontWeight: 'bold' }}><span className="tp-cn-counter-prefix">&gt;</span><span className="purecounter">90</span><span className="tp-cn-counter-suffix">% <span style={{fontSize:'20px', fontWeight: '500'}}>target setups</span></span></p>
                         </div>
                      </div>
                   </div>
@@ -306,7 +306,7 @@ export default function Service() {
                   <div className="col-lg-12">
                      <div className="tp-cn-philoshopy-heading umb-70 z-index-1">
                         <span className="tp-section-cn-sub tp-fade-anim" style={{ color: "#ffffff" }}>Vishtara philosophy</span>
-                        <h3 className="tp-section-title" style={{ color: "#ffffff" }} data-text-split data-letters-fade-in>Bold strategic interventions that <br /> change the course of trading</h3>
+                        <h2 className="tp-section-title" style={{ color: "#ffffff" }} data-text-split data-letters-fade-in>Bold strategic interventions that <br /> change the course of trading</h2>
                      </div>
                   </div>
                </div>
@@ -416,7 +416,7 @@ export default function Service() {
                   <div className="col-lg-12">
                      <div className="tp-fi-service-heading text-center umb-60">
                         <span className="tp-section-sub tp-fade-anim">What we provide</span>
-                        <h3 className="tp-section-title">Disciplined market research &amp; advisory</h3>
+                        <h2 className="tp-section-title">Disciplined market research &amp; advisory</h2>
                      </div>
                   </div>
                </div>
@@ -548,7 +548,7 @@ export default function Service() {
                   <div className="col-lg-12">
                      <div className="text-center umb-60">
                         <span className="tp-section-sub" style={{ color: '#3b82f6', letterSpacing: '2px', textTransform: 'uppercase', fontSize: '14px', fontWeight: 'bold' }}>Our Services</span>
-                        <h3 className="tp-section-title" style={{ color: '#fff' }}>Choose the Plan That Fits You Best</h3>
+                        <h2 className="tp-section-title" style={{ color: '#fff' }}>Choose the Plan That Fits You Best</h2>
                         <p style={{ color: '#9ca3af' }}>Flexible durations. Powerful features. Maximum value.</p>
                      </div>
                   </div>
@@ -610,9 +610,9 @@ export default function Service() {
                      <div className="tp-cn-success-item umb-30 radius-6 p-relative" style={{ backgroundColor: "#ffffff", backgroundImage: "url(assets/img/consulting/success/bg.jpg)" }}>
                         <div className="tp-cn-success-item-content upb-200">
                            <span className="tp-cn-success-item-sub tp-fade-anim" style={{ color: "#243F63", fontWeight: "600" }}>Vishtara Capital Research</span>
-                           <h3 className="tp-cn-success-item-title" data-text-split data-letters-fade-in style={{ color: "#243F63" }}>Empowering clients with accurate <br />
+                           <h2 className="tp-cn-success-item-title" data-text-split data-letters-fade-in style={{ color: "#243F63" }}>Empowering clients with accurate <br />
                               technical analysis &amp; premium <br />
-                              market research alerts.</h3>
+                              market research alerts.</h2>
                            <div className="tp-fade-anim" data-delay=".5">
                               <Link className="tp-btn tp-btn-switch-animation" to="/contact">
                                  <span className="d-flex align-items-center justify-content-center">

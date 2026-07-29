@@ -35,10 +35,11 @@ export default function Footer() {
                                   Vishtara Capital Research <br />
                                   C-20/1, Mahananda Nagar, <br />
                                   Ujjain (M.P.) <br /><br />
-                                  <strong>Phone:</strong> 8602027324 <br />
-                                  <strong>Email:</strong> chouhananujay@gmail.com
+                                  <strong>Phone:</strong> <a href="tel:8602027324" style={{ color: "inherit", textDecoration: "none" }} className="tp-line-anim">8602027324</a> <br />
+                                  <strong>Email:</strong> <a href="mailto:chouhananujay@gmail.com" style={{ color: "inherit", textDecoration: "none" }} className="tp-line-anim">chouhananujay@gmail.com</a>
                                </p>
                             </div>
+                           {/* 
                            <div className="tp-footer-widget-social" style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
                               <a href="#" aria-label="Facebook" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textDecoration: 'none' }}>
                                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"
@@ -77,6 +78,7 @@ export default function Footer() {
                                  <span className="social-name">Telegram</span>
                               </a>
                            </div>
+                           */}
                         </div>
                      </div>
                      <div className="col-xl-3 col-md-6 col-sm-6">
@@ -102,6 +104,7 @@ export default function Footer() {
                                     <li><Link className="tp-line-anim" to="/refund-policy">Refund Policy</Link></li>
                                     <li><Link className="tp-line-anim" to="/terms-and-conditions">Terms &amp; Services</Link></li>
                                     <li><Link className="tp-line-anim" to="/grievance-escalation-matrix">Escalation Matrix</Link></li>
+                                    <li><Link className="tp-line-anim" to="/sitemap">Sitemap</Link></li>
                                 </ul>
                              </div>
                           </div>

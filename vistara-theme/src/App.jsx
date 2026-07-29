@@ -30,6 +30,7 @@ import PmlaPolicy from "./pages/policies/PmlaPolicy";
 import RiskWarnings from "./pages/policies/RiskWarnings";
 import Certificates from "./pages/Certificates";
 import Login from "./pages/Login";
+import Sitemap from "./pages/Sitemap";
 import NotFound from "./pages/NotFound";
 import AdminRoutes from "./routes/AdminRoutes";
 
@@ -80,6 +81,7 @@ function App() {
                 <Route path="certificates" element={<Certificates />} />
                 <Route path="login" element={<Login />} />
                 <Route path="contact" element={<Contact />} />
+                <Route path="sitemap" element={<Sitemap />} />
                 <Route path="*" element={<NotFound />} />
               </Route>
 

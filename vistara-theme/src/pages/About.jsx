@@ -19,6 +19,7 @@ export default function About() {
             body.high-contrast .tp-about-wrapper p {
                color: #222F30 !important;
             }
+            body.high-contrast div.tp-cn-success-item.tp-cn-success-item.tp-cn-success-item h2,
             body.high-contrast div.tp-cn-success-item.tp-cn-success-item.tp-cn-success-item h3,
             body.high-contrast div.tp-cn-success-item.tp-cn-success-item.tp-cn-success-item > div > span,
             body.high-contrast div.tp-cn-success-item.tp-cn-success-item.tp-cn-success-item > div > p,
@@ -31,6 +32,7 @@ export default function About() {
                color: #222F30 !important;
             }
             
+            html[data-theme="dark"] div.tp-cn-success-item.tp-cn-success-item.tp-cn-success-item h2,
             html[data-theme="dark"] div.tp-cn-success-item.tp-cn-success-item.tp-cn-success-item h3,
             html[data-theme="dark"] div.tp-cn-success-item.tp-cn-success-item.tp-cn-success-item > div > span,
             html[data-theme="dark"] div.tp-cn-success-item.tp-cn-success-item.tp-cn-success-item > div > p,
@@ -62,7 +64,7 @@ export default function About() {
                            <li aria-hidden="true">&gt;</li>
                            <li aria-current="page">About</li>
                         </ul>
-                        <h2 className="tp-breadcrumb-title">About us</h2>
+                        <h1 className="tp-breadcrumb-title">About us</h1>
                         <p>Providing disciplined, objective market research and analytics <br /> across Equity, F&O, and Commodities.</p>
                      </div>
                   </div>
@@ -85,7 +87,7 @@ export default function About() {
                      <div className="tp-about-wrapper">
                         <div className="tp-fi-about-content upb-50">
                            <span className="tp-section-sub tp-fade-anim">Know about us</span>
-                           <h3 className="tp-section-title umb-20" data-text-split data-letters-fade-in>Disciplined Research. Objective Analysis. <br /> Independent Advisory Strategy.</h3>
+                           <h2 className="tp-section-title umb-20" data-text-split data-letters-fade-in>Disciplined Research. Objective Analysis. <br /> Independent Advisory Strategy.</h2>
                            <div className="tp-fade-anim" data-delay=".5">
                               <p>At Vishtara Capital Research, we specialize in offering data-driven, regulatory-compliant market insights. As a SEBI Registered Research Analyst, <br />
                               we focus on identifying high-probability setups with a strict emphasis on risk management and clear Stop-Loss discipline <br />
@@ -100,7 +102,7 @@ export default function About() {
                            </div>
                            <div className="col-lg-7">
                               <div className="tp-about-feature umb-30 tp-fade-anim" data-delay=".7">
-                                 <h4 className="tp-about-feature-title">Certified & Regulated</h4>
+                                 <h3 className="tp-about-feature-title">Certified & Regulated</h3>
                                  <ul>
                                     <li><i className="fa-regular fa-check"></i> SEBI Registered (INH000027779)</li>
                                     <li><i className="fa-regular fa-check"></i> NISM Certified Professionals</li>
@@ -124,7 +126,7 @@ export default function About() {
                   <div className="col-lg-12">
                      <div className="tp-about-vision-content umb-55">
                         <span className="tp-section-sub tp-fade-anim">Our vision</span>
-                        <h3 className="tp-section-title fs-32 umb-20" data-text-split data-letters-fade-in>Leading the future of wealth research and objective market insights</h3>
+                        <h2 className="tp-section-title fs-32 umb-20" data-text-split data-letters-fade-in>Leading the future of wealth research and objective market insights</h2>
                      </div>
                   </div>
                </div>
@@ -140,7 +142,7 @@ export default function About() {
                            </span>
                         </div>
                         <div className="tp-about-vision-item-content">
-                           <h4 className="tp-about-vision-item-title">Empowering Trading Decisions</h4>
+                           <h3 className="tp-about-vision-item-title">Empowering Trading Decisions</h3>
                            <p>Our vision is to provide objective, mathematical setups to help <br /> traders navigate short-term volatility with high accuracy.</p>
                         </div>
                      </div>
@@ -158,7 +160,7 @@ export default function About() {
                            </span>
                         </div>
                         <div className="tp-about-vision-item-content">
-                           <h4 className="tp-about-vision-item-title">Protecting Client Capital</h4>
+                           <h3 className="tp-about-vision-item-title">Protecting Client Capital</h3>
                            <p>We seek to build long-term trust by putting capital protection <br /> first through strict stop-loss management rules.</p>
                         </div>
                      </div>
@@ -201,7 +203,7 @@ export default function About() {
                      <div className="tp-fi-value-content umb-30">
                         <div className="tp-fi-value-heading">
                            <span className="tp-section-sub tp-fade-anim">Our core values</span>
-                           <h3 className="tp-section-title umb-30" data-text-split data-letters-fade-in>Insight at the core. Independent <br /> strategy in action.</h3>
+                           <h2 className="tp-section-title umb-30" data-text-split data-letters-fade-in>Insight at the core. Independent <br /> strategy in action.</h2>
                            <div className="tp-fade-anim" data-delay=".5">
                               <p>We begin by listening—deeply and intentionally. Every decision is grounded in real data, market <br />
                               signals, and human insight, not assumptions or trends for the sake of trends. This foundation <br />
@@ -256,9 +258,9 @@ export default function About() {
                       <div className="tp-cn-success-item umb-30 radius-6 p-relative" style={{backgroundColor: "#ffffff", backgroundImage: "url(assets/img/consulting/success/bg.jpg)"}}>
                          <div className="tp-cn-success-item-content upb-200">
                             <span className="tp-cn-success-item-sub tp-fade-anim" style={{ color: "#243F63", fontWeight: "600" }}>Vishtara Capital Research</span> 
-                            <h3 className="tp-cn-success-item-title" data-text-split data-letters-fade-in style={{ color: "#243F63" }}>Empowering clients with accurate <br />
+                            <h2 className="tp-cn-success-item-title" data-text-split data-letters-fade-in style={{ color: "#243F63" }}>Empowering clients with accurate <br />
                             technical analysis & premium <br />
-                            market research alerts.</h3>
+                            market research alerts.</h2>
                             <div className="tp-fade-anim" data-delay=".5">
                                <Link className="tp-btn tp-btn-switch-animation" to="/services">
                                   <span className="d-flex align-items-center justify-content-center">

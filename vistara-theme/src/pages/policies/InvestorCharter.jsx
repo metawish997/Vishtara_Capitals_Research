@@ -14,7 +14,7 @@ export default function InvestorCharter() {
                     <h2 id="heading-vision" className="text-2xl font-bold text-[#0939a4] dark:text-[#FBB040]">A. Vision and Mission Statements for investors.</h2>
                 </div>
                 
-                <div className="space-y-4 text-[15px] font-medium text-slate-600 dark:text-slate-400">
+                <div className="space-y-4 text-[15px] font-medium text-slate-700 dark:text-slate-400">
                     <div className="pl-2">
                         <h3 className="text-base font-bold uppercase text-slate-800 dark:text-slate-200 tracking-wider mb-1">• Vision</h3>
                         <p className="pl-4">Invest with knowledge &amp; safety.</p>
@@ -36,7 +36,7 @@ export default function InvestorCharter() {
                     </div>
                     <h2 id="heading-business" className="text-2xl font-bold text-[#0939a4] dark:text-[#FBB040]">B. Details of business transacted by the Research Analyst with respect to the investors.</h2>
                 </div>
-                <ul className="space-y-4 text-[15px] text-slate-600 dark:text-slate-400 font-medium list-disc pl-5">
+                <ul className="space-y-4 text-[15px] text-slate-700 dark:text-slate-400 font-medium list-disc pl-5">
                     <li>To publish research report based on the research activities of the RA</li>
                     <li>To provide an independent unbiased view on securities.</li>
                     <li>To offer unbiased recommendation, disclosing the financial interests in recommended securities.</li>
@@ -54,7 +54,7 @@ export default function InvestorCharter() {
                     </div>
                     <h2 id="heading-services" className="text-2xl font-bold text-[#0939a4] dark:text-[#FBB040]">C. Details of services provided to investors (No Indicative Timelines)</h2>
                 </div>
-                <ul className="space-y-4 text-[15px] text-slate-600 dark:text-slate-400 font-medium list-disc pl-5">
+                <ul className="space-y-4 text-[15px] text-slate-700 dark:text-slate-400 font-medium list-disc pl-5">
                     <li>Onboarding of Clients</li>
                     <li>Sharing of terms and conditions of research service</li>
                     <li>Completing KYC of fee-paying clients</li>
@@ -85,16 +85,16 @@ export default function InvestorCharter() {
                     <h2 id="heading-grievance" className="text-2xl font-bold text-[#0939a4] dark:text-[#FBB040]">D. Details of grievance redressal mechanism and how to access it</h2>
                 </div>
                 
-                <div className="space-y-4 text-[15px] font-medium text-slate-600 dark:text-slate-400">
-                    <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">1. Investor can lodge complaint/grievance against Research Analyst in the following ways:</h3>
+                <div className="space-y-4 text-[15px] font-medium text-slate-700 dark:text-slate-400">
+                    <p className="text-base font-bold text-slate-800 dark:text-slate-200">1. Investor can lodge complaint/grievance against Research Analyst in the following ways:</p>
                     
                     <div className=" ">
-                        <h4 className="font-bold text-[#0939a4] dark:text-[#FBB040] uppercase tracking-wider mb-2">Mode of filing the complaint with research analyst</h4>
+                        <p className="font-bold text-[#0939a4] dark:text-[#FBB040] uppercase tracking-wider mb-2">Mode of filing the complaint with research analyst</p>
                         <p>In case of any grievance / complaint, an investor may approach the concerned Research Analyst who shall strive to redress the grievance immediately, but not later than 21 days of the receipt of the grievance.</p>
                     </div>
 
                     <div className=" ">
-                        <h4 className="font-bold text-[#0939a4] dark:text-[#FBB040] uppercase tracking-wider mb-2">Mode of filing the complaint on SCORES or with Research Analyst Administration and Supervisory Body (RAASB)</h4>
+                        <p className="font-bold text-[#0939a4] dark:text-[#FBB040] uppercase tracking-wider mb-2">Mode of filing the complaint on SCORES or with Research Analyst Administration and Supervisory Body (RAASB)</p>
                         <ul className="space-y-3 list-disc pl-5 mt-2">
                             <li>
                                 <strong>i. SCORES 2.0:</strong> (a web based centralized grievance redressal system of SEBI for facilitating effective grievance redressal in time-bound manner) 
@@ -134,7 +134,7 @@ export default function InvestorCharter() {
                     </div>
                     <h2 id="heading-rights" className="text-2xl font-bold text-[#0939a4] dark:text-[#FBB040]">E. Rights of investors</h2>
                 </div>
-                <ul className="space-y-4 text-[15px] text-slate-600 dark:text-slate-400 font-medium list-disc pl-5">
+                <ul className="space-y-4 text-[15px] text-slate-700 dark:text-slate-400 font-medium list-disc pl-5">
                     <li>Right to Privacy and Confidentiality.</li>
                     <li>Right to Transparent Practices.</li>
                     <li>Right to fair and Equitable Treatment.</li>
@@ -166,7 +166,7 @@ export default function InvestorCharter() {
                         <h3 className="text-base font-bold text-[#0939a4] dark:text-[#FBB040] uppercase tracking-wide mb-3 flex items-center gap-2">
                             <i aria-hidden="true" className="fa-solid fa-circle-check"></i> Do’s
                         </h3>
-                        <ul className="text-[15px] text-slate-600 dark:text-slate-400 font-medium space-y-4 list-none">
+                        <ul className="text-[15px] text-slate-700 dark:text-slate-400 font-medium space-y-4 list-none">
                             <li><strong>I.</strong> Always deal with SEBI registered Research Analyst.</li>
                             <li><strong>II.</strong> Ensure that the Research Analyst has a valid registration certificate.</li>
                             <li><strong>III.</strong> Check for SEBI registration number.</li>
@@ -190,7 +190,7 @@ export default function InvestorCharter() {
                         <h3 className="text-base font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-3 flex items-center gap-2">
                             <i aria-hidden="true" className="fa-solid fa-circle-xmark text-red-500"></i> Don’ts
                         </h3>
-                        <ul className="text-[15px] text-slate-600 dark:text-slate-400 font-medium space-y-4 list-none">
+                        <ul className="text-[15px] text-slate-700 dark:text-slate-400 font-medium space-y-4 list-none">
                             <li><strong>I.</strong> Do not provide funds for investment to the Research Analyst.</li>
                             <li><strong>II.</strong> Don’t fall prey to luring advertisements or market rumors.</li>
                             <li><strong>III.</strong> Do not get attracted to limited period discount or other incentive, gifts, etc. offered by Research Analyst.</li>

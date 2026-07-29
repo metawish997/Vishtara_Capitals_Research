@@ -12,6 +12,22 @@ export default function Header() {
    const [fadeState, setFadeState] = useState("fade-in");
    const [isAccessOpen, setIsAccessOpen] = useState(false);
    const [marquees, setMarquees] = useState([]);
+   const [isTickerPaused, setIsTickerPaused] = useState(false);
+   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+   React.useEffect(() => {
+      const offcanvas = document.querySelector('.tp-offcanvas-area');
+      if (!offcanvas) return;
+      const observer = new MutationObserver((mutations) => {
+         mutations.forEach((mutation) => {
+            if (mutation.attributeName === 'class') {
+               setIsMobileMenuOpen(offcanvas.classList.contains('opened'));
+            }
+         });
+      });
+      observer.observe(offcanvas, { attributes: true });
+      return () => observer.disconnect();
+   }, []);
 
    React.useEffect(() => {
       const fetchMarquees = async () => {
@@ -256,10 +272,9 @@ export default function Header() {
                            </Link>
                         )}
                         <div className="tp-header-lan d-none d-xl-block" style={{ position: "relative" }}>
-                           <a href="#" onClick={(e) => { e.preventDefault(); setIsAccessOpen(!isAccessOpen); }} aria-label="Accessibility Options" aria-haspopup="true" aria-expanded={isAccessOpen} style={{ color: "var(--text-dark, #1B2B40)", cursor: "pointer" }}>
+                           <a href="#" onClick={(e) => { e.preventDefault(); setIsAccessOpen(!isAccessOpen); }} aria-label="Open accessibility options" aria-haspopup="true" aria-expanded={isAccessOpen} style={{ color: "var(--text-dark, #1B2B40)", cursor: "pointer" }}>
                               <span>
-                                 <svg aria-labelledby="svg-inline--fa-title-zwy8pG9PvW5d" data-prefix="fas" data-icon="child-reaching" className="svg-inline--fa fa-child-reaching fa-icon access_icon" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" aria-label="Accessibility List" style={{ width: "22px", height: "22px", fill: "currentColor", verticalAlign: "middle" }}>
-                                    <title id="svg-inline--fa-title-zwy8pG9PvW5d">Accessibility List</title>
+                                 <svg aria-hidden="true" data-prefix="fas" data-icon="child-reaching" className="svg-inline--fa fa-child-reaching fa-icon access_icon" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" style={{ width: "22px", height: "22px", fill: "currentColor", verticalAlign: "middle" }}>
                                     <path fill="currentColor" d="M256 64A64 64 0 1 0 128 64a64 64 0 1 0 128 0zM152.9 169.3c-23.7-8.4-44.5-24.3-58.8-45.8L74.6 94.2C64.8 79.5 45 75.6 30.2 85.4s-18.7 29.7-8.9 44.4L40.9 159c18.1 27.1 42.8 48.4 71.1 62.4L112 480c0 17.7 14.3 32 32 32s32-14.3 32-32l0-96 32 0 0 96c0 17.7 14.3 32 32 32s32-14.3 32-32l0-258.4c29.1-14.2 54.4-36.2 72.7-64.2l18.2-27.9c9.6-14.8 5.4-34.6-9.4-44.3s-34.6-5.5-44.3 9.4L291 122.4c-21.8 33.4-58.9 53.6-98.8 53.6c-12.6 0-24.9-2-36.6-5.8c-.9-.3-1.8-.7-2.7-.9z"></path>
                                  </svg>
                               </span>
@@ -285,9 +300,12 @@ export default function Header() {
                               </div>
                            </div>
                         </div>
-                        <button className="tp-header-bar tp-offcanvas-open-btn uml-25" aria-label="Open mobile menu" onClick={() => {
+                        <button className="tp-header-bar tp-offcanvas-open-btn uml-25" aria-label="Open navigation menu" aria-expanded={isMobileMenuOpen} aria-controls="mobile-menu" onClick={() => {
                            document.querySelector('.tp-offcanvas-area')?.classList.add('opened');
                            document.querySelector('.body-overlay')?.classList.add('opened');
+                           setTimeout(() => {
+                              document.querySelector('.tp-offcanvas-close-btn')?.focus();
+                           }, 100);
                         }}>
                            <span>
                               <svg xmlns="http://www.w3.org/2000/svg" width="40" height="9" viewBox="0 0 40 9"
@@ -323,6 +341,10 @@ export default function Header() {
                 .vistar-marquee-content:hover {
                   animation-play-state: paused;
                 }
+                .vistar-marquee-container {
+                   display: flex;
+                   align-items: center;
+                }
                 .vistar-marquee-item {
                   display: inline-block;
                   margin-right: 50px;
@@ -351,7 +373,30 @@ export default function Header() {
                 }
               `}</style>
             <div className="vistar-marquee-container">
-               <div className="vistar-marquee-content">
+               <button
+                  onClick={() => setIsTickerPaused(!isTickerPaused)}
+                  aria-label={isTickerPaused ? "Play announcement ticker" : "Pause announcement ticker"}
+                  aria-pressed={isTickerPaused}
+                  style={{
+                     background: 'transparent',
+                     border: 'none',
+                     cursor: 'pointer',
+                     padding: '0 15px',
+                     color: '#222F30',
+                     display: 'flex',
+                     alignItems: 'center',
+                     justifyContent: 'center',
+                     zIndex: 10,
+                     flexShrink: 0
+                  }}
+               >
+                  {isTickerPaused ? (
+                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                  ) : (
+                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                  )}
+               </button>
+               <div className="vistar-marquee-content" style={{ animationPlayState: isTickerPaused ? 'paused' : 'running' }}>
                   {marquees.length > 0 ? (
                      marquees.map(m => (
                         <span key={m._id} className="vistar-marquee-item">

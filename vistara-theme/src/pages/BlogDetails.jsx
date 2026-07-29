@@ -147,7 +147,7 @@ export default function BlogDetails() {
                            <li>&gt;</li>
                            <li>Blog Details</li>
                         </ul>
-                        <h2 className="tp-breadcrumb-title">Blog Details</h2>
+                        <h1 className="tp-breadcrumb-title">Blog Details</h1>
                         <p>Through digital innovation, we drive scalable growth, lead climate-positive change, <br /> and strengthen organizational excellence</p>
                      </div>
                   </div>
@@ -173,7 +173,7 @@ export default function BlogDetails() {
                            />
                            {/* Meta Info */}
                            <div style={{ backgroundColor: '#111827', padding: '20px', borderRadius: '10px', marginTop: '16px' }}>
-                              <h3 style={{ color: '#ffffff', fontWeight: '600', marginBottom: '16px', fontSize: '14px', letterSpacing: '1px' }}>DETAILS:</h3>
+                              <h2 style={{ color: '#ffffff', fontWeight: '600', marginBottom: '16px', fontSize: '14px', letterSpacing: '1px' }}>DETAILS:</h2>
                               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                  <li style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '10px' }}>
                                     <span style={{ color: '#ffffff', fontWeight: '600', fontSize: '13px' }}>DATE</span>
@@ -222,7 +222,7 @@ export default function BlogDetails() {
                   <div className="col-lg-12">
                      <div className="tp-blog-details-heading text-center umb-50">
                         <span className="tp-section-sub tp-fade-anim">Latest insights</span>
-                        <h3 className="tp-section-title" data-text-split data-letters-fade-in>Fresh insights and updates. Your <br /> guide to a better work life</h3>
+                        <h2 className="tp-section-title" data-text-split data-letters-fade-in>Fresh insights and updates. Your <br /> guide to a better work life</h2>
                      </div>
                   </div>
                </div>
@@ -241,9 +241,9 @@ export default function BlogDetails() {
                                  {new Date(lb.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                               </span>
                            </div>
-                           <h3 className="tp-cn-blog-item-title">
+                           <h2 className="tp-cn-blog-item-title">
                               <Link className="tp-line-anim" to={`/blog/${lb.slug}`}>{lb.title}</Link>
-                           </h3>
+                           </h2>
                            <p className="description" style={{ flexGrow: 1 }}>
                               {lb.short_description || (lb.content && lb.content.replace(/<[^>]*>?/gm, '').substring(0, 100)) + '...'}
                            </p>
@@ -269,7 +269,7 @@ export default function BlogDetails() {
                               </div>
                            </div>
                            <div className="tp-cn-blog-item-btn">
-                              <Link className="tp-btn tp-btn-switch-animation" to={`/blog/${lb.slug}`}>
+                              <Link className="tp-btn tp-btn-switch-animation" to={`/blog/${lb.slug}`} aria-label={`Read more about ${lb.title}`}>
                                  <span className="d-flex align-items-center justify-content-center">
                                     <span className="btn-text">
                                        Read more

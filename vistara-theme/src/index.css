@@ -399,3 +399,32 @@ body.admin-dashboard-active ::-webkit-scrollbar-thumb:hover {
 .tp-breadcrumb-ptb .tp-breadcrumb-list li a {
   color: #ffffff !important;
 }
+
+/* ==========================================================================
+   GLOBAL ACCESSIBILITY FIXES
+   ========================================================================== */
+
+/* Focus Indicator using currentColor to preserve existing theme colors */
+*:focus-visible {
+  outline: 2px solid currentColor !important;
+  outline-offset: 2px !important;
+}
+
+/* Skip to Main Content Link (Hidden visually until focused) */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #1B2B40;
+  color: #FBB040 !important;
+  padding: 8px 16px;
+  z-index: 99999;
+  font-weight: 700;
+  transition: top 0.2s ease;
+  text-decoration: none;
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+  top: 0;
+}

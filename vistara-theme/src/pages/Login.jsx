@@ -23,6 +23,8 @@ export default function Login() {
       identifier: "", // for forgot password
       type: "email" // for forgot password
    });
+   
+   const [errors, setErrors] = useState({});
 
    const handleChange = (e) => {
       const { name, value, type, checked } = e.target;
@@ -30,6 +32,9 @@ export default function Login() {
          ...prev,
          [name]: type === "checkbox" ? checked : value
       }));
+      if (errors[name]) {
+         setErrors(prev => ({ ...prev, [name]: null }));
+      }
    };
 
    const handleLogin = async (e) => {
@@ -53,6 +58,23 @@ export default function Login() {
 
    const handleSendRegisterOtp = async (e) => {
       e.preventDefault();
+      
+      const newErrors = {};
+      const emailRegex = /^\S+@\S+\.\S+$/;
+      if (!emailRegex.test(formData.email)) {
+          newErrors.email = "Enter your email in the format name@example.com.";
+      }
+      
+      const phoneRegex = /^\d{10}$/;
+      if (!phoneRegex.test(formData.phone)) {
+          newErrors.phone = "Enter your 10-digit mobile number.";
+      }
+
+      if (Object.keys(newErrors).length > 0) {
+          setErrors(newErrors);
+          return;
+      }
+      
       if (!formData.agree) {
          toast.error("Please agree to the Terms & Privacy Policy");
          return;
@@ -233,12 +255,16 @@ export default function Login() {
                                  <input type="text" name="name" value={formData.name} onChange={handleChange} required placeholder="Enter your full name" style={inputStyle} />
                               </div>
                               <div style={{ marginBottom: "20px" }}>
-                                 <label style={labelStyle}>Email Address</label>
-                                 <input type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="name@example.com" style={inputStyle} />
+                                 <label style={labelStyle} htmlFor="reg_email">Email Address</label>
+                                 <input id="reg_email" type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="name@example.com" style={inputStyle} 
+                                        aria-invalid={!!errors.email} aria-describedby={errors.email ? "email_error" : undefined} />
+                                 {errors.email && <span id="email_error" className="text-danger mt-1 d-block" style={{ fontSize: '13px' }}>{errors.email}</span>}
                               </div>
                               <div style={{ marginBottom: "20px" }}>
-                                 <label style={labelStyle}>Phone Number</label>
-                                 <input type="text" name="phone" value={formData.phone} onChange={handleChange} required placeholder="Enter phone number" style={inputStyle} />
+                                 <label style={labelStyle} htmlFor="reg_phone">Phone Number</label>
+                                 <input id="reg_phone" type="text" name="phone" value={formData.phone} onChange={handleChange} required placeholder="Enter phone number" style={inputStyle} 
+                                        aria-invalid={!!errors.phone} aria-describedby={errors.phone ? "phone_error" : undefined} />
+                                 {errors.phone && <span id="phone_error" className="text-danger mt-1 d-block" style={{ fontSize: '13px' }}>{errors.phone}</span>}
                               </div>
                               <div style={{ marginBottom: "20px" }}>
                                  <label style={labelStyle}>Password</label>
@@ -246,9 +272,10 @@ export default function Login() {
                               </div>
                               <div style={{ marginBottom: "20px", display: "flex", alignItems: "flex-start", gap: "10px" }}>
                                  <input type="checkbox" name="agree" id="agree" checked={formData.agree} onChange={handleChange} required style={{ marginTop: "4px" }} />
-                                 <label htmlFor="agree" style={{ fontSize: "13px", color: "#4A5568", fontWeight: "500", lineHeight: "1.5" }}>
-                                    I agree to the <Link to="/terms-and-conditions" style={{ color: "var(--primary)", fontWeight: "600" }}>Terms &amp; Services</Link> and <Link to="/privacy-policy" style={{ color: "var(--primary)", fontWeight: "600" }}>Privacy Policy</Link>.
-                                 </label>
+                                 <div style={{ fontSize: "13px", color: "#4A5568", fontWeight: "500", lineHeight: "1.5" }}>
+                                    <label htmlFor="agree" style={{ cursor: "pointer", display: "inline" }}>I agree to the </label>
+                                    <Link to="/terms-and-conditions" style={{ color: "var(--primary)", fontWeight: "600" }}>Terms &amp; Services</Link> and <Link to="/privacy-policy" style={{ color: "var(--primary)", fontWeight: "600" }}>Privacy Policy</Link>.
+                                 </div>
                               </div>
                               <button type="submit" className="tp-btn w-100" disabled={loading} style={btnStyle}>
                                  {loading ? "Sending OTP..." : "Continue"}
