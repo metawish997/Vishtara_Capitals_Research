@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import blogService from '../../../services/blogService';
+import toast from 'react-hot-toast';
 
 const BlogEdit = () => {
     const { id } = useParams();
@@ -72,10 +74,16 @@ const BlogEdit = () => {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Updating Blog:', { ...formData, thumbnail });
-        // API Call here
+        try {
+            await blogService.updateBlog(id, { ...formData });
+            toast.success('Blog updated successfully');
+            navigate('/admin/blogs');
+        } catch (error) {
+            console.error('Error updating blog:', error);
+            toast.error(error.response?.data?.message || 'Failed to update blog');
+        }
     };
 
     if (loading) return <div className="p-10 text-center">Loading...</div>;
@@ -84,7 +92,7 @@ const BlogEdit = () => {
         <div className="font-plus-jakarta">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
                 <div>
-                    <div className="flex items-center gap-2 text-[[#011d52]] mb-1">
+                    <div className="flex items-center gap-2 text-[#011d52] mb-1">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                         <span className="text-xs font-bold uppercase tracking-wider">Editor Mode</span>
                     </div>
@@ -97,12 +105,12 @@ const BlogEdit = () => {
                         Cancel
                     </button>
                     <Link to={`/admin/blogs/show/${id}`}
-                        className="px-4 py-2 bg-[[#011d52]]/10 border border-[[#011d52]]/20 rounded-md text-xs font-semibold text-[[#011d52]] shadow-sm hover:bg-[[#011d52]]/20 transition flex items-center gap-2">
+                        className="px-4 py-2 bg-[#011d52]/10 border border-[#011d52]/20 rounded-md text-xs font-semibold text-[#011d52] shadow-sm hover:bg-[#011d52]/20 transition flex items-center gap-2">
                         <span>View Live</span>
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                     </Link>
                     <button type="submit" form="blogForm"
-                        className="px-4 py-2 bg-[[#011d52]] border border-transparent rounded-md text-xs font-semibold text-[#020210] shadow-sm hover:opacity-90 bg-[[#011d52]] focus:ring-4 focus:ring-[[#011d52]]/10 transition">
+                        className="px-4 py-2 bg-[#011d52] border border-transparent rounded-md text-xs font-semibold text-[#020210] shadow-sm hover:opacity-90 bg-[#011d52] focus:ring-4 focus:ring-[#011d52]/10 transition">
                         Update Blog
                     </button>
                 </div>
@@ -118,7 +126,7 @@ const BlogEdit = () => {
                             <div>
                                 <label className="block text-xs font-semibold text-slate-800 mb-1">Blog Title <span className="text-red-400">*</span></label>
                                 <input name="title" type="text" value={formData.title} onChange={handleInputChange} required
-                                    className="w-full rounded-md border border-slate-200 bg-slate-50 text-slate-800 focus:border-[[#011d52]] focus:ring-[[#011d52]]/10 text-slate-800 shadow-sm px-4 py-2.5" />
+                                    className="w-full rounded-md border border-slate-200 bg-slate-50 text-slate-800 focus:border-[#011d52] focus:ring-[#011d52]/10 text-slate-800 shadow-sm px-4 py-2.5" />
                             </div>
                             <div>
                                 <label className="block text-xs font-semibold text-slate-800 mb-1">URL Slug</label>
@@ -133,15 +141,15 @@ const BlogEdit = () => {
                             <div>
                                 <label className="flex justify-between text-xs font-semibold text-slate-800 mb-1">
                                     <span>Short Description</span>
-                                    <span className="text-xs font-normal text-slate-500">{formData.short_description.length}/160</span>
+                                    <span className="text-xs font-normal text-slate-500">{(formData.short_description || '').length}/160</span>
                                 </label>
                                 <textarea name="short_description" rows="2" value={formData.short_description} onChange={handleInputChange} maxLength="160"
-                                    className="w-full rounded-md border border-slate-200 bg-slate-50 text-slate-800 focus:border-[[#011d52]] focus:ring-[[#011d52]]/10 text-xs shadow-sm px-4 py-2.5"></textarea>
+                                    className="w-full rounded-md border border-slate-200 bg-slate-50 text-slate-800 focus:border-[#011d52] focus:ring-[#011d52]/10 text-xs shadow-sm px-4 py-2.5"></textarea>
                             </div>
                             <div>
                                 <label className="block text-xs font-semibold text-slate-800 mb-2">Article Body <span className="text-red-400">*</span></label>
                                 <textarea name="content" rows="10" value={formData.content} onChange={handleInputChange}
-                                    className="w-full rounded-md border border-slate-200 bg-slate-50 text-slate-800 focus:border-[[#011d52]] focus:ring-[[#011d52]]/10 shadow-sm text-xs px-4 py-2.5"
+                                    className="w-full rounded-md border border-slate-200 bg-slate-50 text-slate-800 focus:border-[#011d52] focus:ring-[#011d52]/10 shadow-sm text-xs px-4 py-2.5"
                                     placeholder="Write your article content here..."></textarea>
                             </div>
                         </div>
@@ -156,29 +164,29 @@ const BlogEdit = () => {
                                 <div>
                                     <label className="flex justify-between text-xs font-semibold text-slate-500 mb-1">
                                         <span>Meta Title</span>
-                                        <span className="font-normal text-slate-500">{formData.meta_title.length}/60</span>
+                                        <span className="font-normal text-slate-500">{(formData.meta_title || '').length}/60</span>
                                     </label>
                                     <input name="meta_title" type="text" value={formData.meta_title} onChange={handleInputChange} maxLength="60"
-                                        className="w-full rounded-md border border-slate-200 bg-slate-50 text-slate-800 text-xs shadow-sm focus:ring-[[#011d52]]/10 px-4 py-2.5" />
+                                        className="w-full rounded-md border border-slate-200 bg-slate-50 text-slate-800 text-xs shadow-sm focus:ring-[#011d52]/10 px-4 py-2.5" />
                                 </div>
                                 <div>
                                     <label className="text-xs font-semibold text-slate-500 mb-1 block">Keywords</label>
                                     <input name="meta_keywords" type="text" value={formData.meta_keywords} onChange={handleInputChange}
-                                        className="w-full rounded-md border border-slate-200 bg-slate-50 text-slate-800 text-xs shadow-sm focus:ring-[[#011d52]]/10 px-4 py-2.5" />
+                                        className="w-full rounded-md border border-slate-200 bg-slate-50 text-slate-800 text-xs shadow-sm focus:ring-[#011d52]/10 px-4 py-2.5" />
                                 </div>
                             </div>
                             <div>
                                 <label className="flex justify-between text-xs font-semibold text-slate-500 mb-1">
                                     <span>Meta Description</span>
-                                    <span className="font-normal text-slate-500">{formData.meta_description.length}/160</span>
+                                    <span className="font-normal text-slate-500">{(formData.meta_description || '').length}/160</span>
                                 </label>
                                 <textarea name="meta_description" rows="2" value={formData.meta_description} onChange={handleInputChange} maxLength="160"
-                                    className="w-full rounded-md border border-slate-200 bg-slate-50 text-slate-800 text-xs shadow-sm focus:ring-[[#011d52]]/10 px-4 py-2.5"></textarea>
+                                    className="w-full rounded-md border border-slate-200 bg-slate-50 text-slate-800 text-xs shadow-sm focus:ring-[#011d52]/10 px-4 py-2.5"></textarea>
                             </div>
                             <div>
                                 <label className="block text-xs font-semibold text-slate-500 mb-1">Canonical URL</label>
                                 <input name="canonical_url" type="url" value={formData.canonical_url} onChange={handleInputChange}
-                                    className="w-full rounded-md border border-slate-200 bg-slate-50 text-slate-800 text-xs shadow-sm focus:ring-[[#011d52]]/10 px-4 py-2.5" />
+                                    className="w-full rounded-md border border-slate-200 bg-slate-50 text-slate-800 text-xs shadow-sm focus:ring-[#011d52]/10 px-4 py-2.5" />
                             </div>
                         </div>
                     </div>
@@ -209,10 +217,10 @@ const BlogEdit = () => {
                                     className="w-full rounded-md border border-slate-200 bg-slate-50 text-slate-800 text-xs shadow-sm px-4 py-2.5" />
                             </div>
                             <div className="flex items-center gap-2 py-2">
-                                <input name="is_featured" type="checkbox" className="w-4 h-4 text-[[#011d52]] border border-slate-200 bg-slate-50 rounded focus:ring-[[#011d52]]" />
+                                <input name="is_featured" type="checkbox" checked={formData.is_featured || false} onChange={handleInputChange} className="w-4 h-4 text-[#011d52] border border-slate-200 bg-slate-50 rounded focus:ring-[#011d52]" />
                                 <label className="text-xs text-slate-800 font-medium">Feature this post</label>
                             </div>
-                            <button type="submit" className="w-full py-2.5 bg-[[#011d52]] text-[#020210] rounded-md text-xs font-bold shadow-md hover:opacity-90 bg-[[#011d52]] transition">
+                            <button type="submit" className="w-full py-2.5 bg-[#011d52] text-[#020210] rounded-md text-xs font-bold shadow-md hover:opacity-90 bg-[#011d52] transition">
                                 Save Changes
                             </button>
                         </div>
@@ -222,13 +230,13 @@ const BlogEdit = () => {
                         <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Featured Image</h3>
                         <div className="space-y-4">
                             {previewUrl && (
-                                <div className="relative h-32 rounded-md overflow-hidden border border-[[#011d52]]/20 shadow-sm">
+                                <div className="relative h-32 rounded-md overflow-hidden border border-[#011d52]/20 shadow-sm">
                                     <img src={previewUrl} className="w-full h-full object-cover" alt="New Preview" />
-                                    <span className="absolute top-2 left-2 bg-[[#011d52]] text-[#020210] text-[8px] px-1.5 py-0.5 rounded font-bold uppercase">New</span>
+                                    <span className="absolute top-2 left-2 bg-[#011d52] text-[#020210] text-[8px] px-1.5 py-0.5 rounded font-bold uppercase">New</span>
                                 </div>
                             )}
                             <input type="file" accept="image/*" onChange={handleThumbnailChange}
-                                className="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-[[#011d52]]/10 file:text-[[#011d52]] hover:file:bg-[[#011d52]]/20 transition cursor-pointer" />
+                                className="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-[#011d52]/10 file:text-[#011d52] hover:file:bg-[#011d52]/20 transition cursor-pointer" />
                         </div>
                     </div>
 
@@ -256,3 +264,4 @@ const BlogEdit = () => {
 };
 
 export default BlogEdit;
+
