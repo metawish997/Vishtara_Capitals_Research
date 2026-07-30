@@ -271,7 +271,7 @@ export default function Home() {
                         </div>
                         <div className="tp-fi-stories-item-content">
                            <span style={{ color: "#f1f1f1" }}>Professional market experience</span>
-                           <h4 className="tp-fi-stories-item-title" style={{ color: "#fff" }}>5+ Years</h4>
+                           <h3 className="tp-fi-stories-item-title" style={{ color: "#fff" }}>5+ Years</h3>
                         </div>
                      </div>
                   </div>
@@ -281,8 +281,8 @@ export default function Home() {
                            {/* <img src="/assets/img/finance/stories/mba_qualification.png" alt="" style={{ height: "220px", width: "100%", objectFit: "cover" }} /> */}
                         </div>
                         <div className="tp-fi-stories-item-content style-2" style={{ position: "relative", bottom: "auto", paddingBottom: "30px" }}>
-                           <span>Academic qualification</span>
-                           <h4 className="tp-fi-stories-item-title">MBA</h4>
+                           <span style={{ color: "#1B2B40" }}>Academic qualification</span>
+                           <h3 className="tp-fi-stories-item-title" style={{ color: "#1B2B40", fontWeight: "bold" }}>MBA</h3>
                         </div>
                      </div>
                   </div>
@@ -290,7 +290,7 @@ export default function Home() {
                      <div className="tp-fi-stories-item style-3 d-flex flex-column h-100 tp-fade-anim" data-delay=".9">
                         <div className="tp-fi-stories-item-content style-2 flex-grow-1" style={{ position: "relative", bottom: "auto", paddingBottom: "30px" }}>
                            <span>Segments covered</span>
-                           <h4 className="tp-fi-stories-item-title sebi-list-item" style={{ color: "#1B2B40", fontWeight: "bold" }}>Equity & F&O</h4>
+                           <h3 className="tp-fi-stories-item-title sebi-list-item" style={{ color: "#1B2B40", fontWeight: "bold" }}>Equity & F&O</h3>
                         </div>
                         <div className="tp-fi-stories-item-icon" style={{ display: 'none' }}>
                            <img src="/assets/img/finance/stories/logo-3.png" alt="" />
@@ -1267,13 +1267,9 @@ export default function Home() {
                         <div className="tp-fi-cta-wrapper">
                            <h2 className="tp-fi-cta-title" style={{ color: "#011d52" }} data-text-split data-letters-fade-in>Fresh perspectives, news <br /> &
                               Financial resources</h2>
-                           <form onSubmit={(e) => { e.preventDefault(); setSubscribeStatus("Successfully subscribed to newsletter!"); setTimeout(() => setSubscribeStatus(""), 3000); }}>
-                              <div className="tp-fi-cta-form-input p-relative">
-                                 <input type="email" placeholder="Enter Your Email" aria-label="Enter your email" required />
-                                 <button type="submit" className="tp-btn-event">Subscribe</button>
-                              </div>
-                              {subscribeStatus && <p role="status" aria-live="polite" style={{ color: "#15803d", marginTop: "10px", fontWeight: "bold" }}>{subscribeStatus}</p>}
-                           </form>
+                           <div style={{ color: "#011d52", fontWeight: "500", fontSize: "18px", marginTop: "25px", lineHeight: "1.6" }}>
+                              Empowering clients with accurate technical analysis, premium market research alerts, and daily insights to help you make confident financial decisions.
+                           </div>
                            {/* <p style={{ color: "#011d52", fontWeight: "600" }}>Over $100 million in contracts closed</p> */}
                         </div>
                      </div>

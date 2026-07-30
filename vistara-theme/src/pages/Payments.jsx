@@ -118,7 +118,7 @@ export default function Payments() {
                            <div className="tp-contact-wrapper payments-page-card" style={{ padding: "40px", borderRadius: "10px", border: "1px solid var(--card-border, #D9E1EA)", background: "#ffffff", boxShadow: "0 10px 30px rgba(0,0,0,0.03)", height: "100%" }}>
                               <div className="tp-contact-heading umb-40">
                                  <span className="tp-section-sub">Bank Transfer</span>
-                                 <h3 className="tp-section-title" style={{ fontSize: "28px", color: "var(--primary)" }}>Direct Bank Account Details</h3>
+                                 <h2 className="tp-section-title" style={{ fontSize: "28px", color: "var(--primary)" }}>Direct Bank Account Details</h2>
                                  <p style={{ marginTop: "10px", fontSize: "15px" }}>Transfer funds securely using IMPS, NEFT, or RTGS directly to our corporate bank account.</p>
                               </div>
 
@@ -170,7 +170,7 @@ export default function Payments() {
                               <div>
                                  <div className="tp-contact-heading umb-40 text-center">
                                     <span className="tp-section-sub">UPI Scan &amp; Pay</span>
-                                    <h3 className="tp-section-title" style={{ fontSize: "28px", color: "var(--primary)" }}>Scan QR Code to Pay</h3>
+                                    <h2 className="tp-section-title" style={{ fontSize: "28px", color: "var(--primary)" }}>Scan QR Code to Pay</h2>
                                     <p style={{ marginTop: "10px", fontSize: "15px" }}>Scan using any UPI App (Google Pay, PhonePe, Paytm, BHIM, or your bank app) for instant transfer.</p>
                                  </div>
 

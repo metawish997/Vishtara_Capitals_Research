@@ -9,6 +9,13 @@ export default function Sitemap() {
              background: #f8fafc;
              border: 1px solid var(--card-border, #D9E1EA);
           }
+          .sitemap-widget h2 {
+             color: #011d52 !important;
+          }
+          .sitemap-widget a {
+             color: #1B2B40 !important;
+             font-weight: 600 !important;
+          }
           html[data-theme="dark"] .sitemap-widget,
           body.high-contrast .sitemap-widget {
              background: #1A2735;

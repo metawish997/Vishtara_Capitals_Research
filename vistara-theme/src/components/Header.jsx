@@ -131,7 +131,7 @@ export default function Header() {
                         <div className="tp-header-logo">
                            <a href="/" aria-label="Vishtara Capital Research Home" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "10px" }}>
                               <img className="header-logo-img" src="/vistaralogo.svg" alt="Vishtara Logo" style={{ width: "90px", height: "auto", flexShrink: 0, filter: theme === 'black-green' ? 'brightness(0) invert(1)' : 'none' }} />
-                              <h4 className="header-logo-text" style={{ margin: 0, fontWeight: "bold", color: theme === 'black-green' ? '#F8FAFC' : 'var(--tp-theme-secondary)', fontSize: "17px", lineHeight: "1.2" }}>Vishtara Capital Research</h4>
+                              <span className="header-logo-text" style={{ margin: 0, fontWeight: "bold", color: theme === 'black-green' ? '#F8FAFC' : 'var(--tp-theme-secondary)', fontSize: "17px", lineHeight: "1.2" }}>Vishtara Capital Research</span>
                            </a>
                         </div>
                      </div>
@@ -201,12 +201,22 @@ export default function Header() {
                              
                              /* Accessibility Fix: Sign Up / Login Button */
                              .tp-header-action .tp-btn-event {
-                                background-color: #222F30 !important;
-                                border-color: #181e1fff !important;
+                                background-color: #011d52 !important;
+                                border-color: #011d52 !important;
+                                color: #ffffff !important;
                              }
                              .tp-header-action .tp-btn-event .button-text {
-                                color: #FBB040 !important;
+                                color: #ffffff !important;
                                 font-weight: 700 !important;
+                             }
+                             body.high-contrast .tp-header-action .tp-btn-event {
+                                background-color: #ffffff !important;
+                                border-color: #ffffff !important;
+                                color: #000000 !important;
+                             }
+                             body.high-contrast .tp-header-action .tp-btn-event .button-text {
+                                color: #000000 !important;
+                                font-weight: 900 !important;
                              }
 
                              /* Mobile Header Logo Fix */

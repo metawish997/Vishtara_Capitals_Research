@@ -184,6 +184,18 @@ export default function Login() {
    return (
       <main>
          <style>{`
+            .login-page-card {
+               color: #1B2B40 !important;
+            }
+            .login-page-card input {
+               color: #011d52 !important;
+            }
+            .login-page-card input::-webkit-input-placeholder { color: #1B2B40 !important; opacity: 1 !important; font-weight: 500 !important; }
+            .login-page-card input::-moz-placeholder { color: #1B2B40 !important; opacity: 1 !important; font-weight: 500 !important; }
+            .login-page-card input:-ms-input-placeholder { color: #1B2B40 !important; opacity: 1 !important; font-weight: 500 !important; }
+            .login-page-card input::-ms-input-placeholder { color: #1B2B40 !important; opacity: 1 !important; font-weight: 500 !important; }
+            .login-page-card input::placeholder { color: #1B2B40 !important; opacity: 1 !important; font-weight: 500 !important; }
+            
             body.high-contrast .login-page-bg {
                background-color: #0d131c !important;
             }

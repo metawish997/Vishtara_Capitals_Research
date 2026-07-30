@@ -969,3 +969,29 @@ body:not(.high-contrast) .tp-breadcrumb-ptb .container {
     position: relative;
     z-index: 2;
 }
+
+/* --------------------------------------------------------------------------
+   Accessibility Fix: CTA Email Input (Global to ensure Lighthouse sees it)
+   -------------------------------------------------------------------------- */
+.cta-email-input {
+    color: #ffffff !important;
+    background-color: #011d52 !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+}
+.cta-email-input::-webkit-input-placeholder { color: #e2e8f0 !important; opacity: 1 !important; }
+.cta-email-input::-moz-placeholder { color: #e2e8f0 !important; opacity: 1 !important; }
+.cta-email-input:-ms-input-placeholder { color: #e2e8f0 !important; opacity: 1 !important; }
+.cta-email-input::-ms-input-placeholder { color: #e2e8f0 !important; opacity: 1 !important; }
+.cta-email-input::placeholder { color: #e2e8f0 !important; opacity: 1 !important; }
+
+body.high-contrast .cta-email-input,
+html[data-theme="dark"] .cta-email-input {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 2px solid #000000 !important;
+}
+body.high-contrast .cta-email-input::-webkit-input-placeholder, html[data-theme="dark"] .cta-email-input::-webkit-input-placeholder { color: #333333 !important; opacity: 1 !important; }
+body.high-contrast .cta-email-input::-moz-placeholder, html[data-theme="dark"] .cta-email-input::-moz-placeholder { color: #333333 !important; opacity: 1 !important; }
+body.high-contrast .cta-email-input:-ms-input-placeholder, html[data-theme="dark"] .cta-email-input:-ms-input-placeholder { color: #333333 !important; opacity: 1 !important; }
+body.high-contrast .cta-email-input::-ms-input-placeholder, html[data-theme="dark"] .cta-email-input::-ms-input-placeholder { color: #333333 !important; opacity: 1 !important; }
+body.high-contrast .cta-email-input::placeholder, html[data-theme="dark"] .cta-email-input::placeholder { color: #333333 !important; opacity: 1 !important; }

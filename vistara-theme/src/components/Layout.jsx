@@ -348,7 +348,7 @@ export default function Layout() {
                   <div className="tp-offcanvas-logo">
                      <a href="/" aria-label="Vishtara Capital Research Home" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "10px" }}>
                         <img className="logo-1" src="/vistaralogo.svg" alt="Vishtara Logo" style={{ width: "70px", height: "auto", flexShrink: 0, filter: theme === 'black-green' ? 'brightness(0) invert(1)' : 'none' }} />
-                        <h4 style={{ margin: 0, fontWeight: "bold", color: theme === 'black-green' ? '#F8FAFC' : 'var(--tp-theme-secondary)', fontSize: "16px", lineHeight: "1.2" }}>Vishtara Capital Research</h4>
+                        <span style={{ margin: 0, fontWeight: "bold", color: theme === 'black-green' ? '#F8FAFC' : 'var(--tp-theme-secondary)', fontSize: "16px", lineHeight: "1.2" }}>Vishtara Capital Research</span>
                      </a>
                   </div>
                   <div className="tp-offcanvas-close">

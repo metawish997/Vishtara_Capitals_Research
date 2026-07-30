@@ -585,7 +585,7 @@ export default function Service() {
                      <div className="col-lg-8">
                         <p className="tp-fi-banner-text">
                            <span className="video">
-                              <a href="#" className="popup-video">
+                              <a href="#" className="popup-video" aria-label="Play video popup">
                                  <svg xmlns="http://www.w3.org/2000/svg" width="8" height="9" viewBox="0 0 8 9" fill="none">
                                     <path d="M7.07143 5.08418C7.73809 4.69928 7.7381 3.73703 7.07143 3.35213L1.5 0.135466C0.833334 -0.249434 0 0.231691 0 1.00149V7.43482C0 8.20462 0.833333 8.68575 1.5 8.30085L7.07143 5.08418Z" fill="#222F30" />
                                  </svg>
