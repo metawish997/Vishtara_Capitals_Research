@@ -1,7 +1,21 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import api from "../services/api";
+import useAuth from "../hooks/useAuth";
 
 export default function Contact() {
+  let user = null;
+  try {
+    const auth = useAuth();
+    user = auth.user;
+  } catch (e) {
+    // Fallback if not wrapped in AuthProvider
+    const stored = localStorage.getItem('bsmr_user');
+    if (stored) {
+      try { user = JSON.parse(stored); } catch (err) {}
+    }
+  }
+
   const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
   const [errors, setErrors] = useState({});
   const [submitStatus, setSubmitStatus] = useState("");
@@ -9,13 +23,13 @@ export default function Contact() {
   const validate = () => {
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = "Full name is required. Please enter your full name.";
-    if (!formData.email.trim() || !/^\\S+@\\S+\\.\\S+$/.test(formData.email)) newErrors.email = "A valid email address is required. For example: name@domain.com.";
-    if (!formData.subject.trim()) newErrors.subject = "Mobile number is required. Please enter a valid 10-digit number.";
+    if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = "A valid email address is required. For example: name@domain.com.";
+    if (!formData.subject.trim() || !/^\d{10}$/.test(formData.subject)) newErrors.subject = "Mobile number is required. Please enter a valid 10-digit number.";
     if (!formData.message.trim()) newErrors.message = "Message cannot be empty. Please provide details of your inquiry.";
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
@@ -23,8 +37,26 @@ export default function Contact() {
       setSubmitStatus("Error: Please correct the invalid fields below.");
     } else {
       setErrors({});
-      setSubmitStatus("Success: Your message has been sent successfully!");
-      setFormData({ name: "", email: "", subject: "", message: "" });
+      try {
+        const payload = {
+          first_name: formData.name.split(' ')[0] || formData.name,
+          last_name: formData.name.split(' ').slice(1).join(' '),
+          email: formData.email,
+          phone: formData.subject, // mapped from the 'subject' field which is used for mobile number
+          message: formData.message,
+        };
+        if (user && user._id) {
+          payload.user = user._id;
+        }
+
+        await api.post("/inquiries", payload);
+
+        setSubmitStatus("Success: Your message has been sent successfully!");
+        setFormData({ name: "", email: "", subject: "", message: "" });
+      } catch (error) {
+        console.error("Error submitting inquiry:", error);
+        setSubmitStatus("Error: Could not send your message. Please try again later.");
+      }
     }
   };
 
@@ -38,8 +70,18 @@ export default function Contact() {
   return (
     <main>
          <style>{`
+            .contact-form-label {
+               color: #1B2B40;
+            }
+            html[data-theme="dark"] .contact-form-label,
+            body.high-contrast .contact-form-label {
+               color: #F8FAFC !important;
+            }
             .contact-submit-btn {
-               color: #222F30 !important;
+               background-color: transparent !important;
+               border: 2px solid #0939a4 !important;
+               color: #0939a4 !important;
+               font-weight: 600;
             }
             html[data-theme="dark"] .contact-submit-btn,
             body.high-contrast .contact-submit-btn {
@@ -142,31 +184,31 @@ export default function Contact() {
                                     </div>
                                  )}
                                  <div className="tp-contact-input umb-15">
-                                    <label htmlFor="contact_name" className="visually-hidden">Your full name</label>
-                                    <input id="contact_name" placeholder="Your full name*" name="name" type="text" 
+                                    <label htmlFor="contact_name" className="d-block mb-2 fw-medium contact-form-label" style={{fontSize: "15px", textAlign: "left"}}>Your full name*</label>
+                                    <input id="contact_name" placeholder="Your full name" name="name" type="text" 
                                            required aria-required="true" 
                                            aria-invalid={!!errors.name} aria-describedby={errors.name ? "name_error" : undefined}
                                            value={formData.name} onChange={handleChange} />
                                     {errors.name && <span id="name_error" className="text-danger mt-1 d-block" style={{ fontSize: '13px' }}>{errors.name}</span>}
                                  </div>
                                  <div className="tp-contact-input umb-15">
-                                    <label htmlFor="contact_email" className="visually-hidden">Email address</label>
-                                    <input id="contact_email" placeholder="Email address*" name="email" type="email" 
+                                    <label htmlFor="contact_email" className="d-block mb-2 fw-medium contact-form-label" style={{fontSize: "15px", textAlign: "left"}}>Email address*</label>
+                                    <input id="contact_email" placeholder="Email address" name="email" type="email" 
                                            required aria-required="true" 
                                            aria-invalid={!!errors.email} aria-describedby={errors.email ? "email_error" : undefined}
                                            value={formData.email} onChange={handleChange} />
                                     {errors.email && <span id="email_error" className="text-danger mt-1 d-block" style={{ fontSize: '13px' }}>{errors.email}</span>}
                                  </div>
                                  <div className="tp-contact-input umb-15">
-                                    <label htmlFor="contact_subject" className="visually-hidden">Mobile Number</label>
-                                    <input id="contact_subject" placeholder="Mobile Number*" name="subject" type="text" 
+                                    <label htmlFor="contact_subject" className="d-block mb-2 fw-medium contact-form-label" style={{fontSize: "15px", textAlign: "left"}}>Mobile Number*</label>
+                                    <input id="contact_subject" placeholder="Mobile Number" name="subject" type="text" 
                                            required aria-required="true" 
                                            aria-invalid={!!errors.subject} aria-describedby={errors.subject ? "subject_error" : undefined}
                                            value={formData.subject} onChange={handleChange} />
                                     {errors.subject && <span id="subject_error" className="text-danger mt-1 d-block" style={{ fontSize: '13px' }}>{errors.subject}</span>}
                                  </div>
                                  <div className="tp-contact-input umb-15">
-                                    <label htmlFor="contact_message" className="visually-hidden">How can we help? Feel free to write here</label>
+                                    <label htmlFor="contact_message" className="d-block mb-2 fw-medium contact-form-label" style={{fontSize: "15px", textAlign: "left"}}>How can we help? Feel free to write here*</label>
                                     <textarea id="contact_message" placeholder="How can we help? Feel free to write here" name="message" 
                                               required aria-required="true" 
                                               aria-invalid={!!errors.message} aria-describedby={errors.message ? "message_error" : undefined}
@@ -174,7 +216,7 @@ export default function Contact() {
                                     {errors.message && <span id="message_error" className="text-danger mt-1 d-block" style={{ fontSize: '13px' }}>{errors.message}</span>}
                                  </div>
                                  <div className="tp-contact-input-btn">
-                                    <button className="tp-btn w-100 contact-submit-btn" type="submit" style={{ backgroundColor: "var(--primary)", borderColor: "var(--primary)" }}>
+                                    <button className="tp-btn w-100 contact-submit-btn" type="submit">
                                        Send your message
                                     </button>
                                  </div>

@@ -368,7 +368,7 @@ export default function Layout() {
                </div>
                <div className="tp-offcanvas-main">
                   <div className="tp-offcanvas-content d-none d-xl-block">
-                     <h3 className="tp-offcanvas-title">Hello There!</h3>
+                     <div className="tp-offcanvas-title">Hello There!</div>
                      <p>Empowering investors with deep market insights, comprehensive equity research, and transparent financial analysis to drive confident decisions.</p>
                   </div>
                   <div className="tp-offcanvas-menu d-xl-none" style={{ marginTop: "20px", marginBottom: "30px" }}>
@@ -420,7 +420,7 @@ export default function Layout() {
                      </div>
                   </div>
                   <div className="tp-offcanvas-contact">
-                     <h3 className="tp-offcanvas-title sm">Information</h3>
+                     <div className="tp-offcanvas-title sm">Information</div>
                      <ul>
                         <li><a href="tel:+918602027324">+91 86020 27324</a></li>
                         <li><a href="mailto:chouhananujay@gmail.com">chouhananujay@gmail.com</a></li>

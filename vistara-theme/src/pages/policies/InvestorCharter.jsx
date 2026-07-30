@@ -98,7 +98,7 @@ export default function InvestorCharter() {
                         <ul className="space-y-3 list-disc pl-5 mt-2">
                             <li>
                                 <strong>i. SCORES 2.0:</strong> (a web based centralized grievance redressal system of SEBI for facilitating effective grievance redressal in time-bound manner) 
-                                <a href="https://scores.sebi.gov.in" target="_blank" rel="noopener noreferrer" aria-label="Visit SEBI SCORES 2.0 Web Portal (opens in a new tab)" className="text-[#0939a4] dark:text-[#FBB040] hover:underline font-bold block mt-1">https://scores.sebi.gov.in</a>
+                                <a href="https://scores.sebi.gov.in" target="_blank" rel="noopener noreferrer" aria-label="Visit SEBI SCORES 2.0 Web Portal (opens in a new tab)" className="text-[#0939a4] dark:text-[#FBB040] underline hover:text-blue-700 font-bold block mt-1">Visit SEBI SCORES 2.0 Web Portal</a>
                             </li>
                             <li>
                                 <strong>Two level review for complaint/grievance against Research Analyst:</strong>
@@ -172,7 +172,7 @@ export default function InvestorCharter() {
                             <li><strong>III.</strong> Check for SEBI registration number.</li>
                             <li>
                                 <strong>IV.</strong> Please refer to the list of all SEBI registered Research Analyst which is available on SEBI website in the following link: 
-                                <a href="https://www.sebi.gov.in/sebiweb/other/OtherAction.do?doRecognisedFpi=yes&amp;intmId=14" target="_blank" rel="noopener noreferrer" aria-label="View SEBI list of registered Research Analysts (opens in a new tab)" className="text-[#0939a4] dark:text-[#FBB040] hover:underline break-all block mt-1">https://www.sebi.gov.in/sebiweb/other/OtherAction.do?doRecognisedFpi=yes&amp;intmId=14</a>
+                                <a href="https://www.sebi.gov.in/sebiweb/other/OtherAction.do?doRecognisedFpi=yes&amp;intmId=14" target="_blank" rel="noopener noreferrer" aria-label="View SEBI list of registered Research Analysts (opens in a new tab)" className="text-[#0939a4] dark:text-[#FBB040] underline hover:text-blue-700 break-words block mt-1">View SEBI List of Registered Research Analysts</a>
                                 <span className="block mt-1">Always pay attention towards disclosures made in the research reports before investing.</span>
                             </li>
                             <li><strong>V.</strong> Pay your Research Analyst through banking channels only and maintain duly signed receipts mentioning the details of your payments. You may make payment of fees through Centralized Fee Collection Mechanism (CeFCoM) of RAASB if research analyst has opted for the mechanism. <span className="font-bold">(Applicable for fee paying clients only)</span></li>
