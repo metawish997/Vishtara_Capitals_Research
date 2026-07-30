@@ -130,8 +130,8 @@ export default function Header() {
                      <div className="tp-header-left-side">
                         <div className="tp-header-logo">
                            <a href="/" aria-label="Vishtara Capital Research Home" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "10px" }}>
-                              <img className="header-logo-img" src="/vistaralogo.svg" alt="Vishtara Logo" style={{ width: "90px", height: "auto", flexShrink: 0 }} />
-                              <h4 className="header-logo-text" style={{ margin: 0, fontWeight: "bold", color: "var(--tp-theme-secondary)", fontSize: "17px", lineHeight: "1.2" }}>Vishtara Capital Research</h4>
+                              <img className="header-logo-img" src="/vistaralogo.svg" alt="Vishtara Logo" style={{ width: "90px", height: "auto", flexShrink: 0, filter: theme === 'black-green' ? 'brightness(0) invert(1)' : 'none' }} />
+                              <h4 className="header-logo-text" style={{ margin: 0, fontWeight: "bold", color: theme === 'black-green' ? '#F8FAFC' : 'var(--tp-theme-secondary)', fontSize: "17px", lineHeight: "1.2" }}>Vishtara Capital Research</h4>
                            </a>
                         </div>
                      </div>

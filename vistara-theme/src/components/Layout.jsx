@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import Header from "./Header";
 import Footer from "./Footer";
 import { Outlet } from "react-router-dom";
+import { useTheme } from "../context/ThemeContext";
 
 export default function Layout() {
+   const { theme } = useTheme();
    const [showModal, setShowModal] = useState(false);
    const modalRef = useRef(null);
    const [previouslyFocused, setPreviouslyFocused] = useState(null);
@@ -345,8 +347,8 @@ export default function Layout() {
                <div className="tp-offcanvas-top d-flex align-items-center justify-content-between">
                   <div className="tp-offcanvas-logo">
                      <a href="/" aria-label="Vishtara Capital Research Home" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "10px" }}>
-                        <img className="logo-1" src="/vistaralogo.svg" alt="Vishtara Logo" style={{ width: "70px", height: "auto", flexShrink: 0 }} />
-                        <h4 style={{ margin: 0, fontWeight: "bold", color: "var(--tp-theme-secondary)", fontSize: "16px", lineHeight: "1.2" }}>Vishtara Capital Research</h4>
+                        <img className="logo-1" src="/vistaralogo.svg" alt="Vishtara Logo" style={{ width: "70px", height: "auto", flexShrink: 0, filter: theme === 'black-green' ? 'brightness(0) invert(1)' : 'none' }} />
+                        <h4 style={{ margin: 0, fontWeight: "bold", color: theme === 'black-green' ? '#F8FAFC' : 'var(--tp-theme-secondary)', fontSize: "16px", lineHeight: "1.2" }}>Vishtara Capital Research</h4>
                      </a>
                   </div>
                   <div className="tp-offcanvas-close">

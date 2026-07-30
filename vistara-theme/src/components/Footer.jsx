@@ -1,7 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useTheme } from "../context/ThemeContext";
 
 export default function Footer() {
+  const { theme } = useTheme();
+
   return (
     <footer>
          <style>{`
@@ -26,8 +29,8 @@ export default function Footer() {
                         <div className="tp-footer-widget footer-col-6-1 umb-90">
                            <div className="tp-footer-logo umb-35">
                               <a href="index.html" style={{textDecoration: "none", display: "flex", alignItems: "center", gap: "10px", whiteSpace: "nowrap"}}>
-                                 <img src="/vistaralogo.svg" alt="Vishtara Logo" style={{width: "100px", height: "auto"}} />
-                                 <h4 style={{ margin: 0, fontWeight: "bold", color: "var(--tp-theme-secondary)", fontSize: "18px" }}>Vishtara Capital Research</h4>
+                                 <img src="/vistaralogo.svg" alt="Vishtara Logo" style={{width: "100px", height: "auto", filter: theme === 'black-green' ? 'brightness(0) invert(1)' : 'none'}} />
+                                 <h4 style={{ margin: 0, fontWeight: "bold", color: theme === 'black-green' ? '#F8FAFC' : 'var(--tp-theme-secondary)', fontSize: "18px" }}>Vishtara Capital Research</h4>
                               </a>
                            </div>
                             <div className="tp-footer-text umb-30">
