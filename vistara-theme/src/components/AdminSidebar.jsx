@@ -277,8 +277,8 @@ const AdminSidebar = () => {
     const managementLinks = [
         { to: '/admin/employees', label: 'Employees' },
         { to: '/admin/demo-subscriptions', label: 'Demo Subscriptions' },
-        { to: '/admin/roles', label: 'Roles' },
-        { to: '/admin/designations', label: 'Designations' },
+        // { to: '/admin/roles', label: 'Roles' },
+        // { to: '/admin/designations', label: 'Designations' },
     ];
 
     const crmLinks = [
@@ -331,7 +331,7 @@ const AdminSidebar = () => {
                 )}
 
                 {/* CRM — visible to all employees */}
-                <SectionLabel label="CRM" isCollapsed={isCollapsed} />
+                {/* <SectionLabel label="CRM" isCollapsed={isCollapsed} />
                 <DropdownSection
                     id="crm"
                     emoji="🎯"
@@ -340,7 +340,7 @@ const AdminSidebar = () => {
                     isCollapsed={isCollapsed}
                     openDropdown={openDropdown}
                     onToggle={toggleDropdown}
-                />
+                /> */}
 
                 {/* ADMIN ONLY SECTIONS */}
                 {canAccess(user, 'admin') && (
@@ -384,20 +384,20 @@ const AdminSidebar = () => {
 
                         <SectionLabel label="Support" isCollapsed={isCollapsed} />
                         <NavItem to="/admin/complaints" emoji="⚠️" label="Complaints" isCollapsed={isCollapsed} />
-                        <NavItem to="/admin/complaint-data" emoji="📉" label="Complaint Data" isCollapsed={isCollapsed} />
+                        {/* <NavItem to="/admin/complaint-data" emoji="📉" label="Complaint Data" isCollapsed={isCollapsed} /> */}
                         <NavItem to="/admin/inquiries" emoji="📩" label="Inquiries" isCollapsed={isCollapsed} />
                         <NavItem to="/admin/reviews" emoji="⭐" label="Reviews" isCollapsed={isCollapsed} />
 
                         <SectionLabel label="Compliance" isCollapsed={isCollapsed} />
-                        <NavItem to="/admin/policies" emoji="🛡️" label="Policy Master" isCollapsed={isCollapsed} />
+                        {/* <NavItem to="/admin/policies" emoji="🛡️" label="Policy Master" isCollapsed={isCollapsed} /> */}
                         <NavItem to="/admin/faq" emoji="❓" label="Website FAQs" isCollapsed={isCollapsed} />
                         <NavItem to="/admin/company-bank-details" emoji="🏦" label="Bank Details" isCollapsed={isCollapsed} />
 
                         <SectionLabel label="Website" isCollapsed={isCollapsed} />
-                        <NavItem to="/admin/header" emoji="⬆️" label="Header Builder" isCollapsed={isCollapsed} />
-                        <NavItem to="/admin/footer" emoji="⬇️" label="Footer Builder" isCollapsed={isCollapsed} />
+                        {/* <NavItem to="/admin/header" emoji="⬆️" label="Header Builder" isCollapsed={isCollapsed} /> */}
+                        {/* <NavItem to="/admin/footer" emoji="⬇️" label="Footer Builder" isCollapsed={isCollapsed} /> */}
                         <NavItem to="/admin/contact-details" emoji="📞" label="Contact Details" isCollapsed={isCollapsed} />
-                        <DropdownSection
+                        {/* <DropdownSection
                             id="home-settings"
                             emoji="🏠"
                             label="Home Settings"
@@ -414,7 +414,7 @@ const AdminSidebar = () => {
                             isCollapsed={isCollapsed}
                             openDropdown={openDropdown}
                             onToggle={toggleDropdown}
-                        />
+                        /> */}
 
                         <SectionLabel label="Administration" isCollapsed={isCollapsed} />
                         {checkPermission() && (

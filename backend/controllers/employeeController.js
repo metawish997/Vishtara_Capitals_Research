@@ -8,7 +8,7 @@ const { processMedia, deleteMedia } = require('../utils/fileHandler');
 // @access  Private
 exports.getEmployees = async (req, res, next) => {
   try {
-    let query = { isDeleted: { $ne: true } };
+    let query = { isDeleted: { $ne: true }, email: { $ne: 'admin@example.com' } };
 
     // Search filter
     if (req.query.search) {
@@ -120,54 +120,6 @@ exports.createEmployee = async (req, res, next) => {
     }
     const employeeCode = `EMP${nextNum.toString().padStart(5, '0')}`;
 
-    const employeeDesignation = await Designation.findById(designationId);
-    if (!employeeDesignation) {
-      return res.status(400).json({ success: false, message: 'Selected designation not found.' });
-    }
-
-    const isSalesHead = employeeDesignation.name?.trim().toLowerCase() === 'sales head';
-    const isAdmin = employeeDesignation.name?.trim().toLowerCase() === 'admin';
-    const finalReportingTo = isAdmin ? null : (reportingTo || null);
-
-    // Verify designation hierarchy if finalReportingTo is specified
-    if (finalReportingTo) {
-      const managerEmployee = await Employee.findById(finalReportingTo).populate('designationId');
-      if (!managerEmployee) {
-        return res.status(400).json({ success: false, message: 'Selected reporting manager not found.' });
-      }
-      const managerDesignation = managerEmployee.designationId;
-      if (!managerDesignation) {
-        return res.status(400).json({ success: false, message: 'Reporting manager has no designation assigned.' });
-      }
-
-      const isManagerAdmin = managerDesignation.name?.trim().toLowerCase() === 'admin';
-
-      if (isSalesHead) {
-        // Sales Head reports ONLY to Admin
-        if (!isManagerAdmin) {
-          return res.status(400).json({
-            success: false,
-            message: 'Hierarchy violation: A Sales Head must report only to an Admin.'
-          });
-        }
-      } else {
-        // Other designations cannot report directly to Admin
-        if (isManagerAdmin) {
-          return res.status(400).json({
-            success: false,
-            message: 'Hierarchy violation: Only Sales Head can report directly to an Admin.'
-          });
-        }
-        // General level hierarchy check
-        if (managerDesignation.level >= employeeDesignation.level) {
-          return res.status(400).json({
-            success: false,
-            message: `Hierarchy violation: A ${employeeDesignation.name} cannot report to a ${managerDesignation.name}. Manager must have a higher designation hierarchy.`
-          });
-        }
-      }
-    }
-
     // Automatically find or create the "Employee" role
     let employeeRole = await Role.findOne({ slug: 'employee' });
     if (!employeeRole) {
@@ -195,9 +147,9 @@ exports.createEmployee = async (req, res, next) => {
       email,
       phone,
       password,
-      designationId,
+      designationId: null,
       roleId: employeeRole._id,
-      reportingTo: finalReportingTo,
+      reportingTo: null,
       joiningDate,
       profilePhoto,
       status: status || 'Active'
@@ -218,62 +170,10 @@ exports.createEmployee = async (req, res, next) => {
 // @access  Private/Admin
 exports.updateEmployee = async (req, res, next) => {
   try {
-    const { firstName, lastName, email, phone, designationId, reportingTo, joiningDate, status } = req.body;
+    const { firstName, lastName, email, phone, designationId, reportingTo, joiningDate, status, roleId } = req.body;
     let employee = await Employee.findById(req.params.id);
     if (!employee || employee.isDeleted) {
       return res.status(404).json({ success: false, message: 'Employee not found.' });
-    }
-
-    const finalDesignationId = designationId || employee.designationId;
-    const employeeDesignation = await Designation.findById(finalDesignationId);
-    if (!employeeDesignation) {
-      return res.status(400).json({ success: false, message: 'Designation not found.' });
-    }
-
-    const isSalesHead = employeeDesignation.name?.trim().toLowerCase() === 'sales head';
-    const isAdmin = employeeDesignation.name?.trim().toLowerCase() === 'admin';
-    const finalReportingTo = isAdmin ? null : (reportingTo !== undefined ? reportingTo : employee.reportingTo);
-
-    // Verify designation hierarchy
-    if (finalReportingTo) {
-      if (finalReportingTo.toString() === req.params.id) {
-        return res.status(400).json({ success: false, message: 'An employee cannot report to themselves.' });
-      }
-
-      const managerEmployee = await Employee.findById(finalReportingTo).populate('designationId');
-      if (!managerEmployee) {
-        return res.status(400).json({ success: false, message: 'Selected reporting manager not found.' });
-      }
-      const managerDesignation = managerEmployee.designationId;
-      if (!managerDesignation) {
-        return res.status(400).json({ success: false, message: 'Reporting manager has no designation assigned.' });
-      }
-
-      const isManagerAdmin = managerDesignation.name?.trim().toLowerCase() === 'admin';
-
-      if (isSalesHead) {
-        // Sales Head reports ONLY to Admin
-        if (!isManagerAdmin) {
-          return res.status(400).json({
-            success: false,
-            message: 'Hierarchy violation: A Sales Head must report only to an Admin.'
-          });
-        }
-      } else {
-        // Other designations cannot report directly to Admin
-        if (isManagerAdmin) {
-          return res.status(400).json({
-            success: false,
-            message: 'Hierarchy violation: Only Sales Head can report directly to an Admin.'
-          });
-        }
-        if (managerDesignation.level >= employeeDesignation.level) {
-          return res.status(400).json({
-            success: false,
-            message: `Hierarchy violation: A ${employeeDesignation.name} cannot report to a ${managerDesignation.name}. Manager must have a higher designation hierarchy.`
-          });
-        }
-      }
     }
 
     // Automatically find or create the "Employee" role
@@ -305,9 +205,9 @@ exports.updateEmployee = async (req, res, next) => {
       lastName: lastName || employee.lastName,
       email: email || employee.email,
       phone: phone || employee.phone,
-      designationId: finalDesignationId,
-      roleId: employeeRole._id,
-      reportingTo: finalReportingTo || null,
+      designationId: null,
+      roleId: roleId || employee.roleId || employeeRole._id,
+      reportingTo: null,
       joiningDate: joiningDate || employee.joiningDate,
       profilePhoto,
       status: status || employee.status

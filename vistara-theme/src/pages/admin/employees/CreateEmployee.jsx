@@ -21,37 +21,12 @@ const CreateEmployee = () => {
         profilePhotoPreview: null,
         password: '',
         confirmPassword: '',
-        designationId: '',
-        reportingTo: '',
         joiningDate: new Date().toISOString().split('T')[0],
         status: 'Active'
     });
 
-    // Fetch master data independently to prevent one error from blocking everything
-    const fetchMasters = async () => {
-        setLoadingMasters(true);
-        try {
-            const desRes = await designationService.getDesignations();
-            if (desRes && desRes.success) {
-                setDesignations(desRes.data);
-            }
-        } catch (error) {
-            console.error('Failed to load designations', error);
-        }
-
-        try {
-            const empRes = await employeeService.getEmployees({ limit: 1000 });
-            if (empRes && empRes.success) {
-                setAllEmployees(empRes.data);
-            }
-        } catch (error) {
-            console.error('Failed to load reporting managers', error);
-        }
-        setLoadingMasters(false);
-    };
-
     useEffect(() => {
-        fetchMasters();
+        // fetchMasters no longer needed for designations/reporting managers, but keeping it to avoid errors if needed elsewhere.
     }, []);
 
     const handlePhotoChange = (e) => {
@@ -98,58 +73,13 @@ const CreateEmployee = () => {
         setFormStep(formStep - 1);
     };
 
-    const validateHierarchy = (empDesignationId, managerId) => {
-        if (!managerId) return true;
-        
-        const empDesignation = designations.find(d => d._id === empDesignationId);
-        const managerEmp = allEmployees.find(e => e._id === managerId);
-
-        if (!empDesignation || !managerEmp || !managerEmp.designationId) return true;
-
-        let managerDesignation = managerEmp.designationId;
-        if (typeof managerDesignation === 'string') {
-            managerDesignation = designations.find(d => d._id === managerDesignation);
-        }
-        if (!managerDesignation) return true;
-
-        const isSalesHead = empDesignation.name?.trim().toLowerCase() === 'sales head';
-        const isManagerAdmin = managerDesignation.name?.trim().toLowerCase() === 'admin';
-
-        if (isSalesHead) {
-            // Sales Head reports ONLY to Admin
-            if (!isManagerAdmin) {
-                toast.error('Hierarchy Warning: A Sales Head must report only to an Admin.');
-                return false;
-            }
-            return true;
-        }
-
-        // Other designations cannot report directly to Admin
-        if (isManagerAdmin) {
-            toast.error('Hierarchy Warning: Only Sales Head can report directly to an Admin.');
-            return false;
-        }
-
-        const managerLevel = managerDesignation.level;
-        const employeeLevel = empDesignation.level;
-
-        // Remember: level 1 is highest
-        if (managerLevel >= employeeLevel) {
-            toast.error(`Hierarchy Warning: A ${empDesignation.name} cannot report to a ${managerDesignation.name || 'subordinate'}. Manager must be higher in hierarchy.`);
-            return false;
-        }
-        return true;
-    };
+    // Hierarchy validation removed since designation is removed
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!form.designationId || !form.joiningDate || !form.status) {
+        if (!form.joiningDate || !form.status) {
             toast.error('Please fill in all required employment fields.');
-            return;
-        }
-
-        if (!validateHierarchy(form.designationId, form.reportingTo)) {
             return;
         }
 
@@ -159,8 +89,6 @@ const CreateEmployee = () => {
         formData.append('email', form.email);
         formData.append('phone', form.phone);
         formData.append('password', form.password);
-        formData.append('designationId', form.designationId);
-        if (form.reportingTo) formData.append('reportingTo', form.reportingTo);
         formData.append('joiningDate', form.joiningDate);
         formData.append('status', form.status);
         if (form.profilePhoto) {
@@ -178,37 +106,7 @@ const CreateEmployee = () => {
         }
     };
 
-    const selectedDesig = designations.find(d => d._id === form.designationId);
-    
-    const getFilteredManagers = (selectedDesigId) => {
-        if (!selectedDesigId) return [];
-        const selD = designations.find(d => d._id === selectedDesigId);
-        if (!selD) return [];
-
-        const isSh = selD.name?.trim().toLowerCase() === 'sales head';
-        const isAdmin = selD.name?.trim().toLowerCase() === 'admin';
-
-        if (isAdmin) return [];
-
-        return allEmployees.filter(emp => {
-            let empDesig = emp.designationId;
-            if (!empDesig) return false;
-
-            if (typeof empDesig === 'string') {
-                empDesig = designations.find(d => d._id === empDesig);
-            }
-            if (!empDesig) return false;
-
-            const isEmpAdmin = empDesig.name?.trim().toLowerCase() === 'admin';
-
-            if (isSh) {
-                return isEmpAdmin;
-            } else {
-                if (isEmpAdmin) return false;
-                return empDesig.level < selD.level;
-            }
-        });
-    };
+    // filtered managers logic removed
 
     return (
         <main className="min-h-full p-4 flex flex-col gap-4 font-sans">
@@ -245,12 +143,6 @@ const CreateEmployee = () => {
 
                 {/* Main Form Card */}
                 <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-4">
-                    {loadingMasters && formStep === 3 ? (
-                        <div className="text-center py-12 text-slate-500 font-bold uppercase text-[10px] tracking-widest">
-                            <div className="w-6 h-6 border-2 border-[#011d52]/20 border-t-[#011d52] rounded-full animate-spin mx-auto mb-3"></div>
-                            Loading master data registries...
-                        </div>
-                    ) : (
                         <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
                             {/* STEP 1: Basic Info */}
                             {formStep === 1 && (
@@ -360,61 +252,6 @@ const CreateEmployee = () => {
                             {/* STEP 3: Employment Details */}
                             {formStep === 3 && (
                                 <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Designation *</label>
-                                        <select
-                                            value={form.designationId}
-                                            onChange={(e) => {
-                                                const desigId = e.target.value;
-                                                const selD = designations.find(d => d._id === desigId);
-                                                const isAdmin = !!(selD && selD.name?.trim().toLowerCase() === 'admin');
-                                                
-                                                setForm(prev => {
-                                                    let newReportingTo = prev.reportingTo;
-                                                    if (isAdmin) {
-                                                        newReportingTo = '';
-                                                    } else {
-                                                        const validManagers = getFilteredManagers(desigId);
-                                                        const isValid = validManagers.some(m => m._id === prev.reportingTo);
-                                                        if (!isValid) {
-                                                            newReportingTo = '';
-                                                        }
-                                                    }
-                                                    return {
-                                                        ...prev,
-                                                        designationId: desigId,
-                                                        reportingTo: newReportingTo
-                                                    };
-                                                });
-                                            }}
-                                            className="w-full bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-[10px] font-bold text-slate-800 outline-none focus:border-[#011d52] transition-colors cursor-pointer"
-                                            required
-                                        >
-                                            <option value="">Select...</option>
-                                            {designations.map(d => (
-                                                <option key={d._id} value={d._id}>{d.name}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    {selectedDesig && selectedDesig.name?.trim().toLowerCase() !== 'admin' && (
-                                        <div>
-                                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Reporting Manager</label>
-                                            <select
-                                                value={form.reportingTo}
-                                                onChange={(e) => setForm({ ...form, reportingTo: e.target.value })}
-                                                className="w-full bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-[10px] font-bold text-slate-800 outline-none focus:border-[#011d52] transition-colors cursor-pointer"
-                                            >
-                                                <option value="">Select Reporting Manager...</option>
-                                                {getFilteredManagers(form.designationId).map(e => (
-                                                    <option key={e._id} value={e._id}>
-                                                        {e.firstName} {e.lastName} ({e.designationId?.name || 'No Designation'})
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                    )}
-
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Joining Date *</label>
@@ -475,7 +312,6 @@ const CreateEmployee = () => {
                                 )}
                             </div>
                         </form>
-                    )}
                 </div>
             </div>
         </main>

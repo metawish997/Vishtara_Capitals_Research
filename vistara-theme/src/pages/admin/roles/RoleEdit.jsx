@@ -24,6 +24,8 @@ const RoleEdit = () => {
                 const grouped = {};
                 permRes.data.forEach(p => {
                     const category = p.name.split(' ')[0] || 'General';
+                    if (['leads', 'lead-imports'].includes(category.toLowerCase())) return;
+                    
                     if (!grouped[category]) grouped[category] = [];
                     grouped[category].push(p);
                 });
@@ -65,6 +67,11 @@ const RoleEdit = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (roleName?.toLowerCase() === 'super admin') {
+            toast.error('Super Admin role cannot be edited.');
+            return;
+        }
+        
         try {
             const payload = { name: roleName, permissions: selectedPermissions };
             if (isEdit) {
@@ -93,6 +100,9 @@ const RoleEdit = () => {
     const totalSelected = selectedPermissions.length;
     const totalAll = Object.values(permissionsData).flat().length;
 
+    const isNameProtected = isLocked || ['employee', 'customer', 'super admin'].includes(roleName?.toLowerCase());
+    const isSuperAdmin = roleName?.toLowerCase() === 'super admin';
+
     return (
         <main className="min-h-full p-4 flex flex-col gap-4">
             {/* Header */}
@@ -106,7 +116,7 @@ const RoleEdit = () => {
                 </div>
                 <div className="flex items-center gap-3 mt-3 md:mt-0">
                     <Link to="/admin/roles" className="px-3 py-1.5 border border-slate-200 text-slate-600 rounded-md font-bold text-[10px] hover:bg-slate-50 transition">Cancel</Link>
-                    <button form="roleForm" className="px-4 py-1.5 bg-[#011d52] text-white rounded-md font-bold text-[10px] hover:bg-[#02143a] transition">
+                    <button form="roleForm" disabled={isSuperAdmin} className={`px-4 py-1.5 text-white rounded-md font-bold text-[10px] transition ${isSuperAdmin ? 'bg-slate-400 cursor-not-allowed' : 'bg-[#011d52] hover:bg-[#02143a]'}`}>
                         {isEdit ? 'Save Changes' : 'Create Role'}
                     </button>
                 </div>
@@ -128,9 +138,9 @@ const RoleEdit = () => {
                                 <input
                                     type="text" value={roleName}
                                     onChange={e => setRoleName(e.target.value)}
-                                    required readOnly={isLocked}
+                                    required readOnly={isNameProtected}
                                     placeholder="e.g. Moderator"
-                                    className={`px-3 py-1.5 border border-slate-200 rounded-md text-[11px] font-semibold text-slate-800 focus:outline-none focus:border-[#011d52] focus:ring-1 focus:ring-[#011d52]/20 transition-all ${isLocked ? 'opacity-60 cursor-not-allowed bg-slate-50' : 'bg-white'}`}
+                                    className={`px-3 py-1.5 border border-slate-200 rounded-md text-[11px] font-semibold text-slate-800 focus:outline-none focus:border-[#011d52] focus:ring-1 focus:ring-[#011d52]/20 transition-all ${isNameProtected ? 'opacity-60 cursor-not-allowed bg-slate-50' : 'bg-white'}`}
                                 />
                             </div>
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import employeeService from '../../../services/employeeService';
 import designationService from '../../../services/designationService';
+import roleService from '../../../services/roleService';
 import { BASE_URL } from '../../../services/api';
 import toast from 'react-hot-toast';
 
@@ -25,7 +26,7 @@ const HierarchyNode = ({ node, getPhotoUrl }) => {
                         {node.firstName[0]}{node.lastName[0]}
                     </div>
                 )}
-                
+
                 {/* Details */}
                 <div className="text-left min-w-0 flex-1">
                     <p className="text-[9px] font-black text-[#1e293b] uppercase truncate leading-none">
@@ -35,14 +36,14 @@ const HierarchyNode = ({ node, getPhotoUrl }) => {
                         {node.designationId?.name || 'Staff'}
                     </p>
                 </div>
-                
+
                 {/* Status Dot */}
                 <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${node.status === 'Active' ? 'bg-emerald-500' : 'bg-rose-500'}`} />
 
                 {/* Expand/Collapse Button (positioned under card if has children) */}
                 {hasChildren && (
-                    <button 
-                        onClick={() => setExpanded(!expanded)} 
+                    <button
+                        onClick={() => setExpanded(!expanded)}
                         className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full border border-[#e2e8f0] bg-[#f8fafc] text-[#64748b] hover:text-[#011d52] hover:border-[#011d52]/50 flex items-center justify-center text-[7px] font-black transition-all shadow-sm active:scale-90 z-20"
                     >
                         {expanded ? '−' : '+'}
@@ -55,7 +56,7 @@ const HierarchyNode = ({ node, getPhotoUrl }) => {
                 <div className="flex flex-col items-center w-full">
                     {/* Vertical line coming down from parent card */}
                     <div className="w-[1px] h-5 bg-[#e2e8f0]"></div>
-                    
+
                     {/* Children Row container (no gaps to allow continuous connecting lines) */}
                     <div className="flex items-start gap-0 relative">
                         {node.children.map((child, index) => (
@@ -67,10 +68,10 @@ const HierarchyNode = ({ node, getPhotoUrl }) => {
                                 {index < node.children.length - 1 && (
                                     <div className="absolute top-0 right-0 w-[50%] h-[1px] bg-[#e2e8f0]"></div>
                                 )}
-                                
+
                                 {/* Vertical branch connector line */}
                                 <div className="w-[1px] h-5 bg-[#e2e8f0]"></div>
-                                
+
                                 {/* Child Node */}
                                 <HierarchyNode node={child} getPhotoUrl={getPhotoUrl} />
                             </div>
@@ -116,6 +117,7 @@ const EmployeeList = () => {
     const [employees, setEmployees] = useState([]);
     const [allEmployees, setAllEmployees] = useState([]); // Used for Reporting Manager dropdown selection
     const [designations, setDesignations] = useState([]);
+    const [roles, setRoles] = useState([]);
     const [activeTab, setActiveTab] = useState('table'); // 'table' or 'hierarchy'
     const [loading, setLoading] = useState(true);
 
@@ -170,6 +172,10 @@ const EmployeeList = () => {
     // Fetch master registries independently (avoids Promise.all fail-fast blockage)
     const fetchMasters = async () => {
         try {
+            const rolesRes = await roleService.getRoles();
+            if (rolesRes && rolesRes.data) {
+                setRoles(rolesRes.data);
+            }
             const desRes = await designationService.getDesignations();
             if (desRes && desRes.success) {
                 setDesignations(desRes.data);
@@ -248,7 +254,7 @@ const EmployeeList = () => {
             phone: emp.phone,
             profilePhoto: null,
             profilePhotoPreview: getPhotoUrl(emp.profilePhoto),
-            designationId: emp.designationId?._id || '',
+            roleId: emp.roleId?._id || '',
             reportingTo: emp.reportingTo?._id || '',
             joiningDate: emp.joiningDate ? emp.joiningDate.split('T')[0] : '',
             status: emp.status
@@ -344,12 +350,8 @@ const EmployeeList = () => {
     const handleUpdateEmployeeSubmit = async (e) => {
         e.preventDefault();
 
-        if (!form.designationId || !form.joiningDate || !form.status) {
+        if (!form.roleId || !form.joiningDate || !form.status) {
             toast.error('Required fields are missing.');
-            return;
-        }
-
-        if (!validateHierarchy(form.designationId, form.reportingTo)) {
             return;
         }
 
@@ -358,8 +360,7 @@ const EmployeeList = () => {
         formData.append('lastName', form.lastName);
         formData.append('email', form.email);
         formData.append('phone', form.phone);
-        formData.append('designationId', form.designationId);
-        formData.append('reportingTo', form.reportingTo || ''); // Empty string deletes manager ref in backend
+        formData.append('roleId', form.roleId);
         formData.append('joiningDate', form.joiningDate);
         formData.append('status', form.status);
         if (form.profilePhoto) {
@@ -429,27 +430,8 @@ const EmployeeList = () => {
                 </button>
             </div>
 
-            {/* Tabs Switcher */}
-            <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 p-1 rounded-md w-fit">
-                <button
-                    onClick={() => setActiveTab('table')}
-                    className={`px-3 py-1.5 rounded text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'table'
-                        ? 'bg-[#011d52] text-white shadow-sm'
-                        : 'text-slate-500 hover:text-slate-800'
-                        }`}
-                >
-                    Table View
-                </button>
-                <button
-                    onClick={() => setActiveTab('hierarchy')}
-                    className={`px-3 py-1.5 rounded text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'hierarchy'
-                        ? 'bg-[#011d52] text-white shadow-sm'
-                        : 'text-slate-500 hover:text-slate-800'
-                        }`}
-                >
-                    Hierarchy Tree
-                </button>
-            </div>
+            {/* Tabs Switcher - Hidden per request */}
+            {/* <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 p-1 rounded-md w-fit">...</div> */}
 
             {activeTab === 'table' ? (
                 <>
@@ -481,7 +463,7 @@ const EmployeeList = () => {
                         </div>
 
                         {/* Designation Filter */}
-                        <div className="min-w-[150px]">
+                        {/* <div className="min-w-[150px]">
                             <select
                                 value={designationFilter}
                                 onChange={(e) => { setDesignationFilter(e.target.value); setPage(1); }}
@@ -492,7 +474,7 @@ const EmployeeList = () => {
                                     <option key={d._id} value={d._id}>{d.name}</option>
                                 ))}
                             </select>
-                        </div>
+                        </div> */}
                     </div>
 
                     {/* Main Table Card */}
@@ -503,8 +485,7 @@ const EmployeeList = () => {
                                     <tr className="bg-slate-50 border-b border-slate-200">
                                         <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Employee Code</th>
                                         <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Employee Name</th>
-                                        <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Designation & Role</th>
-                                        <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Reporting Manager</th>
+                                        <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Role</th>
                                         <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Contact details</th>
                                         <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Status</th>
                                         <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Joining Date</th>
@@ -557,31 +538,14 @@ const EmployeeList = () => {
                                                     </div>
                                                 </td>
 
-                                                {/* Designation & Role */}
+                                                {/* Role */}
                                                 <td className="px-4 py-3 align-middle">
-                                                    <p className="text-[10px] font-bold text-slate-800 uppercase tracking-widest">
-                                                        {emp.designationId?.name || <span className="text-slate-400 italic">Unassigned</span>}
-                                                    </p>
-                                                    <p className="text-[9px] text-[#011d52] font-bold uppercase tracking-widest mt-0.5">
-                                                        {emp.roleId?.name || 'Employee'}
+                                                    <p className="text-[10px] font-bold text-[#011d52] uppercase tracking-widest">
+                                                        {emp.roleId?.name?.trim().toLowerCase() === 'admin user' ? 'Admin' : (emp.roleId?.name || 'Employee')}
                                                     </p>
                                                 </td>
 
-                                                {/* Reporting Manager */}
-                                                <td className="px-4 py-3 align-middle">
-                                                    {emp.reportingTo ? (
-                                                        <div>
-                                                            <p className="font-bold text-slate-800 uppercase text-[10px]">
-                                                                {emp.reportingTo.firstName} {emp.reportingTo.lastName}
-                                                            </p>
-                                                            <p className="text-[9px] text-slate-500 font-medium mt-0.5 uppercase tracking-widest">
-                                                                ({emp.reportingTo.designationId?.name || 'Manager'})
-                                                            </p>
-                                                        </div>
-                                                    ) : (
-                                                        <span className="text-slate-400 font-medium italic text-[10px]">No reporting manager</span>
-                                                    )}
-                                                </td>
+                                                {/* Reporting Manager Removed */}
 
                                                 {/* Contact Details */}
                                                 <td className="px-4 py-3 align-middle text-[10px]">
@@ -682,36 +646,7 @@ const EmployeeList = () => {
                         )}
                     </div>
                 </>
-            ) : (
-                /* Hierarchy Card */
-                <div className="bg-[#ffffff] p-4 border border-[#e2e8f0] rounded-[4px] shadow-sm">
-                    <div className="border-b border-[#e2e8f0] pb-3 mb-4">
-                        <h2 className="text-xs font-black text-[#1e293b] uppercase tracking-wider">
-                            Organizational Hierarchy
-                        </h2>
-                        <p className="text-[8px] text-[#64748b] font-bold uppercase tracking-wider mt-1">
-                            Recursive reporting structure sorted by designation levels
-                        </p>
-                    </div>
-                    {allEmployees.length === 0 ? (
-                        <div className="text-center text-[#64748b] py-8 font-black uppercase text-[9px]">
-                            No employees registry found to build hierarchy tree.
-                        </div>
-                    ) : (
-                        <div className="w-full overflow-x-auto p-4 bg-[#f8fafc]/30 border border-[#e2e8f0] rounded-[4px] custom-scrollbar flex justify-center">
-                            <div className="min-w-max flex justify-center items-start gap-8 py-4">
-                                {buildHierarchy(allEmployees).map(root => (
-                                    <HierarchyNode 
-                                        key={root._id} 
-                                        node={root} 
-                                        getPhotoUrl={getPhotoUrl} 
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            )}
+            ) : null}
 
             {/* EDIT EMPLOYEE MODAL */}
             {showEditModal && selectedEmployee && (
@@ -786,59 +721,19 @@ const EmployeeList = () => {
                             </div>
 
                             <div>
-                                <label className="block text-[9px] font-black text-[#64748b] uppercase tracking-widest mb-2 ml-1">Designation *</label>
+                                <label className="block text-[9px] font-black text-[#64748b] uppercase tracking-widest mb-2 ml-1">Role *</label>
                                 <select
-                                    value={form.designationId}
-                                    onChange={(e) => {
-                                        const desigId = e.target.value;
-                                        const selD = designations.find(d => d._id === desigId);
-                                        const isAdmin = !!(selD && selD.name?.trim().toLowerCase() === 'admin');
-
-                                        setForm(prev => {
-                                            let newReportingTo = prev.reportingTo;
-                                            if (isAdmin) {
-                                                newReportingTo = '';
-                                            } else {
-                                                const validManagers = getFilteredManagers(desigId, selectedEmployee?._id);
-                                                const isValid = validManagers.some(m => m._id === prev.reportingTo);
-                                                if (!isValid) {
-                                                    newReportingTo = '';
-                                                }
-                                            }
-                                            return {
-                                                ...prev,
-                                                designationId: desigId,
-                                                reportingTo: newReportingTo
-                                            };
-                                        });
-                                    }}
+                                    value={form.roleId}
+                                    onChange={(e) => setForm({ ...form, roleId: e.target.value })}
                                     className="w-full bg-[#f8fafc] border border-[#e2e8f0] px-5 py-3 rounded-2xl outline-none focus:border-[#011d52] text-[#1e293b] transition-all font-bold text-xs"
                                     required
                                 >
-                                    <option value="">Select...</option>
-                                    {designations.map(d => (
-                                        <option key={d._id} value={d._id}>{d.name}</option>
+                                    <option value="">Select Role...</option>
+                                    {roles.map(r => (
+                                        <option key={r._id} value={r._id}>{r.name}</option>
                                     ))}
                                 </select>
                             </div>
-
-                            {selectedDesig && selectedDesig.name?.trim().toLowerCase() !== 'admin' && (
-                                <div>
-                                    <label className="block text-[9px] font-black text-[#64748b] uppercase tracking-widest mb-2 ml-1">Reporting Manager</label>
-                                    <select
-                                        value={form.reportingTo}
-                                        onChange={(e) => setForm({ ...form, reportingTo: e.target.value })}
-                                        className="w-full bg-[#f8fafc] border border-[#e2e8f0] px-5 py-3 rounded-2xl outline-none focus:border-[#011d52] text-[#1e293b] transition-all font-bold text-xs"
-                                    >
-                                        <option value="">Select Reporting Manager...</option>
-                                        {getFilteredManagers(form.designationId, selectedEmployee?._id).map(e => (
-                                            <option key={e._id} value={e._id}>
-                                                {e.firstName} {e.lastName} ({e.designationId?.name || 'No Designation'})
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            )}
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>

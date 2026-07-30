@@ -39,7 +39,7 @@ const EmployeeSchema = new mongoose.Schema({
   designationId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Designation',
-    required: [true, 'Please select a designation'],
+    default: null
   },
   roleId: {
     type: mongoose.Schema.Types.ObjectId,

@@ -51,11 +51,19 @@ const RoleList = () => {
 
     useEffect(() => { fetchRoles(); }, []);
 
-    const handleDelete = async (id, isLocked) => {
-        if (isLocked) { toast.error('This role is locked and cannot be deleted.'); return; }
+    const handleDelete = async (role) => {
+        const isSuperAdmin = role.name?.toLowerCase() === 'super admin';
+        const isEmployee = role.name?.toLowerCase() === 'employee';
+        const isCustomer = role.name?.toLowerCase() === 'customer';
+        
+        if (role.is_locked || isSuperAdmin || isEmployee || isCustomer) {
+            toast.error('This role is protected and cannot be deleted.');
+            return;
+        }
+        
         if (window.confirm('Delete this role?')) {
             try {
-                await roleService.deleteRole(id);
+                await roleService.deleteRole(role._id);
                 toast.success('Role deleted');
                 fetchRoles();
             } catch (error) {
@@ -96,7 +104,13 @@ const RoleList = () => {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {roles.map((role) => (
+                    {roles.map((role) => {
+                        const isSuperAdmin = role.name?.toLowerCase() === 'super admin';
+                        const isEmployee = role.name?.toLowerCase() === 'employee';
+                        const isCustomer = role.name?.toLowerCase() === 'customer';
+                        const canDelete = !role.is_locked && !isSuperAdmin && !isEmployee && !isCustomer;
+
+                        return (
                         <div key={role._id}
                             className="bg-white rounded-xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-slate-200 p-4 hover:border-blue-200 transition-all flex flex-col gap-3">
                             {/* Card Header */}
@@ -108,8 +122,8 @@ const RoleList = () => {
                                     <div>
                                         <div className="flex items-center gap-1.5">
                                             <h3 className="text-[12px] font-bold text-slate-800 uppercase tracking-tight">{role.name}</h3>
-                                            {role.is_locked && (
-                                                <span className="text-[7px] font-bold bg-amber-100 text-amber-700 border border-amber-200 px-1.5 py-0.5 rounded uppercase tracking-widest">System</span>
+                                            {(role.is_locked || isSuperAdmin || isEmployee || isCustomer) && (
+                                                <span className="text-[7px] font-bold bg-amber-100 text-amber-700 border border-amber-200 px-1.5 py-0.5 rounded uppercase tracking-widest">Protected</span>
                                             )}
                                         </div>
                                         <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mt-0.5">
@@ -118,12 +132,15 @@ const RoleList = () => {
                                     </div>
                                 </div>
                                 <div className="flex gap-1.5">
-                                    <Link to={`/admin/roles/edit/${role._id}`}
-                                        className="w-7 h-7 rounded-lg bg-slate-50 border border-slate-200 text-slate-500 hover:text-amber-600 hover:bg-amber-50 hover:border-amber-200 transition-all flex items-center justify-center text-[11px]">
-                                        ✏️
-                                    </Link>
-                                    <button onClick={() => handleDelete(role._id, role.is_locked)}
-                                        className={`w-7 h-7 rounded-lg bg-slate-50 border border-slate-200 transition-all flex items-center justify-center text-[11px] ${role.is_locked ? 'opacity-30 cursor-not-allowed' : 'text-slate-500 hover:text-red-500 hover:bg-red-50 hover:border-red-200'}`}>
+                                    {!isSuperAdmin && (
+                                        <Link to={`/admin/roles/edit/${role._id}`}
+                                            className="w-7 h-7 rounded-lg bg-slate-50 border border-slate-200 text-slate-500 hover:text-amber-600 hover:bg-amber-50 hover:border-amber-200 transition-all flex items-center justify-center text-[11px]">
+                                            ✏️
+                                        </Link>
+                                    )}
+                                    <button onClick={() => handleDelete(role)}
+                                        disabled={!canDelete}
+                                        className={`w-7 h-7 rounded-lg bg-slate-50 border border-slate-200 transition-all flex items-center justify-center text-[11px] ${!canDelete ? 'opacity-30 cursor-not-allowed' : 'text-slate-500 hover:text-red-500 hover:bg-red-50 hover:border-red-200'}`}>
                                         🗑️
                                     </button>
                                 </div>
@@ -152,13 +169,15 @@ const RoleList = () => {
                             {/* Footer */}
                             <div className="pt-2 border-t border-slate-100 flex items-center justify-between mt-auto">
                                 <span className="text-[8px] font-bold uppercase tracking-widest text-slate-300">ID-{role._id?.slice(-6)}</span>
-                                <Link to={`/admin/roles/edit/${role._id}`}
-                                    className="text-[9px] font-bold uppercase tracking-widest text-[#011d52] hover:underline">
-                                    Edit Role →
-                                </Link>
+                                {!isSuperAdmin && (
+                                    <Link to={`/admin/roles/edit/${role._id}`}
+                                        className="text-[9px] font-bold uppercase tracking-widest text-[#011d52] hover:underline">
+                                        Edit Role →
+                                    </Link>
+                                )}
                             </div>
                         </div>
-                    ))}
+                    )})}
                 </div>
             )}
 
