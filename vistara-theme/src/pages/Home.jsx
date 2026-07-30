@@ -71,8 +71,11 @@ export default function Home() {
             html[data-theme="dark"] .tp-fi-hero-wrapper p.text.text {
                color: #222F30 !important;
             }
+            body.high-contrast div.tp-fi-cta-wrapper.tp-fi-cta-wrapper.tp-fi-cta-wrapper h2.tp-fi-cta-title,
             body.high-contrast div.tp-fi-cta-wrapper.tp-fi-cta-wrapper.tp-fi-cta-wrapper h3.tp-fi-cta-title,
-            body.high-contrast div.tp-fi-cta-wrapper.tp-fi-cta-wrapper.tp-fi-cta-wrapper p,
+            body.high-contrast div.tp-fi-cta-wrapper.tp-fi-cta-wrapper.tp-fi-cta-wrapper p {
+               color: #011d52 !important;
+            }
             body.high-contrast div.tp-fi-cta-wrapper.tp-fi-cta-wrapper.tp-fi-cta-wrapper input {
                color: #111111 !important;
             }
@@ -734,7 +737,7 @@ export default function Home() {
                         <div className="tp-fi-value-heading">
                            <span className="tp-section-sub tp-fade-anim">Our Core Values</span>
                            <h2 className="tp-section-title umb-30" data-text-split data-letters-fade-in>Research-backed. <br />
-                           Client-focused.</h2>
+                              Client-focused.</h2>
                            <div className="tp-fade-anim" data-delay=".5">
                               <p>At Vishtara Capital, we believe that successful trading is built on rigorous <br />
                                  analysis and strict emotional discipline. Every insight is grounded in technical <br />
@@ -1262,7 +1265,7 @@ export default function Home() {
                   <div className="row align-items-center">
                      <div className="col-lg-6">
                         <div className="tp-fi-cta-wrapper">
-                           <h2 className="tp-fi-cta-title" style={{ color: "#111111" }} data-text-split data-letters-fade-in>Fresh perspectives, news <br /> &
+                           <h2 className="tp-fi-cta-title" style={{ color: "#011d52" }} data-text-split data-letters-fade-in>Fresh perspectives, news <br /> &
                               Financial resources</h2>
                            <form onSubmit={(e) => { e.preventDefault(); setSubscribeStatus("Successfully subscribed to newsletter!"); setTimeout(() => setSubscribeStatus(""), 3000); }}>
                               <div className="tp-fi-cta-form-input p-relative">
@@ -1271,7 +1274,7 @@ export default function Home() {
                               </div>
                               {subscribeStatus && <p role="status" aria-live="polite" style={{ color: "#15803d", marginTop: "10px", fontWeight: "bold" }}>{subscribeStatus}</p>}
                            </form>
-                           <p style={{ color: "#111111" }}>Over $100 million in contracts closed</p>
+                           {/* <p style={{ color: "#011d52", fontWeight: "600" }}>Over $100 million in contracts closed</p> */}
                         </div>
                      </div>
                      <div className="col-lg-6">

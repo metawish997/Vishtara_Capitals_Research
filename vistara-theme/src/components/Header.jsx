@@ -324,7 +324,7 @@ export default function Header() {
             background: window.location.pathname === "/home2"
                ? "linear-gradient(160deg, rgb(36, 63, 99) 0%, rgb(50, 78, 115) 60%, rgb(36, 63, 99) 100%)"
                : "var(--tp-theme-primary)",
-            padding: "4px 0"
+            padding: "0"
          }}>
             <style>{`
                 .vistar-marquee-container {
@@ -336,6 +336,7 @@ export default function Header() {
                 }
                 .vistar-marquee-content {
                   display: inline-block;
+                  padding: 4px 0;
                   animation: marquee 35s linear infinite;
                 }
                 .vistar-marquee-content:hover {
@@ -343,7 +344,7 @@ export default function Header() {
                 }
                 .vistar-marquee-container {
                    display: flex;
-                   align-items: center;
+                   align-items: stretch;
                 }
                 .vistar-marquee-item {
                   display: inline-block;
@@ -378,22 +379,23 @@ export default function Header() {
                   aria-label={isTickerPaused ? "Play announcement ticker" : "Pause announcement ticker"}
                   aria-pressed={isTickerPaused}
                   style={{
-                     background: 'transparent',
+                     background: theme === 'black-green' ? '#011d52' : 'transparent',
                      border: 'none',
                      cursor: 'pointer',
                      padding: '0 15px',
-                     color: '#222F30',
+                     color: theme === 'black-green' ? '#ffffff' : '#222F30',
                      display: 'flex',
                      alignItems: 'center',
                      justifyContent: 'center',
                      zIndex: 10,
-                     flexShrink: 0
+                     flexShrink: 0,
+
                   }}
                >
                   {isTickerPaused ? (
-                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
                   ) : (
-                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
                   )}
                </button>
                <div className="vistar-marquee-content" style={{ animationPlayState: isTickerPaused ? 'paused' : 'running' }}>

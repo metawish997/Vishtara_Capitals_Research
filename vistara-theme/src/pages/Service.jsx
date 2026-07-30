@@ -608,9 +608,21 @@ export default function Service() {
                <div className="row">
                   <div className="col-lg-6">
                      <div className="tp-cn-success-item umb-30 radius-6 p-relative" style={{ backgroundColor: "#ffffff", backgroundImage: "url(assets/img/consulting/success/bg.jpg)" }}>
-                        <div className="tp-cn-success-item-content upb-200">
-                           <span className="tp-cn-success-item-sub tp-fade-anim" style={{ color: "#243F63", fontWeight: "600" }}>Vishtara Capital Research</span>
-                           <h2 className="tp-cn-success-item-title" data-text-split data-letters-fade-in style={{ color: "#243F63" }}>Empowering clients with accurate <br />
+                        <div className="tp-cn-success-item-content upb-200 strict-dark-blue-success">
+                           <style>{`
+                             .strict-dark-blue-success,
+                             .strict-dark-blue-success h2,
+                             .strict-dark-blue-success span,
+                             .strict-dark-blue-success p,
+                             html[data-theme="dark"] .strict-dark-blue-success h2,
+                             html[data-theme="dark"] .strict-dark-blue-success span,
+                             body.high-contrast .strict-dark-blue-success h2,
+                             body.high-contrast .strict-dark-blue-success span {
+                                color: #011d52 !important;
+                             }
+                           `}</style>
+                           <span className="tp-cn-success-item-sub tp-fade-anim" style={{ fontWeight: "600" }}>Vishtara Capital Research</span>
+                           <h2 className="tp-cn-success-item-title" data-text-split data-letters-fade-in>Empowering clients with accurate <br />
                               technical analysis &amp; premium <br />
                               market research alerts.</h2>
                            <div className="tp-fade-anim" data-delay=".5">
@@ -648,9 +660,26 @@ export default function Service() {
                         <div className="tp-cn-success-item-2-shape">
                            <img src="/assets/img/consulting/success/shape.png" alt="" />
                         </div>
-                        <div className="tp-cn-success-item-2-content tp-fade-anim" data-delay=".5" data-fade-from="right" style={{ backgroundColor: "#EAB308", opacity: 0.95 }}>
-                           <span className="tp-cn-success-item-2-title" style={{ color: "#01373D", fontWeight: "600" }}>Professional Research</span>
-                           <p style={{ color: "#01373D" }}>Providing SEBI compliant advisory, detailed <br /> market setups, and strict risk guidance.</p>
+                        <div className="tp-cn-success-item-2-content tp-fade-anim dynamic-prof-research" data-delay=".5" data-fade-from="right">
+                           <style>{`
+                             .dynamic-prof-research {
+                                background-color: var(--tp-finance-primary) !important;
+                             }
+                             .dynamic-prof-research .dynamic-text {
+                                color: #011d52 !important;
+                             }
+                             
+                             body.high-contrast .dynamic-prof-research,
+                             html[data-theme="dark"] .dynamic-prof-research {
+                                background-color: #011d52 !important;
+                             }
+                             body.high-contrast .dynamic-prof-research .dynamic-text,
+                             html[data-theme="dark"] .dynamic-prof-research .dynamic-text {
+                                color: #ffffff !important;
+                             }
+                           `}</style>
+                           <span className="tp-cn-success-item-2-title dynamic-text">Professional Research</span>
+                           <p className="dynamic-text" style={{ marginTop: "10px" }}>Providing SEBI compliant advisory, detailed <br /> market setups, and strict risk guidance.</p>
                         </div>
                      </div>
                   </div>
