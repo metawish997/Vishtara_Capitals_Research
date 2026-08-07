@@ -1435,7 +1435,7 @@ exports.checkUserAgreementEsignStatus = async (req, res) => {
                 }
             }
         } else {
-            digioCompleted = true;
+            console.error('No active Digio credentials found in database. Cannot verify document status.');
         }
 
         if (digioCompleted) {
@@ -1457,6 +1457,12 @@ exports.checkUserAgreementEsignStatus = async (req, res) => {
                 message: 'Agreement signed successfully!'
             });
         }
+
+        // Explicitly enforce esign_pending status in the database if not signed
+        await UserAgreement.updateOne(
+            { _id: agreement._id },
+            { $set: { status: 'esign_pending', is_signed: false } }
+        );
 
         return res.status(200).json({
             success: true,
