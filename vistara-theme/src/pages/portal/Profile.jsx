@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import toast from 'react-hot-toast';
 import api, { BASE_URL } from "../../services/api";
+import agreementService from "../../services/agreementService";
+import kycService from "../../services/kycService";
+import AgreementModal from "./AgreementModal";
 
 export default function Profile() {
     const { user, updateProfile, sendUpdateOtp, verifyUpdateContact, forgotPassword, resetPassword } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
 
     // Local states for forms
     const [formData, setFormData] = useState({
@@ -26,6 +30,94 @@ export default function Profile() {
     const [imageUrl, setImageUrl] = useState(formData.image);
     const [imageFile, setImageFile] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [accountData, setAccountData] = useState({ subscriptions: [], pending_payments: [], invoices: [], agreements: [] });
+    const [fetchingData, setFetchingData] = useState(true);
+
+    // E-Sign from Profile flow
+    const [kycData, setKycData] = useState(null);
+    const [pendingEsignAgreement, setPendingEsignAgreement] = useState(null); // the draft agr being re-esigned
+    const [isEsignModalOpen, setIsEsignModalOpen] = useState(false);
+    const [isEsignProcessing, setIsEsignProcessing] = useState(false);
+
+    useEffect(() => {
+        const fetchAccountServices = async () => {
+            try {
+                const res = await agreementService.getAccountServices();
+                if (res.success) {
+                    setAccountData({
+                        subscriptions: res.subscriptions || [],
+                        pending_payments: res.pending_payments || [],
+                        invoices: res.invoices || [],
+                        agreements: res.agreements || []
+                    });
+                }
+            } catch (err) {
+                console.error("Failed to load account data:", err);
+            } finally {
+                setFetchingData(false);
+            }
+        };
+
+        const fetchKyc = async () => {
+            try {
+                const kycRes = await kycService.getFullDetails();
+                if (kycRes.success) setKycData(kycRes.kyc);
+            } catch (err) {
+                console.error("KYC fetch failed:", err);
+            }
+        };
+
+        fetchAccountServices();
+        fetchKyc();
+    }, []);
+
+    // ── Digio redirect handler ─────────────────────────────────────────────────
+    // When Digio redirects back: ?status=success&digio_doc_id=DID...&message=...
+    // We detect this, find the matching UserAgreement, poll Digio & update the DB
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const digioStatus = params.get('status');
+        const digioDocId = params.get('digio_doc_id');
+
+        if (digioStatus === 'success' && digioDocId && accountData.agreements.length > 0) {
+            // Find the UserAgreement that matches this digio_document_id
+            const matchingAgreement = accountData.agreements.find(
+                a => a.is_user_agreement && a.digio_document_id === digioDocId
+            );
+
+            if (matchingAgreement) {
+                const handleDigioReturn = async () => {
+                    const toastId = toast.loading(`Processing e-sign for ${matchingAgreement.agreement_number}...`);
+                    try {
+                        const res = await agreementService.checkUserAgreementEsignStatus(matchingAgreement._id);
+                        toast.dismiss(toastId);
+
+                        if (res.success && res.status === 'signed') {
+                            toast.success(`✅ ${matchingAgreement.agreement_number} — E-Sign completed! Agreement is now active.`, { duration: 5000 });
+                        } else {
+                            toast(res.message || 'E-sign status updated.', { icon: 'ℹ️' });
+                        }
+
+                        // Refresh agreements list
+                        const refreshed = await agreementService.getAccountServices();
+                        if (refreshed.success) {
+                            setAccountData(prev => ({ ...prev, agreements: refreshed.agreements || [] }));
+                        }
+
+                        // Clean up URL (remove Digio params without full reload)
+                        window.history.replaceState({}, '', '/portal/profile');
+
+                    } catch (err) {
+                        toast.dismiss(toastId);
+                        console.error('Digio return handling failed:', err);
+                        toast.error('Could not update agreement status. Please refresh.');
+                    }
+                };
+
+                handleDigioReturn();
+            }
+        }
+    }, [location.search, accountData.agreements.length]);
 
     useEffect(() => {
         if (user) {
@@ -75,7 +167,111 @@ export default function Profile() {
     const [passwordResetError, setPasswordResetError] = useState('');
 
     const kycStatus = user?.kyc_status || 'none';
-    const isKycComplete = ['approved', 'verified', 'completed', 'success'].includes(kycStatus.toLowerCase());
+    const isKycComplete = ['approved', 'verified', 'completed', 'success'].includes(kycStatus.toLowerCase())
+        || (kycData?.status && ['approved', 'completed', 'success'].includes(kycData.status.toLowerCase()));
+
+    // --- Profile E-Sign Handler ---
+    const handleOpenEsignForAgreement = (agr) => {
+        if (!isKycComplete) {
+            toast.error('Please complete your KYC first before e-signing.');
+            return;
+        }
+        setPendingEsignAgreement(agr);
+        // UserAgreements (payment done, just need e-sign) don't need the modal preview
+        // They go directly to Digio — skip the agreement review modal for them
+        if (agr.is_user_agreement) {
+            handleUserAgreementEsign(agr);
+        } else {
+            setIsEsignModalOpen(true);
+        }
+    };
+
+    // For UserAgreements (payment already done): directly call backend → redirect to Digio
+    const handleUserAgreementEsign = async (agr) => {
+        setIsEsignProcessing(true);
+        try {
+            toast.loading('Preparing your agreement for e-sign...', { id: 'esign-loading' });
+            const res = await agreementService.completeUserAgreementEsign(agr._id);
+            toast.dismiss('esign-loading');
+            if (res.success && res.redirect_url) {
+                toast.success('Redirecting to E-Sign Gateway...');
+                window.location.href = res.redirect_url;
+            } else {
+                toast.error(res.message || 'Failed to initiate e-sign.');
+            }
+        } catch (error) {
+            toast.dismiss('esign-loading');
+            console.error('UserAgreement E-Sign error:', error);
+            toast.error(error.message || 'Something went wrong during e-sign.');
+        } finally {
+            setIsEsignProcessing(false);
+        }
+    };
+
+    // For DraftAgreements (KYC skip flow): open modal first, then storeDraftAgreement
+    const handleProfileEsignAccept = async () => {
+        if (!pendingEsignAgreement) return;
+        setIsEsignProcessing(true);
+        try {
+            const payload = {
+                plan_id: pendingEsignAgreement.plan_id,
+                duration_id: pendingEsignAgreement.duration_id,
+                plan_name: pendingEsignAgreement.plan_name,
+                duration: pendingEsignAgreement.duration,
+                features: pendingEsignAgreement.features || [],
+                planAmount: String(pendingEsignAgreement.amount),
+                coupon_code: null,
+                current_url: window.location.href
+            };
+            const res = await agreementService.storeDraftAgreement(payload);
+            if (res.success && res.redirect_url && res.status === 'esign_pending') {
+                toast.success('Redirecting to E-Sign Gateway...');
+                setIsEsignModalOpen(false);
+                window.location.href = res.redirect_url;
+            } else if (res.success && res.status === 'signed') {
+                toast.success('Agreement signed!');
+                setIsEsignModalOpen(false);
+                navigate('/portal/plans');
+            } else {
+                toast.error(res.message || 'Failed to initiate e-sign.');
+                setIsEsignModalOpen(false);
+            }
+        } catch (error) {
+            console.error('Profile E-Sign error:', error);
+            toast.error(error.message || 'Something went wrong during e-sign.');
+            setIsEsignModalOpen(false);
+        } finally {
+            setIsEsignProcessing(false);
+        }
+    };
+
+    const getAgreementStatusBadge = (agr) => {
+        if (!agr.is_draft && !agr.is_user_agreement) {
+            return { label: 'Finalized', color: '#16a34a', bg: 'rgba(40,199,111,0.1)' };
+        }
+        if (agr.status === 'Finalized') {
+            return { label: 'Finalized', color: '#16a34a', bg: 'rgba(40,199,111,0.1)' };
+        }
+        if (agr.pdf_path) {
+            return { label: 'Signed', color: '#16a34a', bg: 'rgba(40,199,111,0.1)' };
+        }
+        if (agr.status === 'payment_pending') {
+            return { label: 'Payment Review', color: '#d97706', bg: 'rgba(245,158,11,0.1)' };
+        }
+        if (agr.status === 'esign_required' || agr.needs_esign) {
+            return { label: 'E-Sign Pending', color: '#dc2626', bg: 'rgba(239,68,68,0.1)' };
+        }
+        if (agr.status === 'kyc_pending') {
+            return { label: 'KYC Pending', color: '#dc2626', bg: 'rgba(239,68,68,0.1)' };
+        }
+        if (agr.status === 'esign_pending') {
+            return { label: 'E-Sign Pending', color: '#dc2626', bg: 'rgba(239,68,68,0.1)' };
+        }
+        if (agr.status === 'signed') {
+            return { label: 'Signed', color: '#16a34a', bg: 'rgba(40,199,111,0.1)' };
+        }
+        return { label: agr.status || 'Pending', color: '#64748b', bg: '#f1f5f9' };
+    };
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
@@ -258,7 +454,7 @@ export default function Profile() {
 
                 {/* Personal Details Form */}
                 <div className="col-lg-8 mb-4">
-                    <div style={{ padding: "24px", borderRadius: "12px", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", boxShadow: "0 4px 12px rgba(0,0,0,0.02)", height: "100%" }}>
+                    <div style={{ padding: "24px", borderRadius: "12px", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", boxShadow: "0 4px 12px rgba(0,0,0,0.02)" }}>
 
                         <div className="d-flex justify-content-between align-items-center mb-4">
                             <h3 style={{ fontSize: "18px", color: "#011D52", fontWeight: "800", margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
@@ -401,6 +597,136 @@ export default function Profile() {
                             </button>
                         </form>
                     </div>
+
+
+
+                    {/* Payment History / Invoices (Moved here) */}
+                    <div style={{ padding: "24px", borderRadius: "12px", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", boxShadow: "0 4px 12px rgba(0,0,0,0.02)", marginTop: "24px" }}>
+                        <h3 style={{ fontSize: "18px", color: "#011D52", fontWeight: "800", marginBottom: "20px", display: "flex", alignItems: "center", gap: "8px" }}>
+                            <span style={{ width: "4px", height: "16px", backgroundColor: "#2B4365", borderRadius: "2px" }}></span>
+                            Payment History
+                        </h3>
+                        {fetchingData ? (
+                            <div style={{ textAlign: "center", padding: "20px" }}>Loading account details...</div>
+                        ) : accountData.invoices && accountData.invoices.length > 0 ? (
+                            <div style={{ overflowX: "auto", marginBottom: "20px" }}>
+                                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+                                    <thead>
+                                        <tr style={{ backgroundColor: "#f1f5f9", textAlign: "left" }}>
+                                            <th style={{ padding: "8px", borderBottom: "1px solid #cbd5e1" }}>Invoice #</th>
+                                            <th style={{ padding: "8px", borderBottom: "1px solid #cbd5e1" }}>Amount</th>
+                                            <th style={{ padding: "8px", borderBottom: "1px solid #cbd5e1" }}>Date</th>
+                                            <th style={{ padding: "8px", borderBottom: "1px solid #cbd5e1" }}>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {accountData.invoices.map((inv, idx) => (
+                                            <tr key={idx} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                                                <td style={{ padding: "8px", color: "#0f172a" }}>{inv.invoice_number || '-'}</td>
+                                                <td style={{ padding: "8px", fontWeight: "700", color: "#011D52" }}>₹{inv.amount}</td>
+                                                <td style={{ padding: "8px", color: "#64748b" }}>{new Date(inv.createdAt).toLocaleDateString()}</td>
+                                                <td style={{ padding: "8px", color: (inv.status === 'paid' || !inv.status) ? "#16a34a" : "#dc2626", fontWeight: "800" }}>{inv.status ? inv.status.toUpperCase() : 'PAID'}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (
+                            <div style={{ padding: "16px", borderRadius: "8px", backgroundColor: "#f8fafc", border: "1px dashed #cbd5e1", textAlign: "center" }}>
+                                <p style={{ fontSize: "12px", color: "#94a3b8", margin: 0 }}>No payment history available.</p>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Client Agreements */}
+                    <div style={{ padding: "24px", borderRadius: "12px", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", boxShadow: "0 4px 12px rgba(0,0,0,0.02)", marginTop: "24px" }}>
+                        <h3 style={{ fontSize: "18px", color: "#011D52", fontWeight: "800", marginBottom: "20px", display: "flex", alignItems: "center", gap: "8px" }}>
+                            <span style={{ width: "4px", height: "16px", backgroundColor: "#2B4365", borderRadius: "2px" }}></span>
+                            Client Agreements
+                        </h3>
+
+                        {!isKycComplete && accountData.agreements?.some(a =>
+                            (a.needs_esign) || (a.is_draft && (a.status === 'esign_pending' || a.status === 'kyc_pending'))
+                        ) && (
+                            <div style={{ marginBottom: "16px", padding: "12px 16px", backgroundColor: "#fef2f2", border: "1px solid #fee2e2", borderRadius: "8px", display: "flex", alignItems: "flex-start", gap: "10px" }}>
+                                <span style={{ fontSize: "16px" }}>⚠️</span>
+                                <div>
+                                    <p style={{ margin: "0 0 6px 0", fontSize: "13px", color: "#dc2626", fontWeight: "700" }}>E-Sign Pending — KYC Required</p>
+                                    <p style={{ margin: 0, fontSize: "12px", color: "#991b1b", lineHeight: "1.5" }}>You have agreement(s) that need to be e-signed. Please complete your KYC first, then return here to complete the e-sign process.</p>
+                                    <button onClick={() => navigate('/portal/kyc')} style={{ marginTop: "8px", padding: "6px 14px", backgroundColor: "#dc2626", color: "#fff", border: "none", borderRadius: "6px", fontSize: "11px", fontWeight: "700", cursor: "pointer" }}>Complete KYC Now →</button>
+                                </div>
+                            </div>
+                        )}
+
+                        {fetchingData ? (
+                            <div style={{ textAlign: "center", padding: "20px" }}>Loading agreements...</div>
+                        ) : accountData.agreements && accountData.agreements.length > 0 ? (
+                            <div style={{ overflowX: "auto", marginBottom: "20px" }}>
+                                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+                                    <thead>
+                                        <tr style={{ backgroundColor: "#f1f5f9", textAlign: "left" }}>
+                                            <th style={{ padding: "8px", borderBottom: "1px solid #cbd5e1" }}>Agreement #</th>
+                                            <th style={{ padding: "8px", borderBottom: "1px solid #cbd5e1" }}>Plan</th>
+                                            <th style={{ padding: "8px", borderBottom: "1px solid #cbd5e1" }}>Date</th>
+                                            <th style={{ padding: "8px", borderBottom: "1px solid #cbd5e1" }}>Status</th>
+                                            <th style={{ padding: "8px", borderBottom: "1px solid #cbd5e1", textAlign: "center" }}>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {accountData.agreements.map((agr, idx) => {
+                                            const badge = getAgreementStatusBadge(agr);
+                                            // needsEsign:
+                                            // - UserAgreement: needs_esign flag = true (payment done, no PDF)
+                                            // - DraftAgreement: status esign_pending or kyc_pending and no PDF
+                                            const needsEsign = agr.needs_esign
+                                                || (agr.is_draft && (agr.status === 'esign_pending' || agr.status === 'kyc_pending') && !agr.pdf_path);
+                                            const canEsign = needsEsign && isKycComplete;
+                                            return (
+                                                <tr key={idx} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                                                    <td style={{ padding: "8px", color: "#0f172a", fontWeight: "600" }}>{agr.agreement_number || '-'}</td>
+                                                    <td style={{ padding: "8px", color: "#64748b" }}>{agr.plan_name || '-'}</td>
+                                                    <td style={{ padding: "8px", color: "#64748b" }}>{new Date(agr.createdAt).toLocaleDateString()}</td>
+                                                    <td style={{ padding: "8px" }}>
+                                                        <span style={{ padding: "3px 8px", borderRadius: "20px", fontSize: "10px", fontWeight: "800", backgroundColor: badge.bg, color: badge.color, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                                                            {badge.label}
+                                                        </span>
+                                                    </td>
+                                                    <td style={{ padding: "8px", textAlign: "center" }}>
+                                                        {agr.pdf_path ? (
+                                                            <a href={agr.pdf_path.startsWith('http') ? agr.pdf_path : `http://localhost:5001${agr.pdf_path}`} target="_blank" rel="noreferrer"
+                                                                style={{ color: "#ffffff", backgroundColor: "#2B4365", padding: "6px 12px", borderRadius: "6px", fontWeight: "700", textDecoration: "none", fontSize: "10px", textTransform: "uppercase" }}>
+                                                                View PDF
+                                                            </a>
+                                                        ) : canEsign ? (
+                                                            <button
+                                                                onClick={() => handleOpenEsignForAgreement(agr)}
+                                                                disabled={isEsignProcessing}
+                                                                style={{ padding: "6px 12px", backgroundColor: "#dc2626", color: "#fff", border: "none", borderRadius: "6px", fontSize: "10px", fontWeight: "700", textTransform: "uppercase", cursor: "pointer", boxShadow: "0 2px 6px rgba(220,38,38,0.3)", letterSpacing: "0.5px" }}>
+                                                                ✍️ Complete E-Sign
+                                                            </button>
+                                                        ) : needsEsign && !isKycComplete ? (
+                                                            <span style={{ color: "#d97706", fontSize: "10px", fontWeight: "700", display: "flex", alignItems: "center", gap: "4px", justifyContent: "center" }}>
+                                                                🔒 KYC Required
+                                                            </span>
+                                                        ) : agr.status === 'payment_pending' ? (
+                                                            <span style={{ color: "#d97706", fontSize: "11px", fontWeight: "600" }}>Under Review</span>
+                                                        ) : (
+                                                            <span style={{ color: "#94a3b8", fontSize: "11px", fontWeight: "600" }}>Processing...</span>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (
+                            <div style={{ padding: "16px", borderRadius: "8px", backgroundColor: "#f8fafc", border: "1px dashed #cbd5e1", textAlign: "center" }}>
+                                <p style={{ fontSize: "12px", color: "#94a3b8", margin: 0 }}>No agreements found.</p>
+                            </div>
+                        )}
+                    </div>
+
                 </div>
 
                 {/* Right Sidebar: Security & Subscriptions */}
@@ -420,20 +746,32 @@ export default function Profile() {
                         </button>
                     </div>
 
-                    {/* Advisory Subscription */}
-                    <div style={{ padding: "24px", borderRadius: "12px", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", boxShadow: "0 4px 12px rgba(0,0,0,0.02)", display: "flex", flexDirection: "column" }}>
-                        <h3 style={{ fontSize: "18px", color: "#011D52", fontWeight: "800", marginBottom: "20px", display: "flex", alignItems: "center", gap: "8px" }}>
-                            <span style={{ width: "4px", height: "16px", backgroundColor: "#2B4365", borderRadius: "2px" }}></span>
-                            Advisory Subscriptions
-                        </h3>
+                    {/* Removed Subscriptions Block from here */}
 
-                        {user?.subscriptions && user.subscriptions.length > 0 ? (
-                            user.subscriptions.map((sub, index) => (
+
+
+                    {/* Advisory Subscriptions (Moved to Right Sidebar) */}
+                    <div style={{ padding: "24px", borderRadius: "12px", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", boxShadow: "0 4px 12px rgba(0,0,0,0.02)", display: "flex", flexDirection: "column", marginTop: "24px" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                            <h3 style={{ fontSize: "18px", color: "#011D52", fontWeight: "800", margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
+                                <span style={{ width: "4px", height: "16px", backgroundColor: "#2B4365", borderRadius: "2px" }}></span>
+                                Advisory Subscriptions
+                            </h3>
+                            <button
+                                onClick={() => navigate('/portal/plans')}
+                                style={{ padding: "6px 12px", backgroundColor: "#2B4365", color: "#ffffff", border: "none", borderRadius: "6px", fontSize: "11px", fontWeight: "700", cursor: "pointer", textTransform: "uppercase" }}>
+                                + Add Plan
+                            </button>
+                        </div>
+                        {fetchingData ? (
+                            <div style={{ textAlign: "center", padding: "20px" }}>Loading details...</div>
+                        ) : accountData.subscriptions && accountData.subscriptions.length > 0 ? (
+                            accountData.subscriptions.map((sub, index) => (
                                 <div key={index} style={{ padding: "20px", borderRadius: "8px", backgroundColor: "#f8fafc", border: "1px solid #e2e8f0", marginBottom: "20px", flex: 1 }}>
                                     <div className="d-flex justify-content-between align-items-center mb-3">
                                         <div>
                                             <span style={{ fontSize: "11px", color: "#64748b", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                                                {sub.type === 'demo' ? 'Demo Segment' : 'Purchased Segment'}
+                                                {sub.is_legacy ? 'Legacy Plan' : (sub.type === 'demo' ? 'Demo Segment' : 'Purchased Segment')}
                                             </span>
                                             <h4 style={{ fontSize: "18px", fontWeight: "800", color: "#011D52", margin: "4px 0 0 0" }}>
                                                 {sub.service_plan?.name || sub.service_name || "Premium Tier"}
@@ -444,10 +782,10 @@ export default function Profile() {
                                         </span>
                                     </div>
                                     <div style={{ fontSize: "13px", color: "#64748b", lineHeight: "1.6" }}>
-                                        {sub.type === 'demo' ? 'You are currently on a trial or demo subscription.' : 'You have an active paid subscription plan for this service.'}
-                                        {sub.endDate && (
+                                        {sub.is_legacy ? 'Active legacy subscription.' : (sub.type === 'demo' ? 'You are currently on a trial or demo subscription.' : 'You have an active paid subscription plan for this service.')}
+                                        {sub.end_date && (
                                             <div style={{ marginTop: "8px", fontSize: "12px", fontWeight: "600", color: "#011D52" }}>
-                                                Valid until: {new Date(sub.endDate).toLocaleDateString()}
+                                                Valid until: {new Date(sub.end_date).toLocaleDateString()}
                                             </div>
                                         )}
                                     </div>
@@ -459,20 +797,35 @@ export default function Profile() {
                             </div>
                         )}
 
-                        {/* Add Plan / Upgrade Button */}
-                        <button
-                            onClick={() => navigate('/portal/plans')}
-                            style={{ width: "100%", padding: "12px 20px", backgroundColor: "#2B4365", color: "#ffffff", border: "none", borderRadius: "8px", fontSize: "13px", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1px", cursor: "pointer", boxShadow: "0 4px 12px rgba(1, 29, 82, 0.25)", marginBottom: "20px" }}>
-                            Upgrade / Add Plan &rarr;
-                        </button>
+                        {!isKycComplete && (
+                            <div style={{ padding: "16px", backgroundColor: "#fef2f2", border: "1px solid #fee2e2", borderRadius: "8px", marginBottom: "20px" }}>
+                                <p style={{ margin: "0 0 12px 0", fontSize: "13px", color: "#dc2626", fontWeight: "600" }}>
+                                    ⚠️ KYC Required: Please complete your KYC verification before purchasing any plans.
+                                </p>
+                                <div style={{ display: "flex", gap: "10px", flexDirection: "column" }}>
+                                    <button
+                                        onClick={() => navigate('/portal/kyc')}
+                                        style={{ width: "100%", padding: "10px 16px", backgroundColor: "#dc2626", color: "#ffffff", border: "none", borderRadius: "6px", fontSize: "12px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", cursor: "pointer", boxShadow: "0 4px 10px rgba(239, 68, 68, 0.2)" }}>
+                                        Complete KYC Now
+                                    </button>
+                                    <button
+                                        onClick={() => navigate('/portal/plans')}
+                                        style={{ width: "100%", padding: "10px 16px", backgroundColor: "transparent", color: "#dc2626", border: "1px solid #fca5a5", borderRadius: "6px", fontSize: "12px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", cursor: "pointer" }}>
+                                        Skip & Purchase First &rarr;
+                                    </button>
+                                </div>
+                            </div>
+                        )}
 
                         <div style={{ fontSize: "12px", color: "#94a3b8", lineHeight: "1.5" }}>
                             <strong style={{ color: "#64748b" }}>Compliance Alert:</strong> To modify your subscribed segment or trigger early terminations, please submit a request to the support helpdesk.
                         </div>
                     </div>
                 </div>
+            </div> {/* End of main row */}
 
-                {/* Danger Zone (Delete Account) */}
+            {/* Danger Zone (Delete Account) */}
+            <div className="row mt-5">
                 <div className="col-lg-12">
                     <div style={{ padding: "24px", borderRadius: "12px", border: "1px solid rgba(239, 68, 68, 0.3)", backgroundColor: "rgba(239, 68, 68, 0.05)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "20px" }}>
                         <div>
@@ -631,6 +984,24 @@ export default function Profile() {
                         )}
                     </div>
                 </div>
+            )}
+
+            {/* E-Sign from Profile: Agreement Modal */}
+            {pendingEsignAgreement && (
+                <AgreementModal
+                    isOpen={isEsignModalOpen}
+                    onClose={() => { setIsEsignModalOpen(false); setPendingEsignAgreement(null); }}
+                    onAccept={handleProfileEsignAccept}
+                    selectedPlan={{ name: pendingEsignAgreement.plan_name }}
+                    selectedDuration={{ duration: pendingEsignAgreement.duration, price: pendingEsignAgreement.amount }}
+                    user={user}
+                    agreementNo={pendingEsignAgreement.agreement_number}
+                    invoiceNo={"-"}
+                    aadhaarNumber={kycData?.kyc_details?.aadhaar || 'Verified'}
+                    panNumber={kycData?.kyc_details?.pan || 'Verified'}
+                    planAmount={String(pendingEsignAgreement.amount)}
+                    kycData={kycData}
+                />
             )}
 
         </div>

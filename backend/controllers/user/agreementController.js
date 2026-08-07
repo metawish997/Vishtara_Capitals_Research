@@ -1,4 +1,4 @@
-const ejs = require('ejs');
+﻿const ejs = require('ejs');
 const html_to_pdf = require('html-pdf-node');
 const path = require('path');
 const fs = require('fs-extra');
@@ -30,23 +30,23 @@ exports.storeDraftAgreement = async (req, res) => {
         const user = await User.findById(req.user.id);
 
         // ============================================================
-        // 🔍 KYC DEBUG LOGS - All KYC records for this user
+        // ðŸ” KYC DEBUG LOGS - All KYC records for this user
         // ============================================================
         const allKycRecords = await KycVerification.find({ user: user._id }).sort({ createdAt: -1 });
 
-        console.log("\n========== 🔍 KYC DEBUG START ==========");
-        console.log(`👤 User: ${user.name} (${user.email}) | ID: ${user._id}`);
-        console.log(`📋 User.kyc_status (from User model): ${user.kyc_status || 'NOT SET'}`);
-        console.log(`📊 Total KYC Records Found: ${allKycRecords.length}`);
+        console.log("\n========== ðŸ” KYC DEBUG START ==========");
+        console.log(`ðŸ‘¤ User: ${user.name} (${user.email}) | ID: ${user._id}`);
+        console.log(`ðŸ“‹ User.kyc_status (from User model): ${user.kyc_status || 'NOT SET'}`);
+        console.log(`ðŸ“Š Total KYC Records Found: ${allKycRecords.length}`);
 
         if (allKycRecords.length === 0) {
-            console.log("❌ No KYC records found for this user.");
+            console.log("âŒ No KYC records found for this user.");
         } else {
             console.log("\n--- All KYC Records ---");
             allKycRecords.forEach((kycRec, index) => {
                 const isApproved = ['approved', 'completed', 'success'].includes(kycRec.status);
                 console.log(`\n  [${index + 1}] KYC ID: ${kycRec._id}`);
-                console.log(`       Status       : ${kycRec.status} ${isApproved ? '✅ APPROVED' : '❌ NOT APPROVED'}`);
+                console.log(`       Status       : ${kycRec.status} ${isApproved ? 'âœ… APPROVED' : 'âŒ NOT APPROVED'}`);
                 console.log(`       Digio Doc ID : ${kycRec.digio_document_id || 'N/A'}`);
                 console.log(`       Reference ID : ${kycRec.reference_id || 'N/A'}`);
                 console.log(`       Customer Name: ${kycRec.customer_name || 'N/A'}`);
@@ -61,7 +61,7 @@ exports.storeDraftAgreement = async (req, res) => {
 
         console.log("\n--- KYC Selection Summary ---");
         console.log(`  Latest KYC Status  : ${latestKyc ? latestKyc.status : 'None'}`);
-        console.log(`  Approved KYC Found : ${approvedKyc ? `✅ YES (ID: ${approvedKyc._id})` : '❌ NO'}`);
+        console.log(`  Approved KYC Found : ${approvedKyc ? `âœ… YES (ID: ${approvedKyc._id})` : 'âŒ NO'}`);
         if (approvedKyc) {
             console.log(`  Approved KYC Details:`);
             console.log(`    - Aadhaar : ${approvedKyc.kyc_details?.aadhaar || 'N/A'}`);
@@ -69,7 +69,7 @@ exports.storeDraftAgreement = async (req, res) => {
             console.log(`    - Name    : ${approvedKyc.kyc_details?.name || approvedKyc.customer_name || 'N/A'}`);
             console.log(`    - Raw Response (actions):`, JSON.stringify(approvedKyc.raw_response?.actions, null, 2));
         }
-        console.log("========== 🔍 KYC DEBUG END ==========\n");
+        console.log("========== ðŸ” KYC DEBUG END ==========\n");
         // ============================================================
 
         const credential = await DigioCredential.findOne({ isActive: true });
@@ -79,8 +79,8 @@ exports.storeDraftAgreement = async (req, res) => {
         if (credential) {
             isKycApproved = (latestKyc && ['approved', 'completed', 'success'].includes(latestKyc.status)) || user.kyc_status === 'approved';
             if (!isKycApproved) {
-                console.log("❌ KYC NOT APPROVED — blocking agreement generation.");
-                return res.status(403).json({ success: false, message: 'Approved KYC not found.' });
+                console.log("âš ï¸ KYC NOT APPROVED â€” normally this blocks, but bypassing as requested.");
+                // Bypassed!
             }
         }
 
@@ -175,21 +175,22 @@ exports.storeDraftAgreement = async (req, res) => {
             timestamp
         });
 
-        // ─────────────────────────────────────────────────────────────
-        // 📄 STEP 1: Generate PDF from HTML (only when Digio is active)
-        // ─────────────────────────────────────────────────────────────
+        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         let pdfBuffer = null;
         let pdfPath = null;
         let docId = null;
         let signUrl = null;
 
-        if (credential) {
+        // Bypass Digio flow completely during purchase only if KYC is incomplete
+        const bypassDigioForNow = !isKycApproved;
+
+        if (credential && !bypassDigioForNow) {
             const options = { format: 'A3', printBackground: true };
             const file = { content: html };
             const fileName = `agreements/${agreementNo}.pdf`;
 
 
-            console.log("\n========== 📄 PDF GENERATION START ==========");
+            console.log("\n========== ðŸ“„ PDF GENERATION START ==========");
             console.log(`  Agreement No : ${agreementNo}`);
             console.log(`  File Name    : ${fileName}`);
 
@@ -200,17 +201,17 @@ exports.storeDraftAgreement = async (req, res) => {
                 await fs.ensureDir(path.dirname(uploadPath));
                 await fs.writeFile(uploadPath, pdfBuffer);
                 pdfPath = `/uploads/${fileName}`;
-                console.log(`  ✅ PDF generated & saved locally: ${pdfPath}`);
-                console.log(`  📦 PDF Buffer size: ${pdfBuffer.length} bytes`);
+                console.log(`  âœ… PDF generated & saved locally: ${pdfPath}`);
+                console.log(`  ðŸ“¦ PDF Buffer size: ${pdfBuffer.length} bytes`);
             } catch (pdfError) {
-                console.error('  ❌ PDF generation failed:', pdfError.message);
+                console.error('  âŒ PDF generation failed:', pdfError.message);
                 return res.status(500).json({ success: false, message: 'PDF generation failed: ' + pdfError.message });
             }
-            console.log("========== 📄 PDF GENERATION END ==========\n");
+            console.log("========== ðŸ“„ PDF GENERATION END ==========\n");
 
-            // ─────────────────────────────────────────────────────────────
-            // 🔏 STEP 2: Extract KYC verification data for Digio rules
-            // ─────────────────────────────────────────────────────────────
+            // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // ðŸ” STEP 2: Extract KYC verification data for Digio rules
+            // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             const rawAadhaar = kyc.raw_response?.actions?.[0]?.details?.aadhaar?.id_number;
             const last4Aadhaar = rawAadhaar ? rawAadhaar.slice(-4) : '';
             const kycName = kyc.raw_response?.actions?.[0]?.details?.aadhaar?.name || user.name;
@@ -218,18 +219,18 @@ exports.storeDraftAgreement = async (req, res) => {
             const kycDob = kyc.raw_response?.actions?.[0]?.details?.aadhaar?.dob || null;
             const kycYob = kycDob ? kycDob.slice(-4) : null; // year of birth
 
-            console.log("\n========== 🔏 DIGIO UPLOAD PREP ==========");
+            console.log("\n========== ðŸ” DIGIO UPLOAD PREP ==========");
             console.log(`  Signer Phone  : ${user.phone || user.mobile || 'N/A'}`);
             console.log(`  Signer Name   : ${kycName}`);
-            console.log(`  Last 4 Aadhaar: ${last4Aadhaar || 'NOT FOUND ⚠️'}`);
+            console.log(`  Last 4 Aadhaar: ${last4Aadhaar || 'NOT FOUND âš ï¸'}`);
             console.log(`  Gender        : ${kycGender || 'N/A'}`);
             console.log(`  Year of Birth : ${kycYob || 'N/A'}`);
 
 
 
-            // ─────────────────────────────────────────────────────────────
-            // 🚀 STEP 3: Upload PDF to Digio & get e-sign URL
-            // ─────────────────────────────────────────────────────────────
+            // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // ðŸš€ STEP 3: Upload PDF to Digio & get e-sign URL
+            // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
             // Build enriched signature_verification rules
             const signerPhone = user.phone || user.mobile;
@@ -283,7 +284,7 @@ exports.storeDraftAgreement = async (req, res) => {
                 })
             };
 
-            console.log("\n  📤 Uploading PDF to Digio...");
+            console.log("\n  ðŸ“¤ Uploading PDF to Digio...");
             console.log(`  Digio Endpoint: ${credential.api_base_url?.replace(/\/$/, '')}/v2/client/document/uploadpdf`);
             console.log(`  Verification Rules:`, JSON.stringify(verificationRules, null, 2));
 
@@ -307,10 +308,10 @@ exports.storeDraftAgreement = async (req, res) => {
                     signUrl = `https://app.digio.in/#/gateway/login/${docId}/${digioData.access_token.id}/${signerPhone}?redirect_url=${encodeURIComponent(current_url)}`;
                 }
 
-                console.log("  ✅ Digio Upload SUCCESS!");
-                console.log(`  📌 Digio Document ID : ${docId}`);
-                console.log(`  🔗 E-Sign URL         : ${signUrl || 'N/A'}`);
-                console.log(`  📋 Digio Response:`, JSON.stringify({
+                console.log("  âœ… Digio Upload SUCCESS!");
+                console.log(`  ðŸ“Œ Digio Document ID : ${docId}`);
+                console.log(`  ðŸ”— E-Sign URL         : ${signUrl || 'N/A'}`);
+                console.log(`  ðŸ“‹ Digio Response:`, JSON.stringify({
                     id: digioData.id,
                     file_name: digioData.file_name,
                     agreement_status: digioData.agreement_status,
@@ -322,7 +323,7 @@ exports.storeDraftAgreement = async (req, res) => {
                     throw new Error(digioData.message || 'Digio API did not return a document ID.');
                 }
             } catch (digioErr) {
-                console.error("  ❌ Digio Upload FAILED!");
+                console.error("  âŒ Digio Upload FAILED!");
                 console.error(`  Error: ${digioErr.message}`);
                 if (digioErr.response) {
                     console.error(`  Digio Error Response:`, JSON.stringify(digioErr.response.data, null, 2));
@@ -330,21 +331,23 @@ exports.storeDraftAgreement = async (req, res) => {
                 throw digioErr;
             }
         } else {
-            console.log("⏭️  Digio credential NOT active — skipping PDF & esign upload.");
+            console.log("â­ï¸  Digio credential NOT active â€” skipping PDF & esign upload.");
         }
-        console.log("========== 🔏 DIGIO UPLOAD END ==========\n");
+        console.log("========== ðŸ” DIGIO UPLOAD END ==========\n");
 
-        // ─────────────────────────────────────────────────────────────
-        // 💾 STEP 4: Save Draft Agreement in DB (always esign_pending)
-        // ─────────────────────────────────────────────────────────────
+        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ðŸ’¾ STEP 4: Save Draft Agreement in DB (always esign_pending)
+        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         let draft = await DraftAgreement.findOne({
             user: user._id,
             plan_id,
             duration_id,
-            status: { $in: ['esign_pending', 'signed'] }
+            status: { $in: ['esign_pending', 'kyc_pending', 'signed'] }
         });
 
-        const targetStatus = credential ? 'esign_pending' : 'signed';
+        // 'kyc_pending' = KYC skip karke purchase hua, baad mein profile se e-sign hoga
+        // 'esign_pending' = KYC complete tha, Digio par bheja gaya, sign nahi hua abhi
+        const targetStatus = (credential && !bypassDigioForNow) ? 'esign_pending' : 'kyc_pending';
 
         if (draft) {
             draft.try_count += 1;
@@ -353,7 +356,7 @@ exports.storeDraftAgreement = async (req, res) => {
             draft.pdf_path = pdfPath || draft.pdf_path;
             draft.status = targetStatus;
             await draft.save();
-            console.log(`  ✅ Existing Draft Updated | ID: ${draft._id} | Status: ${draft.status} | Try Count: ${draft.try_count}`);
+            console.log(`  âœ… Existing Draft Updated | ID: ${draft._id} | Status: ${draft.status} | Try Count: ${draft.try_count}`);
         } else {
             draft = await DraftAgreement.create({
                 user: user._id,
@@ -374,7 +377,7 @@ exports.storeDraftAgreement = async (req, res) => {
                 coupon_code: coupon_code,
                 expires_at: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
             });
-            console.log(`  ✅ New Draft Created | ID: ${draft._id} | Status: ${draft.status}`);
+            console.log(`  âœ… New Draft Created | ID: ${draft._id} | Status: ${draft.status}`);
         }
 
         res.status(200).json({
@@ -386,7 +389,7 @@ exports.storeDraftAgreement = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('\n❌ Draft Agreement Error:', error.message);
+        console.error('\nâŒ Draft Agreement Error:', error.message);
         if (error.response) {
             console.error('   Axios Error Response:', JSON.stringify(error.response.data, null, 2));
         }
@@ -407,17 +410,17 @@ exports.checkAgreementStatus = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Agreement not found' });
         }
 
-        console.log("\n========== 🔍 CHECK ESIGN STATUS START ==========");
+        console.log("\n========== ðŸ” CHECK ESIGN STATUS START ==========");
         console.log(`  Draft ID      : ${agreement._id}`);
         console.log(`  Agreement No  : ${agreement.agreement_no}`);
         console.log(`  Digio Doc ID  : ${agreement.digio_document_id}`);
         console.log(`  Current Status: ${agreement.status}`);
         console.log(`  Try Count     : ${agreement.try_count}`);
 
-        // ── 1. LOCK: payment already submitted ───────────────────────────────
+        // â”€â”€ 1. LOCK: payment already submitted â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         if (agreement.status === 'payment_pending') {
-            console.log("  🔒 Status locked (payment_pending)");
-            console.log("========== 🔍 CHECK ESIGN STATUS END ==========\n");
+            console.log("  ðŸ”’ Status locked (payment_pending)");
+            console.log("========== ðŸ” CHECK ESIGN STATUS END ==========\n");
             return res.status(200).json({
                 success: true,
                 status: 'payment_pending',
@@ -425,10 +428,10 @@ exports.checkAgreementStatus = async (req, res) => {
             });
         }
 
-        // ── 2. Already signed — return immediately ───────────────────────────
+        // â”€â”€ 2. Already signed â€” return immediately â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         if (agreement.status === 'signed') {
-            console.log("  ✅ Already signed — returning immediately.");
-            console.log("========== 🔍 CHECK ESIGN STATUS END ==========\n");
+            console.log("  âœ… Already signed â€” returning immediately.");
+            console.log("========== ðŸ” CHECK ESIGN STATUS END ==========\n");
             return res.status(200).json({
                 success: true,
                 status: 'signed',
@@ -437,7 +440,7 @@ exports.checkAgreementStatus = async (req, res) => {
             });
         }
 
-        // ── 3. E-Sign pending: Digio check FIRST, try_count after ───────────
+        // â”€â”€ 3. E-Sign pending: Digio check FIRST, try_count after â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         if (agreement.status === 'esign_pending') {
             const credential = await DigioCredential.findOne({ isActive: true });
             if (!credential) {
@@ -449,7 +452,7 @@ exports.checkAgreementStatus = async (req, res) => {
                 return res.status(400).json({ success: false, message: 'Digio Document ID not found on this agreement.' });
             }
 
-            console.log(`  📡 Calling Digio: ${credential.api_base_url?.replace(/\/$/, '')}/v2/client/document/${digioDocId}`);
+            console.log(`  ðŸ“¡ Calling Digio: ${credential.api_base_url?.replace(/\/$/, '')}/v2/client/document/${digioDocId}`);
 
             try {
                 const digioRes = await axios.get(
@@ -467,13 +470,13 @@ exports.checkAgreementStatus = async (req, res) => {
                     })), null, 2
                 ));
 
-                // ✅ DIGIO COMPLETED → download signed PDF FIRST, then update status
+                // âœ… DIGIO COMPLETED â†’ download signed PDF FIRST, then update status
                 if (digioData.agreement_status === 'completed') {
-                    console.log("  ✅ E-Sign COMPLETED on Digio — downloading signed PDF...");
+                    console.log("  âœ… E-Sign COMPLETED on Digio â€” downloading signed PDF...");
 
                     try {
                         const downloadUrl = `${credential.api_base_url?.replace(/\/$/, '')}/v2/client/document/download?document_id=${digioDocId}`;
-                        console.log(`  📥 Download URL: ${downloadUrl}`);
+                        console.log(`  ðŸ“¥ Download URL: ${downloadUrl}`);
 
                         const pdfRes = await axios.get(downloadUrl, {
                             auth: { username: credential.client_id, password: credential.client_secret },
@@ -487,14 +490,14 @@ exports.checkAgreementStatus = async (req, res) => {
                         await fs.writeFile(signedPath, pdfRes.data);
 
                         agreement.pdf_path = `/uploads/${signedFileName}`;
-                        console.log(`  ✅ Signed PDF saved to: ${signedPath}`);
-                        console.log(`  📦 Size: ${pdfRes.data.byteLength} bytes`);
+                        console.log(`  âœ… Signed PDF saved to: ${signedPath}`);
+                        console.log(`  ðŸ“¦ Size: ${pdfRes.data.byteLength} bytes`);
                     } catch (pdfErr) {
-                        console.error('  ❌ Signed PDF download failed:', pdfErr.message);
+                        console.error('  âŒ Signed PDF download failed:', pdfErr.message);
                         if (pdfErr.response) {
                             console.error('     Digio error:', JSON.stringify(pdfErr.response.data, null, 2));
                         }
-                        // Non-fatal — status still transitions to signed
+                        // Non-fatal â€” status still transitions to signed
                     }
 
                     // Update status to signed AFTER download attempt
@@ -502,8 +505,8 @@ exports.checkAgreementStatus = async (req, res) => {
                     agreement.esign_completed_at = new Date();
                     await agreement.save();
 
-                    console.log(`  ✅ Draft saved | Status: signed | pdf_path: ${agreement.pdf_path}`);
-                    console.log("========== 🔍 CHECK ESIGN STATUS END ==========\n");
+                    console.log(`  âœ… Draft saved | Status: signed | pdf_path: ${agreement.pdf_path}`);
+                    console.log("========== ðŸ” CHECK ESIGN STATUS END ==========\n");
 
                     return res.status(200).json({
                         success: true,
@@ -513,17 +516,17 @@ exports.checkAgreementStatus = async (req, res) => {
                     });
                 }
 
-                // Digio not completed — fall through to try_count check
-                console.log(`  ⏳ Digio still pending | status: ${digioData.agreement_status}`);
+                // Digio not completed â€” fall through to try_count check
+                console.log(`  â³ Digio still pending | status: ${digioData.agreement_status}`);
 
             } catch (digioApiErr) {
-                console.error('  ❌ Digio API call failed:', digioApiErr.message);
-                // Don't block — fall through to try_count check
+                console.error('  âŒ Digio API call failed:', digioApiErr.message);
+                // Don't block â€” fall through to try_count check
             }
 
-            // ── Try count gate (only if Digio still pending) ──────────────────
+            // â”€â”€ Try count gate (only if Digio still pending) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             console.log(`  Try count gate: ${agreement.try_count}/3`);
-            console.log("========== 🔍 CHECK ESIGN STATUS END ==========\n");
+            console.log("========== ðŸ” CHECK ESIGN STATUS END ==========\n");
 
             if (agreement.try_count >= 3) {
                 return res.status(200).json({
@@ -544,8 +547,8 @@ exports.checkAgreementStatus = async (req, res) => {
             });
         }
 
-        // ── Any other status — return as-is ─────────────────────────────────
-        console.log("========== 🔍 CHECK ESIGN STATUS END ==========\n");
+        // â”€â”€ Any other status â€” return as-is â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        console.log("========== ðŸ” CHECK ESIGN STATUS END ==========\n");
         return res.status(200).json({
             success: true,
             status: agreement.status,
@@ -569,7 +572,7 @@ exports.findDraft = async (req, res) => {
             user: req.user.id,
             plan_id: planId,
             duration_id: durationId,
-            status: { $in: ['esign_pending', 'signed', 'payment_pending'] },
+            status: { $in: ['esign_pending', 'kyc_pending', 'signed', 'payment_pending'] },
             expires_at: { $gt: new Date() }
         });
 
@@ -596,7 +599,7 @@ exports.submitManualPayment = async (req, res) => {
             user: user._id,
             plan_id,
             duration_id,
-            status: 'signed'
+            status: { $in: ['signed', 'esign_pending', 'kyc_pending'] }
         }).sort({ createdAt: -1 });
 
         if (!draft) {
@@ -608,7 +611,7 @@ exports.submitManualPayment = async (req, res) => {
             });
             const msg = pendingDraft
                 ? 'A manual payment is already under review for this agreement.'
-                : 'Please complete eSign first or ensure your agreement is signed.';
+                : 'Please initiate the plan purchase first.';
             return res.status(422).json({ success: false, message: msg });
         }
 
@@ -701,8 +704,8 @@ exports.submitManualPayment = async (req, res) => {
                 agreement_number: draft.agreement_no,
                 coupon: draft.coupon,
                 coupon_code: draft.coupon_code,
-                signed_at: new Date(),
-                is_signed: true,
+                signed_at: draft.status === 'signed' ? new Date() : null,
+                is_signed: draft.status === 'signed',
                 status: 'pending',
                 pdf_path: draft.pdf_path,
                 user_snapshot: { id: user._id, name: user.name, email: user.email, phone: user.phone },
@@ -743,7 +746,7 @@ exports.submitManualPayment = async (req, res) => {
         if (req.file) {
             const screenshotName = `${Date.now()}_${req.file.originalname}`;
             // Save to /backend/uploads/payment_proofs/ (served by Express /uploads static)
-            // multer disk-storage writes a temp file to uploads/temp/ → move it to final location
+            // multer disk-storage writes a temp file to uploads/temp/ â†’ move it to final location
             const uploadsDir = path.join(process.cwd(), 'uploads', 'payment_proofs');
             await fs.ensureDir(uploadsDir);
             const destPath = path.join(uploadsDir, screenshotName);
@@ -827,11 +830,11 @@ exports.createRazorpayOrder = async (req, res) => {
             user: req.user.id,
             plan_id,
             duration_id,
-            status: 'signed'
+            status: { $in: ['signed', 'esign_pending', 'kyc_pending'] }
         }).sort({ createdAt: -1 });
 
         if (!draft) {
-            return res.status(404).json({ success: false, message: 'Signed agreement not found. Please complete e-sign first.' });
+            return res.status(404).json({ success: false, message: 'Valid agreement draft not found. Please initiate the plan purchase.' });
         }
 
         const razorpay = new Razorpay({
@@ -983,10 +986,10 @@ exports.verifyRazorpayPayment = async (req, res) => {
                 agreement_number: draft.agreement_no,
                 coupon: draft.coupon,
                 coupon_code: draft.coupon_code,
-                signed_at: new Date(),
-                is_signed: true,
-                status: subscriptionStatus,
-                pdf_path: draft.pdf_path, // 🔥 Inherit from Draft
+                signed_at: draft.status === 'signed' ? new Date() : null,
+                is_signed: draft.status === 'signed',
+                status: draft.status === 'signed' ? subscriptionStatus : 'pending',
+                pdf_path: draft.pdf_path, // ðŸ”¥ Inherit from Draft
                 user_snapshot: { id: user._id, name: user.name, email: user.email, phone: user.phone },
                 kyc_snapshot: kyc ? kyc.kyc_details : {},
                 subscription_snapshot: { plan_name: draft.plan_name, duration: draft.duration },
@@ -1022,7 +1025,7 @@ exports.verifyRazorpayPayment = async (req, res) => {
                     agreement.pdf_path = `/uploads/${signedFileName}`;
                     await agreement.save();
 
-                    console.log(`✅ Signed PDF archived (Secondary): ${draft.agreement_no}`);
+                    console.log(`âœ… Signed PDF archived (Secondary): ${draft.agreement_no}`);
                 } catch (err) {
                     console.error('Secondary PDF Archival Failed:', err.response?.data || err.message);
                 }
@@ -1074,17 +1077,363 @@ exports.getAccountServices = async (req, res) => {
         const invoices = await Invoice.find({ user: req.user.id })
             .sort({ createdAt: -1 });
 
-        const agreements = await UserAgreement.find({ user: req.user.id })
+        // Fetch all UserAgreements with subscription details for plan_id/duration_id
+        const finalizedAgreements = await UserAgreement.find({ user: req.user.id })
+            .populate({ path: 'subscription', populate: { path: 'service_plan service_plan_duration' } })
             .sort({ createdAt: -1 });
+
+        const finalizedAgrNumbers = finalizedAgreements.map(a => a.agreement_number);
+
+        // Remaining DraftAgreements not yet finalized into UserAgreement
+        const draftAgreements = await DraftAgreement.find({
+            user: req.user.id,
+            agreement_no: { $nin: finalizedAgrNumbers }
+        }).sort({ createdAt: -1 });
+
+        const agreements = [
+            ...finalizedAgreements.map(a => {
+                const sub = a.subscription;
+                const needsEsign = !a.pdf_path && !a.is_signed && a.status === 'pending';
+                return {
+                    _id: a._id,
+                    agreement_number: a.agreement_number,
+                    createdAt: a.createdAt,
+                    pdf_path: a.pdf_path,
+                    // If pdf_path exists â†’ 'Finalized'; if pending without PDF â†’ 'esign_required'
+                    status: needsEsign ? 'esign_required' : (a.pdf_path ? 'Finalized' : a.status),
+                    is_draft: false,
+                    is_user_agreement: true,
+                    needs_esign: needsEsign,
+                    // Subscription data for triggering e-sign
+                    plan_id: sub?.service_plan?._id || null,
+                    duration_id: sub?.service_plan_duration?._id || null,
+                    plan_name: a.subscription_snapshot?.plan_name || sub?.service_plan?.name || null,
+                    duration: a.subscription_snapshot?.duration || sub?.service_plan_duration?.duration || null,
+                    amount: a.invoice_snapshot?.amount || sub?.amount || null,
+                    digio_document_id: a.digio_document_id || null
+                };
+            }),
+            ...draftAgreements.map(a => ({
+                _id: a._id,
+                agreement_number: a.agreement_no,
+                createdAt: a.createdAt,
+                pdf_path: a.pdf_path,
+                status: a.status,
+                is_draft: true,
+                is_user_agreement: false,
+                needs_esign: false,
+                plan_id: a.plan_id,
+                duration_id: a.duration_id,
+                plan_name: a.plan_name,
+                duration: a.duration,
+                features: a.agreement_details,
+                amount: a.amount,
+                try_count: a.try_count || 0,
+                esign_url: a.esign_url || null
+            }))
+        ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        const pending_payments = await DraftAgreement.find({
+            user: req.user.id,
+            status: 'payment_pending'
+        }).populate('plan_id duration_id').sort({ createdAt: -1 });
 
         res.status(200).json({
             success: true,
             subscriptions,
             invoices,
-            agreements
+            agreements,
+            pending_payments
         });
     } catch (error) {
         console.error('Account Services Fetch Error:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// @desc    Complete E-Sign for an existing UserAgreement (post-payment, KYC done)
+// @route   POST /api/v1/user/agreements/complete-esign/:agreementId
+// @access  Private
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+exports.completeUserAgreementEsign = async (req, res) => {
+    try {
+        const { agreementId } = req.params;
+        const { current_url } = req.body;
+
+        const agreement = await UserAgreement.findOne({
+            _id: agreementId,
+            user: req.user.id
+        }).populate({ path: 'subscription', populate: { path: 'service_plan service_plan_duration' } });
+
+        if (!agreement) {
+            return res.status(404).json({ success: false, message: 'Agreement not found.' });
+        }
+
+        if (agreement.pdf_path && agreement.is_signed) {
+            return res.status(400).json({ success: false, message: 'This agreement is already signed.' });
+        }
+
+        const user = await User.findById(req.user.id);
+        const credential = await DigioCredential.findOne({ isActive: true });
+
+        if (!credential) {
+            return res.status(400).json({ success: false, message: 'E-Sign service is not configured.' });
+        }
+
+        // Get KYC data
+        const allKycRecords = await KycVerification.find({ user: user._id }).sort({ createdAt: -1 });
+        const approvedKyc = allKycRecords.find(k => ['approved', 'completed', 'success'].includes(k.status)) || allKycRecords[0];
+
+        if (!approvedKyc || !['approved', 'completed', 'success'].includes(approvedKyc.status)) {
+            return res.status(400).json({ success: false, message: 'KYC must be approved before e-signing.' });
+        }
+
+        const kyc = approvedKyc;
+        const aadhaarNumber = kyc.kyc_details?.aadhaar || 'Verified';
+        const panNumber = kyc.kyc_details?.pan || 'Verified';
+
+        // Plan details from agreement's subscription snapshot or populated subscription
+        const sub = agreement.subscription;
+        const planName = agreement.subscription_snapshot?.plan_name || sub?.service_plan?.name || 'Advisory Plan';
+        const planDuration = agreement.subscription_snapshot?.duration || sub?.service_plan_duration?.duration || '';
+        const planAmount = agreement.invoice_snapshot?.amount || sub?.amount || 0;
+
+        // Signature base64
+        let signature_base64 = null;
+        if (kyc.signature_image) {
+            const signaturePath = path.join(process.cwd(), kyc.signature_image.replace(/^\//, ''));
+            if (await fs.pathExists(signaturePath)) {
+                const image = await fs.readFile(signaturePath);
+                const ext = path.extname(signaturePath).replace('.', '');
+                signature_base64 = `data:image/${ext};base64,${image.toString('base64')}`;
+            }
+        }
+
+        const timestamp = new Date().toISOString().replace('T', ' ').split('.')[0];
+        const templatePath = path.join(__dirname, '../../views/pdf/agreement.ejs');
+
+        const html = await ejs.renderFile(templatePath, {
+            user,
+            kyc,
+            agreementNo: agreement.agreement_number,
+            planName,
+            planDuration,
+            planAmount: Number(planAmount).toLocaleString('en-IN', { minimumFractionDigits: 2 }),
+            features: agreement.subscription_snapshot?.features || [],
+            aadhaarNumber,
+            panNumber,
+            signature_base64,
+            timestamp
+        });
+
+        // Generate PDF
+        const options = { format: 'A3', printBackground: true };
+        const file = { content: html };
+        let pdfBuffer;
+        try {
+            pdfBuffer = await html_to_pdf.generatePdf(file, options);
+        } catch (pdfErr) {
+            return res.status(500).json({ success: false, message: 'PDF generation failed: ' + pdfErr.message });
+        }
+
+        // Save pre-sign PDF locally
+        const fileName = `agreements/${agreement.agreement_number}_presign.pdf`;
+        const uploadPath = path.join(process.cwd(), 'uploads', fileName);
+        await fs.ensureDir(path.dirname(uploadPath));
+        await fs.writeFile(uploadPath, pdfBuffer);
+
+        // Digio Upload
+        const rawAadhaar = kyc.raw_response?.actions?.[0]?.details?.aadhaar?.id_number;
+        const last4Aadhaar = rawAadhaar ? rawAadhaar.slice(-4) : '';
+        const kycName = kyc.raw_response?.actions?.[0]?.details?.aadhaar?.name || user.name;
+        const kycGender = kyc.raw_response?.actions?.[0]?.details?.aadhaar?.gender || null;
+        const kycDob = kyc.raw_response?.actions?.[0]?.details?.aadhaar?.dob || null;
+        const kycYob = kycDob ? kycDob.slice(-4) : null;
+
+        const signerPhone = user.phone || user.mobile;
+        const verificationRules = [];
+        const andConditions = [];
+        if (kycGender) andConditions.push({ field: 'gender', match_type: 'exact', value: kycGender });
+        if (last4Aadhaar) andConditions.push({ field: 'aadhaar', match_type: 'exact', value: last4Aadhaar });
+        if (andConditions.length) verificationRules.push({ operation: 'AND', conditions: andConditions });
+
+        if (kycYob) orConditions.push({ field: 'yob', match_type: 'exact', value: kycYob });
+        if (kycName) orConditions.push({ field: 'name', match_type: 'fuzzy', value: kycName, threshold: '80' });
+        if (orConditions.length) verificationRules.push({ operation: 'OR', conditions: orConditions });
+
+        const digioPayload = {
+            signers: [{ identifier: signerPhone, name: kycName, sign_type: 'aadhaar', reason: 'Agreement Signing' }],
+            expire_in_days: 1,
+            display_on_page: 'all',
+            generate_access_token: true,
+            notify_signers: true,
+            file_name: `${agreement.agreement_number}.pdf`,
+            file_data: pdfBuffer.toString('base64'),
+            ...(verificationRules.length && {
+                signature_verification: {
+                    [signerPhone]: { abort_on_fail: true, max_attempt: 3, rules: verificationRules }
+                }
+            })
+        };
+
+        let docId, signUrl;
+        try {
+            const digioResponse = await axios.post(
+                `${credential.api_base_url?.replace(/\/$/, '')}/v2/client/document/uploadpdf`,
+                digioPayload,
+                { auth: { username: credential.client_id, password: credential.client_secret } }
+            );
+            const digioData = digioResponse.data;
+            docId = digioData.id;
+            signUrl = digioData.signing_parties?.[0]?.sign_url;
+            if (!signUrl && digioData.access_token?.id) {
+                signUrl = `https://app.digio.in/#/gateway/login/${docId}/${digioData.access_token.id}/${signerPhone}?redirect_url=${encodeURIComponent(current_url || '')}`;
+            }
+            if (!docId) throw new Error(digioData.message || 'Digio did not return a document ID.');
+        } catch (digioErr) {
+            console.error('Digio Upload Failed:', digioErr.message);
+            return res.status(500).json({ success: false, message: 'E-Sign initiation failed: ' + (digioErr.response?.data?.message || digioErr.message) });
+        }
+
+        // Update UserAgreement with Digio details (updateOne bypasses required validation on old records)
+        await UserAgreement.updateOne(
+            { _id: agreement._id },
+            {
+                $set: {
+                    digio_document_id: docId,
+                    esign_url: signUrl,
+                    status: 'esign_pending',
+                    kyc_snapshot: kyc.kyc_details || kyc.toObject?.() || {},
+                    user_snapshot: agreement.user_snapshot || {
+                        id: user._id,
+                        name: user.name,
+                        email: user.email,
+                        phone: user.phone
+                    }
+                }
+            }
+        );
+
+        console.log(`[OK] UserAgreement ${agreement.agreement_number} -> Digio done | docId: ${docId}`);
+
+        res.status(200).json({
+            success: true,
+            redirect_url: signUrl,
+            agreement_id: agreement._id,
+            digio_document_id: docId,
+            status: 'esign_pending'
+        });
+
+    } catch (error) {
+        console.error('Complete E-Sign Error:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// ---------------------------------------------------------------------------
+// @desc    Check Digio e-sign status for a UserAgreement & download signed PDF
+// @route   GET /api/v1/user/agreements/user-agreement-status/:agreementId
+// @access  Private
+// ---------------------------------------------------------------------------
+exports.checkUserAgreementEsignStatus = async (req, res) => {
+    try {
+        const agreement = await UserAgreement.findOne({
+            _id: req.params.agreementId,
+            user: req.user.id
+        });
+
+        if (!agreement) {
+            return res.status(404).json({ success: false, message: 'Agreement not found.' });
+        }
+
+        if (agreement.pdf_path && agreement.is_signed) {
+            return res.status(200).json({ success: true, status: 'signed', pdf_path: agreement.pdf_path });
+        }
+
+        if (!agreement.digio_document_id) {
+            return res.status(400).json({ success: false, message: 'No Digio document linked. Please initiate e-sign first.' });
+        }
+
+        const credential = await DigioCredential.findOne({ isActive: true });
+        let digioCompleted = false;
+        let newPdfPath = null;
+
+        if (credential) {
+            const baseUrl = credential.api_base_url.replace(/\/$/, '');
+
+            // Strategy 1: Try PDF download - if it works, signing is confirmed
+            try {
+                const pdfRes = await axios.get(
+                    `${baseUrl}/v2/client/document/download?document_id=${agreement.digio_document_id}`,
+                    {
+                        auth: { username: credential.client_id, password: credential.client_secret },
+                        responseType: 'arraybuffer'
+                    }
+                );
+                if (pdfRes.data && pdfRes.data.byteLength > 1000) {
+                    const signedFileName = `signed_agreements/${agreement.agreement_number}.pdf`;
+                    const signedPath = path.join(process.cwd(), 'uploads', signedFileName);
+                    await fs.ensureDir(path.dirname(signedPath));
+                    await fs.writeFile(signedPath, pdfRes.data);
+                    newPdfPath = `/uploads/${signedFileName}`;
+                    digioCompleted = true;
+                    console.log(`[OK] Signed PDF downloaded for ${agreement.agreement_number}`);
+                }
+            } catch (dlErr) {
+                console.log(`PDF download (${agreement.agreement_number}):`, dlErr.response?.status || dlErr.message);
+            }
+
+            // Strategy 2: Check Digio document status API
+            if (!digioCompleted) {
+                try {
+                    const digioRes = await axios.get(
+                        `${baseUrl}/v2/client/document/${agreement.digio_document_id}`,
+                        { auth: { username: credential.client_id, password: credential.client_secret } }
+                    );
+                    const d = digioRes.data;
+                    console.log('Digio status:', JSON.stringify(d).substring(0, 400));
+                    const rawStatus = (d.agreement_status || d.status || d.document_status || '').toLowerCase();
+                    const completedStatuses = ['completed', 'signed', 'executed', 'esigned', 'success'];
+                    if (completedStatuses.some(s => rawStatus.includes(s))) {
+                        digioCompleted = true;
+                    }
+                } catch (checkErr) {
+                    console.error('Digio status API error:', checkErr.message);
+                }
+            }
+        } else {
+            digioCompleted = true;
+        }
+
+        if (digioCompleted) {
+            await UserAgreement.updateOne(
+                { _id: agreement._id },
+                {
+                    $set: {
+                        is_signed: true,
+                        signed_at: new Date(),
+                        status: 'active',
+                        ...(newPdfPath && { pdf_path: newPdfPath })
+                    }
+                }
+            );
+            return res.status(200).json({
+                success: true,
+                status: 'signed',
+                pdf_path: newPdfPath,
+                message: 'Agreement signed successfully!'
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            status: 'esign_pending',
+            message: 'Digio signing not yet confirmed.'
+        });
+
+    } catch (error) {
+        console.error('Check UserAgreement E-Sign Status Error:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 };

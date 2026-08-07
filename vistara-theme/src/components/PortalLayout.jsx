@@ -50,6 +50,13 @@ export default function PortalLayout() {
       return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  useEffect(() => {
+      document.body.classList.add('user-dashboard-active');
+      return () => {
+          document.body.classList.remove('user-dashboard-active');
+      };
+  }, []);
+
   const handleMarkAsRead = async (e, id) => {
       e.preventDefault();
       e.stopPropagation();

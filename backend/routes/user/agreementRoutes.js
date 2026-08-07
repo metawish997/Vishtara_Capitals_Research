@@ -8,7 +8,9 @@ const {
     incrementTryCount,
     createRazorpayOrder,
     verifyRazorpayPayment,
-    getAccountServices
+    getAccountServices,
+    completeUserAgreementEsign,
+    checkUserAgreementEsignStatus
 } = require('../../controllers/user/agreementController');
 const { protect } = require('../../middlewares/authMiddleware');
 const multer = require('multer');
@@ -22,5 +24,9 @@ router.post('/increment-try/:id', protect, incrementTryCount);
 router.post('/create-razorpay-order', protect, createRazorpayOrder);
 router.post('/verify-razorpay-payment', protect, verifyRazorpayPayment);
 router.get('/account-services', protect, getAccountServices);
+
+// Post-payment e-sign completion (Condition 2 catch-up flow)
+router.post('/complete-esign/:agreementId', protect, completeUserAgreementEsign);
+router.get('/user-agreement-status/:agreementId', protect, checkUserAgreementEsignStatus);
 
 module.exports = router;

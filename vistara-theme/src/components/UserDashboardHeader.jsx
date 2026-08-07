@@ -256,10 +256,10 @@ const UserDashboardHeader = ({ pageTitle, user: propUser }) => {
                         className="flex items-center gap-2 md:gap-3 focus:outline-none hover:bg-[#F2F5FA] transition-colors p-1 pr-2 md:pr-3 rounded-full bg-[#F8FAFC] border border-transparent hover:border-[#cbd5e1]"
                     >
                         <div className="h-8 w-8 md:h-9 md:w-9 rounded-full border border-[#cbd5e1] overflow-hidden flex items-center justify-center bg-[#1B2B40] shadow-sm">
-                            <img 
-                                src={user?.image ? (user.image.startsWith('http') ? user.image : `${BASE_URL}${user.image}`) : `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.id || user?.name}`} 
-                                alt={user?.name || 'User'} 
-                                className="h-full w-full object-cover" 
+                            <img
+                                src={user?.image ? (user.image.startsWith('http') ? user.image : `${BASE_URL}${user.image}`) : `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.id || user?.name}`}
+                                alt={user?.name || 'User'}
+                                className="h-full w-full object-cover"
                             />
                         </div>
                         <span className="hidden md:block text-sm font-bold text-[#011D52] truncate max-w-[100px]">

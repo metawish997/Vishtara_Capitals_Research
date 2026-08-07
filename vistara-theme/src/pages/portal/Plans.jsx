@@ -43,6 +43,8 @@ const Plans = () => {
     const aadhaarNumber = kycData?.kyc_details?.aadhaar || "Pending Verification";
     const panNumber = kycData?.kyc_details?.pan || "Pending Verification";
 
+    const isKycComplete = (kycData?.status && ['approved', 'completed', 'success'].includes(kycData.status.toLowerCase())) || ['approved', 'completed', 'success'].includes(user?.kyc_status?.toLowerCase());
+
     // --- FETCH DATA ---
     useEffect(() => {
         const fetchData = async () => {
@@ -184,29 +186,8 @@ const Plans = () => {
                 return;
             }
             if (existingDraft.status === 'esign_pending') {
-                try {
-                    setIsProcessing(true);
-                    const statusRes = await agreementService.checkAgreementStatus(existingDraft._id);
-
-                    if (statusRes.success && statusRes.status === 'signed') {
-                        setExistingDraft({ ...existingDraft, status: 'signed' });
-                        setIsPaymentModalOpen(true);
-                        return;
-                    }
-
-                    if (existingDraft.try_count >= 3 || (statusRes.try_count && statusRes.try_count >= 3)) {
-                        toast.error("Maximum attempts exceeded. Please contact admin.");
-                        return;
-                    }
-
-                    await agreementService.incrementTryCount(existingDraft._id);
-                    toast.success("Redirecting to pending e-sign...");
-                    window.location.href = existingDraft.esign_url;
-                } catch (err) {
-                    toast.error(err.message || "Failed to update attempts");
-                } finally {
-                    setIsProcessing(false);
-                }
+                // Bypass Digio redirect and upgrade draft to signed by creating/updating it
+                handleAgreementAccept();
                 return;
             }
             if (existingDraft.status === 'signed') {
@@ -215,21 +196,13 @@ const Plans = () => {
             }
         }
 
-        if (isDigioActive) {
-            const isKycComplete = (kycData?.status && ['approved', 'completed', 'success'].includes(kycData.status.toLowerCase())) || ['approved', 'completed', 'success'].includes(user?.kyc_status?.toLowerCase());
-            if (!isKycComplete) {
-                toast.error("Please complete your KYC verification first to proceed.");
-                navigate('/portal/kyc');
-                return;
-            }
-        }
-
-        if (!isDigioActive || kycData?.kyc_details?.aadhaar === 'Manual Verified') {
+        // If KYC is complete, user MUST review and sign the agreement first
+        if (isKycComplete) {
+            setIsAgreementOpen(true);
+        } else {
+            // Bypass Agreement modal as requested by user if KYC is incomplete
             handleAgreementAccept();
-            return;
         }
-
-        setIsAgreementOpen(true);
     };
 
     const handleAgreementAccept = async () => {
@@ -247,14 +220,15 @@ const Plans = () => {
             };
 
             const res = await agreementService.storeDraftAgreement(payload);
-            if (res.success && res.status === 'signed') {
-                toast.success("Proceeding to payment gateway...");
-                setIsAgreementOpen(false);
-                setExistingDraft({ _id: res.draft_id, status: 'signed', amount: parseInt(finalPrice.replace(/,/g, '')) || 0 });
-                setIsPaymentModalOpen(true);
-            } else if (res.success && res.redirect_url) {
+            if (res.success && res.redirect_url && res.status === 'esign_pending') {
                 toast.success("Redirecting to E-Sign Gateway...");
                 window.location.href = res.redirect_url;
+            } else if (res.success && (res.status === 'signed' || res.status === 'esign_pending')) {
+                // If it's signed (or esign pending but no URL for some reason), go to payment
+                toast.success("Proceeding to payment gateway...");
+                setIsAgreementOpen(false);
+                setExistingDraft({ _id: res.draft_id, status: res.status, amount: parseInt(finalPrice.replace(/,/g, '')) || 0 });
+                setIsPaymentModalOpen(true);
             } else {
                 toast.error(res.message || "Failed to initiate e-sign");
                 setIsAgreementOpen(false);
@@ -553,32 +527,85 @@ const Plans = () => {
                             </div>
                         </div>
 
-                        <button 
-                            onClick={handleProceedToSettlement}
-                            disabled={isProcessing || existingDraft?.status === 'payment_pending'}
-                            style={{ 
-                                width: "100%", 
-                                padding: "16px", 
-                                backgroundColor: existingDraft?.status === 'payment_pending' ? "#cbd5e1" : "#011D52", 
-                                color: existingDraft?.status === 'payment_pending' ? "#64748b" : "#ffffff", 
-                                border: "none", 
-                                borderRadius: "12px", 
-                                fontSize: "14px", 
-                                fontWeight: "800", 
-                                textTransform: "uppercase", 
-                                letterSpacing: "1px", 
-                                cursor: (isProcessing || existingDraft?.status === 'payment_pending') ? "not-allowed" : "pointer", 
-                                boxShadow: existingDraft?.status === 'payment_pending' ? "none" : "0 6px 16px rgba(1, 29, 82, 0.25)",
-                                transition: "all 0.2s ease"
-                            }}>
-                            {isProcessing ? 'Processing...' : (
-                                existingDraft?.status === 'payment_pending' ? 'Payment Under Review' :
-                                    (existingDraft?.status === 'signed' ? 'Proceed to Payment' :
+                        {!isKycComplete && (
+                            <div style={{ marginBottom: "16px", padding: "10px", backgroundColor: "#fef2f2", border: "1px solid #fee2e2", borderRadius: "8px", display: "flex", alignItems: "flex-start", gap: "8px" }}>
+                                <span style={{ fontSize: "14px" }}>⚠️</span>
+                                <span style={{ fontSize: "11px", color: "#b91c1c", fontWeight: "600", lineHeight: "1.4" }}>
+                                    Skipping KYC for now. Proceeding to direct payments. Agreement will be pending.
+                                </span>
+                            </div>
+                        )}
+
+                        {!isKycComplete ? (
+                            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                                <button 
+                                    onClick={() => navigate('/portal/profile')}
+                                    style={{ 
+                                        width: "100%", 
+                                        padding: "16px", 
+                                        backgroundColor: "#011D52", 
+                                        color: "#ffffff", 
+                                        border: "none", 
+                                        borderRadius: "12px", 
+                                        fontSize: "14px", 
+                                        fontWeight: "800", 
+                                        textTransform: "uppercase", 
+                                        letterSpacing: "1px", 
+                                        cursor: "pointer", 
+                                        boxShadow: "0 6px 16px rgba(1, 29, 82, 0.25)",
+                                        transition: "all 0.2s ease"
+                                    }}>
+                                    Do KYC First
+                                </button>
+                                <button 
+                                    onClick={handleProceedToSettlement}
+                                    disabled={isProcessing || existingDraft?.status === 'payment_pending'}
+                                    style={{ 
+                                        width: "100%", 
+                                        padding: "16px", 
+                                        backgroundColor: "transparent", 
+                                        color: existingDraft?.status === 'payment_pending' ? "#64748b" : "#011D52", 
+                                        border: "2px solid", 
+                                        borderColor: existingDraft?.status === 'payment_pending' ? "#cbd5e1" : "#011D52", 
+                                        borderRadius: "12px", 
+                                        fontSize: "14px", 
+                                        fontWeight: "800", 
+                                        textTransform: "uppercase", 
+                                        letterSpacing: "1px", 
+                                        cursor: (isProcessing || existingDraft?.status === 'payment_pending') ? "not-allowed" : "pointer", 
+                                        transition: "all 0.2s ease"
+                                    }}>
+                                    {isProcessing ? 'Processing...' : 'Skip KYC & Do Payment'}
+                                </button>
+                            </div>
+                        ) : (
+                            <button 
+                                onClick={handleProceedToSettlement}
+                                disabled={isProcessing || existingDraft?.status === 'payment_pending'}
+                                style={{ 
+                                    width: "100%", 
+                                    padding: "16px", 
+                                    backgroundColor: existingDraft?.status === 'payment_pending' ? "#cbd5e1" : "#011D52", 
+                                    color: existingDraft?.status === 'payment_pending' ? "#64748b" : "#ffffff", 
+                                    border: "none", 
+                                    borderRadius: "12px", 
+                                    fontSize: "14px", 
+                                    fontWeight: "800", 
+                                    textTransform: "uppercase", 
+                                    letterSpacing: "1px", 
+                                    cursor: (isProcessing || existingDraft?.status === 'payment_pending') ? "not-allowed" : "pointer", 
+                                    boxShadow: existingDraft?.status === 'payment_pending' ? "none" : "0 6px 16px rgba(1, 29, 82, 0.25)",
+                                    transition: "all 0.2s ease"
+                                }}>
+                                {isProcessing ? 'Processing...' : (
+                                    existingDraft?.status === 'payment_pending' ? 'Payment Under Review' :
+                                        (existingDraft?.status === 'signed' ? 'Proceed to Payment' :
                                         (existingDraft?.status === 'esign_pending' ?
-                                            (existingDraft.try_count >= 3 ? 'Contact Admin (Max)' : 'Resume E-Sign')
-                                            : ((!isDigioActive || kycData?.kyc_details?.aadhaar === 'Manual Verified') ? 'Proceed to Payment' : 'Sign Agreement')))
-                            )}
-                        </button>
+                                                (existingDraft.try_count >= 3 ? 'Contact Admin (Max)' : 'Resume E-Sign')
+                                                : 'Proceed to Payment'))
+                                )}
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>

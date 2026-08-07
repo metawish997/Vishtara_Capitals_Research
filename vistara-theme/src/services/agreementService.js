@@ -86,6 +86,30 @@ const agreementService = {
         } catch (error) {
             throw error.response?.data || error.message;
         }
+    },
+
+    // ── Condition 2 Catch-Up: Complete E-Sign for existing UserAgreement ──────
+
+    // Generate PDF + upload to Digio for a pending UserAgreement
+    completeUserAgreementEsign: async (agreementId) => {
+        try {
+            const response = await API.post(`/user/agreements/complete-esign/${agreementId}`, {
+                current_url: window.location.href
+            });
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error.message;
+        }
+    },
+
+    // Poll Digio and download signed PDF into the existing UserAgreement
+    checkUserAgreementEsignStatus: async (agreementId) => {
+        try {
+            const response = await API.get(`/user/agreements/user-agreement-status/${agreementId}`);
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error.message;
+        }
     }
 };
 

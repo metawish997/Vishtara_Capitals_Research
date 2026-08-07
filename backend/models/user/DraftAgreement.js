@@ -65,7 +65,7 @@ const DraftAgreementSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['draft', 'esign_pending', 'signed', 'payment_pending', 'expired'],
+    enum: ['draft', 'esign_pending', 'kyc_pending', 'signed', 'payment_pending', 'expired'],
     default: 'draft',
     index: true,
   },

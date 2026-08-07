@@ -9,6 +9,13 @@ const UserDashboardLayout = ({ children }) => {
     const location = useLocation();
     const isFullBleed = location.pathname.includes('/option-chain') || location.pathname.includes('/watchlist');
 
+    React.useEffect(() => {
+        document.body.classList.add('user-dashboard-active');
+        return () => {
+            document.body.classList.remove('user-dashboard-active');
+        };
+    }, []);
+
     return (
         <div className="user-theme flex w-full h-screen overflow-hidden font-inter transition-colors duration-300" style={{ background: 'var(--bg)', color: 'var(--text-primary)' }}>
             {/* Sidebar (Responsive: Bottom nav on mobile, Side nav on desktop) */}

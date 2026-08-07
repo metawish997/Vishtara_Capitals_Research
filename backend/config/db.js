@@ -3,12 +3,29 @@ const mongoose = require('mongoose');
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+      serverSelectionTimeoutMS: 15000, // 15s — was 5s (too short for Atlas)
+      socketTimeoutMS: 45000,          // Socket idle timeout
+      connectTimeoutMS: 15000,         // Initial connection timeout
+      heartbeatFrequencyMS: 10000,     // How often to check server health
+      retryWrites: true,
+      retryReads: true,
+      maxPoolSize: 10,
+      minPoolSize: 2,
     });
 
     console.log(`MongoDB Connected: ${conn.connection.host}`.cyan.underline.bold);
+
+    // Auto-reconnect on disconnect
+    mongoose.connection.on('disconnected', () => {
+      console.log('MongoDB Disconnected! Attempting reconnect in 5s...'.yellow);
+      setTimeout(() => {
+        connectDB().catch(err => console.error('Reconnect failed:', err.message));
+      }, 5000);
+    });
+
+    mongoose.connection.on('error', (err) => {
+      console.error('MongoDB connection error:', err.message);
+    });
 
     // Seed Digio Credentials
     const DigioCredential = require('../models/DigioCredential');
@@ -41,7 +58,11 @@ const connectDB = async () => {
     }
   } catch (error) {
     console.error(`MongoDB Connection Failed: ${error.message}`.red.bold);
-    console.log('Server is running without Database. Database-dependent features may fail.'.yellow);
+    console.log('Retrying in 5 seconds...'.yellow);
+    // Auto-retry on initial failure
+    setTimeout(() => {
+      connectDB().catch(err => console.error('Retry failed:', err.message));
+    }, 5000);
   }
 };
 

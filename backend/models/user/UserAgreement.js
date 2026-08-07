@@ -60,6 +60,12 @@ const UserAgreementSchema = new mongoose.Schema({
   coupon_code: {
     type: String,
   },
+  digio_document_id: {
+    type: String,
+  },
+  esign_url: {
+    type: String,
+  },
   pdf_path: {
     type: String,
   },
