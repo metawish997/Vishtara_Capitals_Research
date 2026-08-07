@@ -223,8 +223,8 @@ const Plans = () => {
             if (res.success && res.redirect_url && res.status === 'esign_pending') {
                 toast.success("Redirecting to E-Sign Gateway...");
                 window.location.href = res.redirect_url;
-            } else if (res.success && (res.status === 'signed' || res.status === 'esign_pending')) {
-                // If it's signed (or esign pending but no URL for some reason), go to payment
+            } else if (res.success && (res.status === 'signed' || res.status === 'esign_pending' || res.status === 'kyc_pending')) {
+                // If it's signed (or pending but no URL for some reason), go to payment
                 toast.success("Proceeding to payment gateway...");
                 setIsAgreementOpen(false);
                 setExistingDraft({ _id: res.draft_id, status: res.status, amount: parseInt(finalPrice.replace(/,/g, '')) || 0 });

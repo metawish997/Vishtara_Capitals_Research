@@ -639,93 +639,95 @@ export default function Profile() {
                     </div>
 
                     {/* Client Agreements */}
-                    <div style={{ padding: "24px", borderRadius: "12px", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", boxShadow: "0 4px 12px rgba(0,0,0,0.02)", marginTop: "24px" }}>
-                        <h3 style={{ fontSize: "18px", color: "#011D52", fontWeight: "800", marginBottom: "20px", display: "flex", alignItems: "center", gap: "8px" }}>
-                            <span style={{ width: "4px", height: "16px", backgroundColor: "#2B4365", borderRadius: "2px" }}></span>
-                            Client Agreements
-                        </h3>
+                    {isKycComplete && (
+                        <div style={{ padding: "24px", borderRadius: "12px", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", boxShadow: "0 4px 12px rgba(0,0,0,0.02)", marginTop: "24px" }}>
+                            <h3 style={{ fontSize: "18px", color: "#011D52", fontWeight: "800", marginBottom: "20px", display: "flex", alignItems: "center", gap: "8px" }}>
+                                <span style={{ width: "4px", height: "16px", backgroundColor: "#2B4365", borderRadius: "2px" }}></span>
+                                Client Agreements
+                            </h3>
 
-                        {!isKycComplete && accountData.agreements?.some(a =>
-                            (a.needs_esign) || (a.is_draft && (a.status === 'esign_pending' || a.status === 'kyc_pending'))
-                        ) && (
-                            <div style={{ marginBottom: "16px", padding: "12px 16px", backgroundColor: "#fef2f2", border: "1px solid #fee2e2", borderRadius: "8px", display: "flex", alignItems: "flex-start", gap: "10px" }}>
-                                <span style={{ fontSize: "16px" }}>⚠️</span>
-                                <div>
-                                    <p style={{ margin: "0 0 6px 0", fontSize: "13px", color: "#dc2626", fontWeight: "700" }}>E-Sign Pending — KYC Required</p>
-                                    <p style={{ margin: 0, fontSize: "12px", color: "#991b1b", lineHeight: "1.5" }}>You have agreement(s) that need to be e-signed. Please complete your KYC first, then return here to complete the e-sign process.</p>
-                                    <button onClick={() => navigate('/portal/kyc')} style={{ marginTop: "8px", padding: "6px 14px", backgroundColor: "#dc2626", color: "#fff", border: "none", borderRadius: "6px", fontSize: "11px", fontWeight: "700", cursor: "pointer" }}>Complete KYC Now →</button>
+                            {!isKycComplete && accountData.agreements?.some(a =>
+                                (a.needs_esign) || (a.is_draft && (a.status === 'esign_pending' || a.status === 'kyc_pending'))
+                            ) && (
+                                <div style={{ marginBottom: "16px", padding: "12px 16px", backgroundColor: "#fef2f2", border: "1px solid #fee2e2", borderRadius: "8px", display: "flex", alignItems: "flex-start", gap: "10px" }}>
+                                    <span style={{ fontSize: "16px" }}>⚠️</span>
+                                    <div>
+                                        <p style={{ margin: "0 0 6px 0", fontSize: "13px", color: "#dc2626", fontWeight: "700" }}>E-Sign Pending — KYC Required</p>
+                                        <p style={{ margin: 0, fontSize: "12px", color: "#991b1b", lineHeight: "1.5" }}>You have agreement(s) that need to be e-signed. Please complete your KYC first, then return here to complete the e-sign process.</p>
+                                        <button onClick={() => navigate('/portal/kyc')} style={{ marginTop: "8px", padding: "6px 14px", backgroundColor: "#dc2626", color: "#fff", border: "none", borderRadius: "6px", fontSize: "11px", fontWeight: "700", cursor: "pointer" }}>Complete KYC Now →</button>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
 
-                        {fetchingData ? (
-                            <div style={{ textAlign: "center", padding: "20px" }}>Loading agreements...</div>
-                        ) : accountData.agreements && accountData.agreements.length > 0 ? (
-                            <div style={{ overflowX: "auto", marginBottom: "20px" }}>
-                                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
-                                    <thead>
-                                        <tr style={{ backgroundColor: "#f1f5f9", textAlign: "left" }}>
-                                            <th style={{ padding: "8px", borderBottom: "1px solid #cbd5e1" }}>Agreement #</th>
-                                            <th style={{ padding: "8px", borderBottom: "1px solid #cbd5e1" }}>Plan</th>
-                                            <th style={{ padding: "8px", borderBottom: "1px solid #cbd5e1" }}>Date</th>
-                                            <th style={{ padding: "8px", borderBottom: "1px solid #cbd5e1" }}>Status</th>
-                                            <th style={{ padding: "8px", borderBottom: "1px solid #cbd5e1", textAlign: "center" }}>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {accountData.agreements.map((agr, idx) => {
-                                            const badge = getAgreementStatusBadge(agr);
-                                            // needsEsign:
-                                            // - UserAgreement: needs_esign flag = true (payment done, no PDF)
-                                            // - DraftAgreement: status esign_pending or kyc_pending and no PDF
-                                            const needsEsign = agr.needs_esign
-                                                || (agr.is_draft && (agr.status === 'esign_pending' || agr.status === 'kyc_pending') && !agr.pdf_path);
-                                            const canEsign = needsEsign && isKycComplete;
-                                            return (
-                                                <tr key={idx} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                                                    <td style={{ padding: "8px", color: "#0f172a", fontWeight: "600" }}>{agr.agreement_number || '-'}</td>
-                                                    <td style={{ padding: "8px", color: "#64748b" }}>{agr.plan_name || '-'}</td>
-                                                    <td style={{ padding: "8px", color: "#64748b" }}>{new Date(agr.createdAt).toLocaleDateString()}</td>
-                                                    <td style={{ padding: "8px" }}>
-                                                        <span style={{ padding: "3px 8px", borderRadius: "20px", fontSize: "10px", fontWeight: "800", backgroundColor: badge.bg, color: badge.color, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                                                            {badge.label}
-                                                        </span>
-                                                    </td>
-                                                    <td style={{ padding: "8px", textAlign: "center" }}>
-                                                        {agr.pdf_path ? (
-                                                            <a href={agr.pdf_path.startsWith('http') ? agr.pdf_path : `http://localhost:5001${agr.pdf_path}`} target="_blank" rel="noreferrer"
-                                                                style={{ color: "#ffffff", backgroundColor: "#2B4365", padding: "6px 12px", borderRadius: "6px", fontWeight: "700", textDecoration: "none", fontSize: "10px", textTransform: "uppercase" }}>
-                                                                View PDF
-                                                            </a>
-                                                        ) : canEsign ? (
-                                                            <button
-                                                                onClick={() => handleOpenEsignForAgreement(agr)}
-                                                                disabled={isEsignProcessing}
-                                                                style={{ padding: "6px 12px", backgroundColor: "#dc2626", color: "#fff", border: "none", borderRadius: "6px", fontSize: "10px", fontWeight: "700", textTransform: "uppercase", cursor: "pointer", boxShadow: "0 2px 6px rgba(220,38,38,0.3)", letterSpacing: "0.5px" }}>
-                                                                ✍️ Complete E-Sign
-                                                            </button>
-                                                        ) : needsEsign && !isKycComplete ? (
-                                                            <span style={{ color: "#d97706", fontSize: "10px", fontWeight: "700", display: "flex", alignItems: "center", gap: "4px", justifyContent: "center" }}>
-                                                                🔒 KYC Required
+                            {fetchingData ? (
+                                <div style={{ textAlign: "center", padding: "20px" }}>Loading agreements...</div>
+                            ) : accountData.agreements && accountData.agreements.length > 0 ? (
+                                <div style={{ overflowX: "auto", marginBottom: "20px" }}>
+                                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+                                        <thead>
+                                            <tr style={{ backgroundColor: "#f1f5f9", textAlign: "left" }}>
+                                                <th style={{ padding: "8px", borderBottom: "1px solid #cbd5e1" }}>Agreement #</th>
+                                                <th style={{ padding: "8px", borderBottom: "1px solid #cbd5e1" }}>Plan</th>
+                                                <th style={{ padding: "8px", borderBottom: "1px solid #cbd5e1" }}>Date</th>
+                                                <th style={{ padding: "8px", borderBottom: "1px solid #cbd5e1" }}>Status</th>
+                                                <th style={{ padding: "8px", borderBottom: "1px solid #cbd5e1", textAlign: "center" }}>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {accountData.agreements.map((agr, idx) => {
+                                                const badge = getAgreementStatusBadge(agr);
+                                                // needsEsign:
+                                                // - UserAgreement: needs_esign flag = true (payment done, no PDF)
+                                                // - DraftAgreement: status esign_pending or kyc_pending and no PDF
+                                                const needsEsign = agr.needs_esign
+                                                    || (agr.is_draft && (agr.status === 'esign_pending' || agr.status === 'kyc_pending') && !agr.pdf_path);
+                                                const canEsign = needsEsign && isKycComplete;
+                                                return (
+                                                    <tr key={idx} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                                                        <td style={{ padding: "8px", color: "#0f172a", fontWeight: "600" }}>{agr.agreement_number || '-'}</td>
+                                                        <td style={{ padding: "8px", color: "#64748b" }}>{agr.plan_name || '-'}</td>
+                                                        <td style={{ padding: "8px", color: "#64748b" }}>{new Date(agr.createdAt).toLocaleDateString()}</td>
+                                                        <td style={{ padding: "8px" }}>
+                                                            <span style={{ padding: "3px 8px", borderRadius: "20px", fontSize: "10px", fontWeight: "800", backgroundColor: badge.bg, color: badge.color, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                                                                {badge.label}
                                                             </span>
-                                                        ) : agr.status === 'payment_pending' ? (
-                                                            <span style={{ color: "#d97706", fontSize: "11px", fontWeight: "600" }}>Under Review</span>
-                                                        ) : (
-                                                            <span style={{ color: "#94a3b8", fontSize: "11px", fontWeight: "600" }}>Processing...</span>
-                                                        )}
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
-                            </div>
-                        ) : (
-                            <div style={{ padding: "16px", borderRadius: "8px", backgroundColor: "#f8fafc", border: "1px dashed #cbd5e1", textAlign: "center" }}>
-                                <p style={{ fontSize: "12px", color: "#94a3b8", margin: 0 }}>No agreements found.</p>
-                            </div>
-                        )}
-                    </div>
+                                                        </td>
+                                                        <td style={{ padding: "8px", textAlign: "center" }}>
+                                                            {agr.pdf_path ? (
+                                                                <a href={agr.pdf_path.startsWith('http') ? agr.pdf_path : `http://localhost:5001${agr.pdf_path}`} target="_blank" rel="noreferrer"
+                                                                    style={{ color: "#ffffff", backgroundColor: "#2B4365", padding: "6px 12px", borderRadius: "6px", fontWeight: "700", textDecoration: "none", fontSize: "10px", textTransform: "uppercase" }}>
+                                                                    View PDF
+                                                                </a>
+                                                            ) : canEsign ? (
+                                                                <button
+                                                                    onClick={() => handleOpenEsignForAgreement(agr)}
+                                                                    disabled={isEsignProcessing}
+                                                                    style={{ padding: "6px 12px", backgroundColor: "#dc2626", color: "#fff", border: "none", borderRadius: "6px", fontSize: "10px", fontWeight: "700", textTransform: "uppercase", cursor: "pointer", boxShadow: "0 2px 6px rgba(220,38,38,0.3)", letterSpacing: "0.5px" }}>
+                                                                    ✍️ Complete E-Sign
+                                                                </button>
+                                                            ) : needsEsign && !isKycComplete ? (
+                                                                <span style={{ color: "#d97706", fontSize: "10px", fontWeight: "700", display: "flex", alignItems: "center", gap: "4px", justifyContent: "center" }}>
+                                                                    🔒 KYC Required
+                                                                </span>
+                                                            ) : agr.status === 'payment_pending' ? (
+                                                                <span style={{ color: "#d97706", fontSize: "11px", fontWeight: "600" }}>Under Review</span>
+                                                            ) : (
+                                                                <span style={{ color: "#94a3b8", fontSize: "11px", fontWeight: "600" }}>Processing...</span>
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ) : (
+                                <div style={{ padding: "16px", borderRadius: "8px", backgroundColor: "#f8fafc", border: "1px dashed #cbd5e1", textAlign: "center" }}>
+                                    <p style={{ fontSize: "12px", color: "#94a3b8", margin: 0 }}>No agreements found.</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
 
                 </div>
 
