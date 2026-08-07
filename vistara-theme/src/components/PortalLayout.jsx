@@ -79,7 +79,8 @@ export default function PortalLayout() {
     { label: "Latest News", path: "/portal/latest-news", icon: "📰" },
     { label: "Alert Logs", path: "/portal/notifications", icon: "🔔" },
     { label: "Support Desk", path: "/portal/support-tickets", icon: "💬" },
-    { label: "Profile", path: "/portal/profile", icon: "👤" }
+    { label: "Profile", path: "/portal/profile", icon: "👤" },
+    { label: "Live Chat", path: "/portal/chat", icon: "💭" }
   ];
 
   const handleLogout = (e) => {

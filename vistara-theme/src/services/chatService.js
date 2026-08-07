@@ -27,6 +27,16 @@ const chatService = {
         const response = await api.post('/chat/send', { receiverId, message });
         console.log('[CHAT_DEBUG] Transmission successful:', response.data.data?._id);
         return response.data;
+    },
+
+    markNotificationRead: async (id) => {
+        const response = await api.post(`/chat/notifications/${id}/read`);
+        return response.data;
+    },
+
+    markAllNotificationsRead: async () => {
+        const response = await api.post('/chat/notifications/read-all');
+        return response.data;
     }
 };
 

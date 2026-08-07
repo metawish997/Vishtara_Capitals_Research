@@ -401,20 +401,19 @@ const PortalStockCard = ({
                             )}
                         </div>
                     ) : (
-                        <div className="flex-1 flex flex-col items-center justify-center py-6">
-                            <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: 'rgba(1, 29, 82, 0.1)', color: '#011D52' }}>
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        <div className="flex-1 flex flex-col items-center justify-center py-4">
+                            <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-2" style={{ background: 'rgba(1, 29, 82, 0.1)', color: '#011D52' }}>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                             </div>
-                            <h3 className="font-black text-[14px] uppercase tracking-widest mb-2" style={{ color: '#011D52' }}>Premium Signal</h3>
-                            <p className="text-[11px] text-center max-w-[200px]" style={{ color: '#64748b' }}>Subscribe to unlock entry and target levels.</p>
+                            <h3 className="font-black text-[13px] uppercase tracking-widest mb-1" style={{ color: '#011D52' }}>Premium Signal</h3>
+                            <p className="text-[10px] text-center max-w-[200px]" style={{ color: '#64748b' }}>Subscribe to unlock entry and target levels.</p>
 
                             <button
                                 onClick={() => navigate('/portal/plans')}
-                                className="mt-6 px-6 py-2.5 rounded-lg text-[11px] font-black uppercase tracking-widest transition-all inline-flex items-center justify-center gap-2"
-                                style={{ background: '#011D52', color: '#ffffff' }}>
+                                className="mt-3 text-[11px] font-black uppercase tracking-widest transition-all hover:underline"
+                                style={{ color: '#011D52' }}>
                                 View Plans
                             </button>
-
                         </div>
                     )}
                 </div>

@@ -41,6 +41,7 @@ import LatestNews from "./pages/portal/LatestNews";
 import Notifications from "./pages/portal/Notifications";
 import SupportTickets from "./pages/portal/SupportTickets";
 import Profile from "./pages/portal/Profile";
+import PortalChat from "./pages/portal/PortalChat";
 
 import KycVerification from "./pages/portal/KycVerification";
 import Plans from "./pages/portal/Plans";
@@ -92,6 +93,7 @@ function App() {
                 <Route path="latest-news" element={<LatestNews />} />
                 <Route path="notifications" element={<Notifications />} />
                 <Route path="support-tickets" element={<SupportTickets />} />
+                <Route path="chat" element={<PortalChat />} />
                 <Route path="profile" element={<Profile />} />
                 <Route path="plans" element={<Plans />} />
               </Route>
