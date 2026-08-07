@@ -1367,10 +1367,13 @@ exports.completeUserAgreementEsign = async (req, res) => {
 // ---------------------------------------------------------------------------
 exports.checkUserAgreementEsignStatus = async (req, res) => {
     try {
-        const agreement = await UserAgreement.findOne({
-            _id: req.params.agreementId,
-            user: req.user.id
-        });
+        const paramId = req.params.agreementId;
+        const mongoose = require('mongoose');
+        const query = mongoose.Types.ObjectId.isValid(paramId)
+            ? { _id: paramId, user: req.user.id }
+            : { digio_document_id: paramId, user: req.user.id };
+
+        const agreement = await UserAgreement.findOne(query);
 
         if (!agreement) {
             return res.status(404).json({ success: false, message: 'Agreement not found.' });
