@@ -1104,7 +1104,9 @@ exports.getAccountServices = async (req, res) => {
         const agreements = [
             ...finalizedAgreements.map(a => {
                 const sub = a.subscription;
-                const needsEsign = !a.pdf_path && !a.is_signed && a.status === 'pending';
+                // needsEsign: no PDF, not yet signed, AND status is 'pending' OR 'esign_pending'
+                // (esign_pending = user started Digio but left without completing)
+                const needsEsign = !a.pdf_path && !a.is_signed && (a.status === 'pending' || a.status === 'esign_pending');
                 return {
                     _id: a._id,
                     agreement_number: a.agreement_number,
@@ -1183,6 +1185,19 @@ exports.completeUserAgreementEsign = async (req, res) => {
 
         if (agreement.pdf_path && agreement.is_signed) {
             return res.status(400).json({ success: false, message: 'This agreement is already signed.' });
+        }
+
+        // ✅ RETRY SHORTCUT: User left Digio without signing — reuse existing URL, no new PDF needed
+        if (agreement.digio_document_id && agreement.esign_url && agreement.status === 'esign_pending') {
+            console.log(`[RETRY] Reusing existing Digio session for ${agreement.agreement_number} | doc: ${agreement.digio_document_id}`);
+            return res.status(200).json({
+                success: true,
+                redirect_url: agreement.esign_url,
+                agreement_id: agreement._id,
+                digio_document_id: agreement.digio_document_id,
+                status: 'esign_pending',
+                message: 'Resuming existing e-sign session.'
+            });
         }
 
         const user = await User.findById(req.user.id);
@@ -1269,6 +1284,7 @@ exports.completeUserAgreementEsign = async (req, res) => {
         if (last4Aadhaar) andConditions.push({ field: 'aadhaar', match_type: 'exact', value: last4Aadhaar });
         if (andConditions.length) verificationRules.push({ operation: 'AND', conditions: andConditions });
 
+        const orConditions = [];
         if (kycYob) orConditions.push({ field: 'yob', match_type: 'exact', value: kycYob });
         if (kycName) orConditions.push({ field: 'name', match_type: 'fuzzy', value: kycName, threshold: '80' });
         if (orConditions.length) verificationRules.push({ operation: 'OR', conditions: orConditions });
