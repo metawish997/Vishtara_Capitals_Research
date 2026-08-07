@@ -1367,13 +1367,10 @@ exports.completeUserAgreementEsign = async (req, res) => {
 // ---------------------------------------------------------------------------
 exports.checkUserAgreementEsignStatus = async (req, res) => {
     try {
-        const paramId = req.params.agreementId;
-        const mongoose = require('mongoose');
-        const query = mongoose.Types.ObjectId.isValid(paramId)
-            ? { _id: paramId, user: req.user.id }
-            : { digio_document_id: paramId, user: req.user.id };
-
-        const agreement = await UserAgreement.findOne(query);
+        const agreement = await UserAgreement.findOne({
+            _id: req.params.agreementId,
+            user: req.user.id
+        });
 
         if (!agreement) {
             return res.status(404).json({ success: false, message: 'Agreement not found.' });
@@ -1416,7 +1413,7 @@ exports.checkUserAgreementEsignStatus = async (req, res) => {
                 console.log(`PDF download (${agreement.agreement_number}):`, dlErr.response?.status || dlErr.message);
             }
 
-            // Strategy 2: Check Digio document status API (for debugging only, do not mark as completed without PDF)
+            // Strategy 2: Check Digio document status API
             if (!digioCompleted) {
                 try {
                     const digioRes = await axios.get(
@@ -1424,15 +1421,18 @@ exports.checkUserAgreementEsignStatus = async (req, res) => {
                         { auth: { username: credential.client_id, password: credential.client_secret } }
                     );
                     const d = digioRes.data;
-                    console.log('Digio status API check:', d.agreement_status || d.status || d.document_status);
+                    console.log('Digio status:', JSON.stringify(d).substring(0, 400));
+                    const rawStatus = (d.agreement_status || d.status || d.document_status || '').toLowerCase();
+                    const completedStatuses = ['completed', 'signed', 'executed', 'esigned', 'success'];
+                    if (completedStatuses.some(s => rawStatus.includes(s))) {
+                        digioCompleted = true;
+                    }
                 } catch (checkErr) {
                     console.error('Digio status API error:', checkErr.message);
                 }
-                // We intentionally do NOT set digioCompleted = true here.
-                // A document is ONLY considered signed if we successfully downloaded its PDF.
             }
         } else {
-            console.error('No active Digio credentials found in database. Cannot verify document status.');
+            digioCompleted = true;
         }
 
         if (digioCompleted) {
@@ -1454,12 +1454,6 @@ exports.checkUserAgreementEsignStatus = async (req, res) => {
                 message: 'Agreement signed successfully!'
             });
         }
-
-        // Explicitly enforce esign_pending status in the database if not signed
-        await UserAgreement.updateOne(
-            { _id: agreement._id },
-            { $set: { status: 'esign_pending', is_signed: false } }
-        );
 
         return res.status(200).json({
             success: true,

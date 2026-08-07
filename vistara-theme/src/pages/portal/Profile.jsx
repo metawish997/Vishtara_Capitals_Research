@@ -171,32 +171,11 @@ export default function Profile() {
         || (kycData?.status && ['approved', 'completed', 'success'].includes(kycData.status.toLowerCase()));
 
     // --- Profile E-Sign Handler ---
-    const handleOpenEsignForAgreement = async (agr) => {
+    const handleOpenEsignForAgreement = (agr) => {
         if (!isKycComplete) {
             toast.error('Please complete your KYC first before e-signing.');
             return;
         }
-
-        // Auto-test: Check if it's already signed on Digio before doing anything else
-        if (agr.digio_document_id && (agr.status === 'esign_pending' || agr.status === 'esign_required' || agr.needs_esign)) {
-            setIsEsignProcessing(true);
-            try {
-                toast.loading('Verifying document status...', { id: 'esign-check' });
-                const checkRes = await agreementService.checkUserAgreementEsignStatus(agr.digio_document_id);
-                toast.dismiss('esign-check');
-                if (checkRes && checkRes.status === 'signed') {
-                    toast.success('Document is already signed!');
-                    fetchProfile();
-                    setIsEsignProcessing(false);
-                    return; // Stop here, it's already done!
-                }
-            } catch (err) {
-                toast.dismiss('esign-check');
-                console.error('Auto-verify error:', err);
-            }
-            setIsEsignProcessing(false);
-        }
-
         setPendingEsignAgreement(agr);
         // UserAgreements (payment done, just need e-sign) don't need the modal preview
         // They go directly to Digio — skip the agreement review modal for them
@@ -670,15 +649,15 @@ export default function Profile() {
                             {!isKycComplete && accountData.agreements?.some(a =>
                                 (a.needs_esign) || (a.is_draft && (a.status === 'esign_pending' || a.status === 'kyc_pending'))
                             ) && (
-                                <div style={{ marginBottom: "16px", padding: "12px 16px", backgroundColor: "#fef2f2", border: "1px solid #fee2e2", borderRadius: "8px", display: "flex", alignItems: "flex-start", gap: "10px" }}>
-                                    <span style={{ fontSize: "16px" }}>⚠️</span>
-                                    <div>
-                                        <p style={{ margin: "0 0 6px 0", fontSize: "13px", color: "#dc2626", fontWeight: "700" }}>E-Sign Pending — KYC Required</p>
-                                        <p style={{ margin: 0, fontSize: "12px", color: "#991b1b", lineHeight: "1.5" }}>You have agreement(s) that need to be e-signed. Please complete your KYC first, then return here to complete the e-sign process.</p>
-                                        <button onClick={() => navigate('/portal/kyc')} style={{ marginTop: "8px", padding: "6px 14px", backgroundColor: "#dc2626", color: "#fff", border: "none", borderRadius: "6px", fontSize: "11px", fontWeight: "700", cursor: "pointer" }}>Complete KYC Now →</button>
+                                    <div style={{ marginBottom: "16px", padding: "12px 16px", backgroundColor: "#fef2f2", border: "1px solid #fee2e2", borderRadius: "8px", display: "flex", alignItems: "flex-start", gap: "10px" }}>
+                                        <span style={{ fontSize: "16px" }}>⚠️</span>
+                                        <div>
+                                            <p style={{ margin: "0 0 6px 0", fontSize: "13px", color: "#dc2626", fontWeight: "700" }}>E-Sign Pending — KYC Required</p>
+                                            <p style={{ margin: 0, fontSize: "12px", color: "#991b1b", lineHeight: "1.5" }}>You have agreement(s) that need to be e-signed. Please complete your KYC first, then return here to complete the e-sign process.</p>
+                                            <button onClick={() => navigate('/portal/kyc')} style={{ marginTop: "8px", padding: "6px 14px", backgroundColor: "#dc2626", color: "#fff", border: "none", borderRadius: "6px", fontSize: "11px", fontWeight: "700", cursor: "pointer" }}>Complete KYC Now →</button>
+                                        </div>
                                     </div>
-                                </div>
-                            )}
+                                )}
 
                             {fetchingData ? (
                                 <div style={{ textAlign: "center", padding: "20px" }}>Loading agreements...</div>
