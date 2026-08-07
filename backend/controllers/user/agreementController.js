@@ -1094,7 +1094,7 @@ exports.getAccountServices = async (req, res) => {
             .sort({ createdAt: -1 });
 
         const finalizedAgrNumbers = finalizedAgreements.map(a => a.agreement_number);
-
+        // new updates........
         // Remaining DraftAgreements not yet finalized into UserAgreement
         const draftAgreements = await DraftAgreement.find({
             user: req.user.id,
@@ -1104,7 +1104,7 @@ exports.getAccountServices = async (req, res) => {
         const agreements = [
             ...finalizedAgreements.map(a => {
                 const sub = a.subscription;
-                
+
                 // needsEsign: no PDF, not yet signed, AND status is 'pending' OR 'esign_pending'
                 // (esign_pending = user started Digio but left without completing)
                 const needsEsign = !a.pdf_path && !a.is_signed && (a.status === 'pending' || a.status === 'esign_pending');
