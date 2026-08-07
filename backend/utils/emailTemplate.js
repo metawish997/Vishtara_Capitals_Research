@@ -86,7 +86,7 @@ const getOtpEmailTemplate = (otp, title, message) => {
   <body>
       <div class="container">
           <div class="header">
-              <h1>The Rapid Investors</h1>
+              <h1>Vishtara Capital Research</h1>
           </div>
           <div class="content">
               <h2>${title}</h2>
@@ -97,11 +97,11 @@ const getOtpEmailTemplate = (otp, title, message) => {
                   <p class="otp-code">${otp}</p>
               </div>
               
-              <p>This code will expire in <strong>5 minutes</strong>. Please do not share this code with anyone.</p>
+              <p>This OTP is valid for <strong>10 minutes</strong>. Do not share this code with anyone.</p>
               <p class="warning">If you did not request this OTP, please ignore this email.</p>
           </div>
           <div class="footer">
-              <p>&copy; ${new Date().getFullYear()} The Rapid Investors. All rights reserved.</p>
+              <p>&copy; ${new Date().getFullYear()} Vishtara Capital Research. All rights reserved.</p>
               <p style="margin-top: 8px;">SEBI REG: INH000018559</p>
           </div>
       </div>

@@ -33,7 +33,7 @@ const sendMobileOtp = async (options) => {
   const entityId = smsConfig.entityId || process.env.SMS_ENTITY_ID;
   const templateId = smsConfig.templateId || process.env.SMS_TEMPLATE_ID;
 
-  const message = `Dear User, Your OTP is ${otp}. Login Link: https://therapidinvestors.com/Admin/login This OTP is valid for 10 minutes. Do not share this OTP with anyone. If you need any help or face any issues, please feel free to reach out. Best regards, Shubham Sharma Properietor Of The Rapid Investors Contact -8269981108.`;
+  const message = `Your Vishtara Capital Research verification code is ${otp}. This OTP is valid for **10 minutes*. Do not share this code with anyone. If you did not request this, please ignore this message.`;
 
   const params = {
     user: smsUser,

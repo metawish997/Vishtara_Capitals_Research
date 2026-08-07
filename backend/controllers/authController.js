@@ -45,9 +45,9 @@ exports.sendOtp = async (req, res, next) => {
     try {
       await sendEmail({
         email,
-        subject: 'Registration OTP - The Rapid Investors',
+        subject: 'Registration OTP - Vishtara Capital Research',
         message: `Your OTP for registration is ${otp}. It will expire in 5 minutes.`,
-        html: getOtpEmailTemplate(otp, 'Account Registration', 'Thank you for choosing The Rapid Investors. Please use the following OTP to complete your registration.'),
+        html: getOtpEmailTemplate(otp, 'Account Registration', 'Thank you for choosing Vishtara Capital Research. Please use the following OTP to complete your registration.'),
       });
       emailSent = true;
       console.log('[sendOtp] Email OTP sent to', email);
