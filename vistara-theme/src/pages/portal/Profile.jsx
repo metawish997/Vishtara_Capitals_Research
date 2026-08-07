@@ -171,11 +171,32 @@ export default function Profile() {
         || (kycData?.status && ['approved', 'completed', 'success'].includes(kycData.status.toLowerCase()));
 
     // --- Profile E-Sign Handler ---
-    const handleOpenEsignForAgreement = (agr) => {
+    const handleOpenEsignForAgreement = async (agr) => {
         if (!isKycComplete) {
             toast.error('Please complete your KYC first before e-signing.');
             return;
         }
+
+        // Auto-test: Check if it's already signed on Digio before doing anything else
+        if (agr.digio_document_id && (agr.status === 'esign_pending' || agr.status === 'esign_required' || agr.needs_esign)) {
+            setIsEsignProcessing(true);
+            try {
+                toast.loading('Verifying document status...', { id: 'esign-check' });
+                const checkRes = await agreementService.checkUserAgreementEsignStatus(agr.digio_document_id);
+                toast.dismiss('esign-check');
+                if (checkRes && checkRes.status === 'signed') {
+                    toast.success('Document is already signed!');
+                    fetchProfile();
+                    setIsEsignProcessing(false);
+                    return; // Stop here, it's already done!
+                }
+            } catch (err) {
+                toast.dismiss('esign-check');
+                console.error('Auto-verify error:', err);
+            }
+            setIsEsignProcessing(false);
+        }
+
         setPendingEsignAgreement(agr);
         // UserAgreements (payment done, just need e-sign) don't need the modal preview
         // They go directly to Digio — skip the agreement review modal for them
