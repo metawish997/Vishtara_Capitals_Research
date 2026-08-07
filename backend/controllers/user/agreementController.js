@@ -1104,9 +1104,11 @@ exports.getAccountServices = async (req, res) => {
         const agreements = [
             ...finalizedAgreements.map(a => {
                 const sub = a.subscription;
+                
                 // needsEsign: no PDF, not yet signed, AND status is 'pending' OR 'esign_pending'
                 // (esign_pending = user started Digio but left without completing)
                 const needsEsign = !a.pdf_path && !a.is_signed && (a.status === 'pending' || a.status === 'esign_pending');
+                console.log(`[DEBUG] Agr ${a.agreement_number} - status: ${a.status}, needsEsign: ${needsEsign}`);
                 return {
                     _id: a._id,
                     agreement_number: a.agreement_number,
