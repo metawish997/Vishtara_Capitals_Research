@@ -186,6 +186,60 @@ export default function Profile() {
         }
     };
 
+    const handleCheckDocument = async (agr) => {
+        if (!agr.digio_document_id) {
+            toast.error('No Digio Document ID linked to this agreement.');
+            return;
+        }
+        try {
+            toast.loading("Checking document status on Digio...", { id: 'checkDoc' });
+            const res = await agreementService.checkUserAgreementEsignStatusStrict(agr.digio_document_id);
+            if (res.status === 'signed' && res.pdf_path) {
+                toast.success('Document is present and signed on Digio!', { id: 'checkDoc' });
+            } else {
+                toast.error('Document is NOT present or not signed on Digio.', { id: 'checkDoc' });
+            }
+        } catch (error) {
+            toast.error(error.message || 'Failed to check document status.', { id: 'checkDoc' });
+        }
+    };
+
+    const handleViewPdfAndVerify = async (agr) => {
+        if (!agr.digio_document_id) {
+            const pdfUrl = agr.pdf_path?.startsWith('http') ? agr.pdf_path : `http://localhost:5001${agr.pdf_path}`;
+            window.open(pdfUrl, '_blank');
+            return;
+        }
+
+        try {
+            toast.loading("Verifying document status...", { id: 'verifyPdf' });
+            const res = await agreementService.checkUserAgreementEsignStatusStrict(agr.digio_document_id);
+            
+            if (res.status === 'signed' && res.pdf_path) {
+                toast.dismiss('verifyPdf');
+                const pdfUrl = res.pdf_path.startsWith('http') ? res.pdf_path : `http://localhost:5001${res.pdf_path}`;
+                window.open(pdfUrl, '_blank');
+            } else {
+                toast.error("Document not signed on Digio. Please sign again.", { id: 'verifyPdf' });
+                setAccountData(prev => {
+                    const newAgreements = prev.agreements.map(a => {
+                        if (a._id === agr._id) {
+                            return { ...a, pdf_path: null, is_signed: false, needs_esign: true };
+                        }
+                        return a;
+                    });
+                    return { ...prev, agreements: newAgreements };
+                });
+            }
+        } catch (error) {
+            toast.error(error.message || "Failed to verify document.", { id: 'verifyPdf' });
+            if (agr.pdf_path) {
+                const pdfUrl = agr.pdf_path.startsWith('http') ? agr.pdf_path : `http://localhost:5001${agr.pdf_path}`;
+                window.open(pdfUrl, '_blank');
+            }
+        }
+    };
+
     // For UserAgreements (payment already done): directly call backend → redirect to Digio
     const handleUserAgreementEsign = async (agr) => {
         setIsEsignProcessing(true);
@@ -692,12 +746,18 @@ export default function Profile() {
                                                                 {badge.label}
                                                             </span>
                                                         </td>
-                                                        <td style={{ padding: "8px", textAlign: "center" }}>
+                                                        <td style={{ padding: "8px", textAlign: "center", display: "flex", gap: "8px", justifyContent: "center", alignItems: "center" }}>
+                                                            {agr.digio_document_id && (
+                                                                <button onClick={() => handleCheckDocument(agr)}
+                                                                    style={{ color: "#011D52", backgroundColor: "#f1f5f9", padding: "6px 10px", borderRadius: "6px", fontWeight: "700", border: "1px solid #cbd5e1", fontSize: "10px", textTransform: "uppercase", cursor: "pointer" }}>
+                                                                    🔍 Check
+                                                                </button>
+                                                            )}
                                                             {agr.pdf_path ? (
-                                                                <a href={agr.pdf_path.startsWith('http') ? agr.pdf_path : `http://localhost:5001${agr.pdf_path}`} target="_blank" rel="noreferrer"
-                                                                    style={{ color: "#ffffff", backgroundColor: "#2B4365", padding: "6px 12px", borderRadius: "6px", fontWeight: "700", textDecoration: "none", fontSize: "10px", textTransform: "uppercase" }}>
+                                                                <button onClick={() => handleViewPdfAndVerify(agr)}
+                                                                    style={{ color: "#ffffff", backgroundColor: "#2B4365", padding: "6px 12px", borderRadius: "6px", fontWeight: "700", border: "none", fontSize: "10px", textTransform: "uppercase", cursor: "pointer" }}>
                                                                     View PDF
-                                                                </a>
+                                                                </button>
                                                             ) : canEsign ? (
                                                                 <button
                                                                     onClick={() => handleOpenEsignForAgreement(agr)}

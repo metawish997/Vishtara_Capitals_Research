@@ -110,6 +110,16 @@ const agreementService = {
         } catch (error) {
             throw error.response?.data || error.message;
         }
+    },
+
+    // Strictly check Digio server (bypassing local DB cache)
+    checkUserAgreementEsignStatusStrict: async (agreementId) => {
+        try {
+            const response = await API.get(`/user/agreements/verify-strict/${agreementId}`);
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error.message;
+        }
     }
 };
 

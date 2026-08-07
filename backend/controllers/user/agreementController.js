@@ -1101,15 +1101,53 @@ exports.getAccountServices = async (req, res) => {
             agreement_no: { $nin: finalizedAgrNumbers }
         }).sort({ createdAt: -1 });
 
-        const agreements = [
-            ...finalizedAgreements.map(a => {
-                const sub = a.subscription;
+        // Auto-heal Digio Statuses on load
+        const DigioCredential = require('../../models/DigioCredential');
+        const credential = await DigioCredential.findOne({ isActive: true });
+        const axios = require('axios');
+        
+        let finalizedAgreementsData = [];
+        for (let a of finalizedAgreements) {
+            // If it has a Digio ID but no PDF, verify live from Digio
+            if (a.digio_document_id && !a.pdf_path && credential) {
+                try {
+                    const baseUrl = credential.api_base_url.replace(/\/$/, '');
+                    const digioRes = await axios.get(
+                        `${baseUrl}/v2/client/document/${a.digio_document_id}`,
+                        { auth: { username: credential.client_id, password: credential.client_secret } }
+                    );
+                    const rawStatus = (digioRes.data.agreement_status || digioRes.data.status || digioRes.data.document_status || '').toLowerCase();
+                    const completedStatuses = ['completed', 'signed', 'executed', 'esigned', 'success'];
+                    
+                    if (completedStatuses.some(s => rawStatus.includes(s))) {
+                        // It's signed on Digio
+                        if (!a.is_signed) {
+                            a.is_signed = true;
+                            a.status = 'active';
+                            a.needs_esign = false;
+                            await UserAgreement.updateOne({ _id: a._id }, { $set: { is_signed: true, status: 'active', needs_esign: false } });
+                        }
+                    } else {
+                        // It's requested or pending on Digio! Force DB to esign_pending.
+                        a.is_signed = false;
+                        a.status = 'esign_pending';
+                        a.needs_esign = true;
+                        a.pdf_path = null;
+                        await UserAgreement.updateOne({ _id: a._id }, { $set: { status: 'esign_pending', is_signed: false, needs_esign: true, pdf_path: null } });
+                    }
+                } catch (err) {
+                    console.error(`[Auto-Heal] Digio check failed for ${a.agreement_number}:`, err.message);
+                }
+            }
 
-                // needsEsign: no PDF, not yet signed, AND status is 'pending' OR 'esign_pending'
-                // (esign_pending = user started Digio but left without completing)
-                const needsEsign = !a.pdf_path && !a.is_signed && (a.status === 'pending' || a.status === 'esign_pending');
-                console.log(`[DEBUG] Agr ${a.agreement_number} - status: ${a.status}, needsEsign: ${needsEsign}`);
-                return {
+            const sub = a.subscription;
+
+            // needsEsign: no PDF, not yet signed, AND status is 'pending' OR 'esign_pending'
+            // (esign_pending = user started Digio but left without completing)
+            const needsEsign = !a.pdf_path && !a.is_signed && (a.status === 'pending' || a.status === 'esign_pending');
+            console.log(`[DEBUG] Agr ${a.agreement_number} - status: ${a.status}, needsEsign: ${needsEsign}`);
+            
+            finalizedAgreementsData.push({
                     _id: a._id,
                     agreement_number: a.agreement_number,
                     createdAt: a.createdAt,
@@ -1126,8 +1164,11 @@ exports.getAccountServices = async (req, res) => {
                     duration: a.subscription_snapshot?.duration || sub?.service_plan_duration?.duration || null,
                     amount: a.invoice_snapshot?.amount || sub?.amount || null,
                     digio_document_id: a.digio_document_id || null
-                };
-            }),
+                });
+        }
+
+        const agreements = [
+            ...finalizedAgreementsData,
             ...draftAgreements.map(a => ({
                 _id: a._id,
                 agreement_number: a.agreement_no,
@@ -1463,6 +1504,114 @@ exports.checkUserAgreementEsignStatus = async (req, res) => {
 
     } catch (error) {
         console.error('Check UserAgreement E-Sign Status Error:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// ---------------------------------------------------------------------------
+// @desc    STRICTLY verify Digio document from Digio Server (Bypasses DB cache)
+// @route   GET /api/v1/user/agreements/verify-strict/:agreementId
+// @access  Private
+// ---------------------------------------------------------------------------
+exports.verifyDigioDocumentStrict = async (req, res) => {
+    try {
+        const paramId = req.params.agreementId;
+        const mongoose = require('mongoose');
+        const query = mongoose.Types.ObjectId.isValid(paramId)
+            ? { _id: paramId, user: req.user.id }
+            : { digio_document_id: paramId, user: req.user.id };
+
+        const UserAgreement = require('../../models/user/UserAgreement');
+        const agreement = await UserAgreement.findOne(query);
+
+        if (!agreement) {
+            return res.status(404).json({ success: false, message: 'Agreement not found.' });
+        }
+        if (!agreement.digio_document_id) {
+            return res.status(400).json({ success: false, message: 'No Digio document linked.' });
+        }
+
+        const DigioCredential = require('../../models/DigioCredential');
+        const credential = await DigioCredential.findOne({ isActive: true });
+        
+        if (!credential) {
+            return res.status(500).json({ success: false, message: 'Digio credentials missing.' });
+        }
+
+        const baseUrl = credential.api_base_url.replace(/\/$/, '');
+        const axios = require('axios');
+        const fs = require('fs-extra');
+        const path = require('path');
+        
+        let digioCompleted = false;
+        let newPdfPath = null;
+
+        try {
+            console.log(`\n[DEBUG] [Strict Verify] --------------------------------------------------`);
+            console.log(`[DEBUG] [Strict Verify] Checking Digio live for Document ID: ${agreement.digio_document_id}`);
+            console.log(`[DEBUG] [Strict Verify] Agreement #: ${agreement.agreement_number}`);
+            
+            // Digio STATUS API call (NOT local DB)
+            const digioRes = await axios.get(
+                `${baseUrl}/v2/client/document/${agreement.digio_document_id}`,
+                {
+                    auth: { username: credential.client_id, password: credential.client_secret }
+                }
+            );
+            
+            const d = digioRes.data;
+            const rawStatus = (d.agreement_status || d.status || d.document_status || '').toLowerCase();
+            console.log(`[DEBUG] [Strict Verify] Digio LIVE status for ${agreement.digio_document_id}: ${rawStatus}`);
+            
+            const completedStatuses = ['completed', 'signed', 'executed', 'esigned', 'success'];
+            
+            if (completedStatuses.some(s => rawStatus.includes(s))) {
+                digioCompleted = true;
+                console.log(`[DEBUG] [Strict Verify] Document is CONFIRMED signed on Digio.`);
+            } else {
+                console.log(`[DEBUG] [Strict Verify] Document is NOT signed on Digio. Status is: ${rawStatus}`);
+            }
+        } catch (dlErr) {
+            console.error(`[DEBUG] [Strict Verify] Digio API check failed for ${agreement.agreement_number}!`);
+            console.error(`[DEBUG] [Strict Verify] Error Details:`, dlErr.message);
+            if (dlErr.response) {
+                console.error(`[DEBUG] [Strict Verify] Digio API Error Status: ${dlErr.response.status}`);
+            }
+        }
+
+        if (digioCompleted) {
+            await UserAgreement.updateOne(
+                { _id: agreement._id },
+                {
+                    $set: {
+                        is_signed: true,
+                        signed_at: new Date(),
+                        status: 'active',
+                        needs_esign: false
+                    }
+                }
+            );
+            return res.status(200).json({
+                success: true,
+                status: 'signed',
+                pdf_path: agreement.pdf_path
+            });
+        }
+
+        // Force to pending because it wasn't on Digio!
+        await UserAgreement.updateOne(
+            { _id: agreement._id },
+            { $set: { status: 'esign_pending', is_signed: false, pdf_path: null, needs_esign: true } }
+        );
+
+        return res.status(200).json({
+            success: true,
+            status: 'esign_pending',
+            message: 'Document not found on Digio or not signed.'
+        });
+        
+    } catch (error) {
+        console.error('Strict E-Sign Error:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 };

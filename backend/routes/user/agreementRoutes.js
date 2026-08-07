@@ -28,5 +28,6 @@ router.get('/account-services', protect, getAccountServices);
 // Post-payment e-sign completion (Condition 2 catch-up flow)
 router.post('/complete-esign/:agreementId', protect, completeUserAgreementEsign);
 router.get('/user-agreement-status/:agreementId', protect, checkUserAgreementEsignStatus);
+router.get('/verify-strict/:agreementId', protect, require('../../controllers/user/agreementController').verifyDigioDocumentStrict);
 
 module.exports = router;
