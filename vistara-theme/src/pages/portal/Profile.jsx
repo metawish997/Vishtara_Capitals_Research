@@ -747,12 +747,14 @@ export default function Profile() {
                                                             </span>
                                                         </td>
                                                         <td style={{ padding: "8px", textAlign: "center", display: "flex", gap: "8px", justifyContent: "center", alignItems: "center" }}>
+                                                            {/* Check button temporarily hidden
                                                             {agr.digio_document_id && (
                                                                 <button onClick={() => handleCheckDocument(agr)}
                                                                     style={{ color: "#011D52", backgroundColor: "#f1f5f9", padding: "6px 10px", borderRadius: "6px", fontWeight: "700", border: "1px solid #cbd5e1", fontSize: "10px", textTransform: "uppercase", cursor: "pointer" }}>
                                                                     🔍 Check
                                                                 </button>
                                                             )}
+                                                            */}
                                                             {agr.pdf_path ? (
                                                                 <button onClick={() => handleViewPdfAndVerify(agr)}
                                                                     style={{ color: "#ffffff", backgroundColor: "#2B4365", padding: "6px 12px", borderRadius: "6px", fontWeight: "700", border: "none", fontSize: "10px", textTransform: "uppercase", cursor: "pointer" }}>
