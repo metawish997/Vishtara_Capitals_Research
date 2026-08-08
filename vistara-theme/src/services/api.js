@@ -2,10 +2,10 @@ import axios from 'axios';
 
 // BASE_URL is driven by .env.local (dev) or .env.production (prod) — never hardcode this.
 
-export const BASE_URL = 'http://localhost:5001';
+// export const BASE_URL = 'http://localhost:5001';
 
 // Backend url to search api's
-// export const BASE_URL = 'https://www.vishtaracapitalresearch.in';
+export const BASE_URL = 'https://www.vishtaracapitalresearch.in';
 
 
 export const API_BASE_URL = `${BASE_URL}/api/v1`;
