@@ -15,6 +15,7 @@ const DigioForm = () => {
     });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [showClientSecret, setShowClientSecret] = useState(false);
 
     useEffect(() => {
         const fetchCredential = async () => {
@@ -93,8 +94,11 @@ const DigioForm = () => {
                         </div>
                         <div className="space-y-1.5">
                             <label className="flex items-center text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1"><Lock className="w-3.5 h-3.5 mr-2" /> Client Secret</label>
-                            <motion.div whileFocus="focus" variants={inputVariants} className="relative rounded-lg">
-                                <input type="text" name="client_secret" value={credential.client_secret} onChange={handleChange} required placeholder="Enter Digio Client Secret" className="w-full bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-[10px] font-mono font-bold text-slate-800 focus:border-[#011d52] outline-none transition-colors" />
+                            <motion.div whileFocus="focus" variants={inputVariants} className="relative rounded-lg group">
+                                <input type={showClientSecret ? 'text' : 'password'} name="client_secret" value={credential.client_secret} onChange={handleChange} required placeholder="Enter Digio Client Secret" className="w-full bg-slate-50 border border-slate-200 rounded-md pl-3 pr-10 py-2 text-[10px] font-mono font-bold text-slate-800 focus:border-[#011d52] outline-none transition-colors" />
+                                <button type="button" onClick={() => setShowClientSecret(!showClientSecret)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-[#011d52]">
+                                    {showClientSecret ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                </button>
                             </motion.div>
                         </div>
                     </div>
@@ -291,6 +295,7 @@ const SmtpForm = () => {
     });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [showPass, setShowPass] = useState(false);
 
     useEffect(() => {
         const fetchCredential = async () => {
@@ -365,7 +370,12 @@ const SmtpForm = () => {
                         </div>
                         <div className="space-y-1.5">
                             <label className="flex items-center text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">SMTP Password</label>
-                            <input type="password" name="pass" value={credential.pass} onChange={handleChange} required className="w-full bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-[10px] font-bold text-slate-800 focus:border-[#011d52] outline-none transition-colors" />
+                            <div className="relative group">
+                                <input type={showPass ? "text" : "password"} name="pass" value={credential.pass} onChange={handleChange} required className="w-full bg-slate-50 border border-slate-200 rounded-md pl-3 pr-10 py-2 text-[10px] font-bold text-slate-800 focus:border-[#011d52] outline-none transition-colors" />
+                                <button type="button" onClick={() => setShowPass(!showPass)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-[#011d52]">
+                                    {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div className="pt-2 border-t border-slate-100"></div>
@@ -397,6 +407,7 @@ const SmsForm = () => {
     });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [showKey, setShowKey] = useState(false);
 
     useEffect(() => {
         const fetchCredential = async () => {
@@ -461,7 +472,12 @@ const SmsForm = () => {
                         </div>
                         <div className="space-y-1.5">
                             <label className="flex items-center text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">API Key</label>
-                            <input type="password" name="key" value={credential.key} onChange={handleChange} required className="w-full bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-[10px] font-bold text-slate-800 focus:border-[#011d52] outline-none transition-colors" />
+                            <div className="relative group">
+                                <input type={showKey ? "text" : "password"} name="key" value={credential.key} onChange={handleChange} required className="w-full bg-slate-50 border border-slate-200 rounded-md pl-3 pr-10 py-2 text-[10px] font-bold text-slate-800 focus:border-[#011d52] outline-none transition-colors" />
+                                <button type="button" onClick={() => setShowKey(!showKey)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-[#011d52]">
+                                    {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                </button>
+                            </div>
                         </div>
                         <div className="space-y-1.5">
                             <label className="flex items-center text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Sender ID</label>
@@ -501,6 +517,7 @@ const RazorpayForm = () => {
     });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [showKeySecret, setShowKeySecret] = useState(false);
 
     useEffect(() => {
         const fetchCredential = async () => {
@@ -560,7 +577,12 @@ const RazorpayForm = () => {
                         </div>
                         <div className="space-y-1.5">
                             <label className="flex items-center text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Key Secret</label>
-                            <input type="password" name="keySecret" value={credential.keySecret} onChange={handleChange} required className="w-full bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-[10px] font-mono font-bold text-slate-800 focus:border-[#011d52] outline-none transition-colors" />
+                            <div className="relative group">
+                                <input type={showKeySecret ? "text" : "password"} name="keySecret" value={credential.keySecret} onChange={handleChange} required className="w-full bg-slate-50 border border-slate-200 rounded-md pl-3 pr-10 py-2 text-[10px] font-mono font-bold text-slate-800 focus:border-[#011d52] outline-none transition-colors" />
+                                <button type="button" onClick={() => setShowKeySecret(!showKeySecret)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-[#011d52]">
+                                    {showKeySecret ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div className="pt-2 border-t border-slate-100 flex justify-end">
