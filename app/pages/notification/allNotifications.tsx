@@ -15,12 +15,15 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, Stack } from 'expo-router';
+import { useAppearance } from '@/context/AppearanceContext';
+import Swipeable from 'react-native-gesture-handler/Swipeable';
+import socket from '@/services/socket/socketClient';
 
 import notificationServices from '@/services/api/methods/notificationService';
 
 // --- Constants ---
-const THEME_COLOR = '#0a7ea4';
-const BG_COLOR = '#F8F9FA';
+const THEME_COLOR = '#011d52';
+const BG_COLOR = '#FFFFFF';
 const CARD_BG = '#FFFFFF';
 const { width } = Dimensions.get('window');
 
@@ -36,6 +39,21 @@ interface NotificationItem {
 
 export default function NotificationsPage() {
   const router = useRouter();
+  const { colorScheme } = useAppearance();
+  const isDark = colorScheme === 'dark';
+
+  const theme = {
+    bg: isDark ? '#020210' : '#FFFFFF',
+    card: isDark ? '#040410' : '#FFFFFF',
+    text: isDark ? '#FFFFFF' : '#111827',
+    sub: isDark ? '#B5B2B1' : '#6B7280',
+    border: isDark ? '#1a1f26' : '#F3F4F6',
+    primary: isDark ? '#f8b917' : '#011d52',
+    unreadBg: isDark ? '#0b110a' : '#F7FCEB',
+    unreadBorder: isDark ? '#213316' : '#D7F5A1',
+    iconBg: isDark ? '#111827' : '#F9FAFB',
+  };
+
   const [activeTab, setActiveTab] = useState('All');
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [categories, setCategories] = useState<string[]>(['All']); // ← Dynamic categories
@@ -54,6 +72,15 @@ export default function NotificationsPage() {
 
   useEffect(() => {
     fetchNotifications();
+
+    const handleNotificationRefresh = () => {
+      fetchNotifications();
+    };
+
+    socket.on('notification_refresh', handleNotificationRefresh);
+    return () => {
+      socket.off('notification_refresh', handleNotificationRefresh);
+    };
   }, []);
 
   // Auto-reset activeTab when categories change (e.g. after refresh with different data)
@@ -79,14 +106,14 @@ export default function NotificationsPage() {
       }
 
       const mappedNotifications: NotificationItem[] = dataList.map((item: any) => ({
-        id: item.id?.toString() || Math.random().toString(),
+        id: item._id?.toString() || item.id?.toString() || Math.random().toString(),
         type: item.type?.toLowerCase() || item.category?.toLowerCase() || 'system',
         title: item.title || item.subject || 'New Notification',
         message: item.message || item.body || item.description || '',
         time: item.created_at || item.createdAt 
             ? new Date(item.created_at || item.createdAt).toLocaleDateString() 
             : 'Recently',
-        read: item.is_read || item.read || item.status === 'read' || false,
+        read: item.isRead ?? item.is_read ?? item.read ?? (item.status === 'read'),
       }));
 
       setNotifications(mappedNotifications);
@@ -150,78 +177,122 @@ export default function NotificationsPage() {
     }
   };
 
-  // --- Render Helpers (no changes needed) ---
+  const deleteNotification = async (id: string) => {
+    try {
+      setNotifications(prev => prev.filter(n => n.id !== id));
+      await notificationServices.deleteNotifications([id]);
+    } catch (error) {
+      console.error(`Error deleting notification ${id}:`, error);
+      Alert.alert('Error', 'Could not delete notification.');
+      fetchNotifications(); 
+    }
+  };
+
+  // --- Render Helpers ---
   const getIcon = (type: string) => {
-    if (type.includes('trading_buy') || type.includes('buy')) return <Feather name="trending-up" size={20} color="#059669" />;
-    if (type.includes('trading_sell') || type.includes('sell')) return <Feather name="trending-down" size={20} color="#DC2626" />;
-    if (type.includes('payment') || type.includes('transaction')) return <MaterialIcons name="payment" size={20} color="#0284C7" />;
-    if (type.includes('system') || type.includes('alert')) return <Feather name="shield" size={20} color="#7C3AED" />;
-    if (type.includes('offer') || type.includes('promo')) return <MaterialCommunityIcons name="tag-outline" size={20} color="#D97706" />;
-    return <Feather name="bell" size={20} color="#6B7280" />;
+    if (type.includes('trading_buy') || type.includes('buy')) return <Feather name="trending-up" size={20} color="#10B981" />;
+    if (type.includes('trading_sell') || type.includes('sell')) return <Feather name="trending-down" size={20} color="#EF4444" />;
+    if (type.includes('payment') || type.includes('transaction')) return <MaterialIcons name="payment" size={20} color={theme.primary} />;
+    if (type.includes('system') || type.includes('alert')) return <Feather name="shield" size={20} color={isDark ? '#a78bfa' : '#7C3AED'} />;
+    if (type.includes('offer') || type.includes('promo')) return <MaterialCommunityIcons name="tag-outline" size={20} color="#F59E0B" />;
+    return <Feather name="bell" size={20} color={theme.sub} />;
   };
 
   const getIconBg = (type: string) => {
-    if (type.includes('trading_buy') || type.includes('buy')) return '#ECFDF5';
-    if (type.includes('trading_sell') || type.includes('sell')) return '#FEF2F2';
-    if (type.includes('payment') || type.includes('transaction')) return '#E0F2FE';
-    if (type.includes('system') || type.includes('alert')) return '#F3E8FF';
-    if (type.includes('offer') || type.includes('promo')) return '#FFFBEB';
-    return '#F3F4F6';
+    if (isDark) {
+      if (type.includes('trading_buy') || type.includes('buy')) return 'rgba(16, 185, 129, 0.15)';
+      if (type.includes('trading_sell') || type.includes('sell')) return 'rgba(239, 68, 68, 0.15)';
+      if (type.includes('payment') || type.includes('transaction')) return 'rgba(248, 185, 23, 0.1)';
+      if (type.includes('system') || type.includes('alert')) return 'rgba(167, 139, 250, 0.15)';
+      if (type.includes('offer') || type.includes('promo')) return 'rgba(245, 158, 11, 0.15)';
+      return 'rgba(255, 255, 255, 0.05)';
+    } else {
+      if (type.includes('trading_buy') || type.includes('buy')) return '#ECFDF5';
+      if (type.includes('trading_sell') || type.includes('sell')) return '#FEF2F2';
+      if (type.includes('payment') || type.includes('transaction')) return '#f7fee7';
+      if (type.includes('system') || type.includes('alert')) return '#F3E8FF';
+      if (type.includes('offer') || type.includes('promo')) return '#FFFBEB';
+      return '#F3F4F6';
+    }
   };
 
-  const renderItem = ({ item }: { item: NotificationItem }) => (
+  const renderRightActions = (id: string) => (
     <TouchableOpacity 
-      style={[styles.card, !item.read && styles.unreadCard]} 
-      activeOpacity={0.7}
-      onPress={() => markAsRead(item.id)}
+      style={styles.deleteAction}
+      onPress={() => deleteNotification(id)}
+      activeOpacity={0.8}
     >
-      <View style={styles.cardRow}>
-        <View style={[styles.iconBox, { backgroundColor: getIconBg(item.type) }]}>
-          {getIcon(item.type)}
-        </View>
-
-        <View style={styles.contentBox}>
-          <View style={styles.headerRow}>
-            <Text style={[styles.cardTitle, !item.read && styles.unreadText]}>
-                {item.title}
-            </Text>
-            <Text style={styles.timeText}>{item.time}</Text>
-          </View>
-          
-          <Text style={styles.messageText} numberOfLines={2}>
-            {item.message}
-          </Text>
-        </View>
-
-        {!item.read && <View style={styles.unreadDot} />}
-      </View>
+      <Feather name="trash-2" size={24} color="#FFF" />
     </TouchableOpacity>
   );
 
+  const renderItem = ({ item }: { item: NotificationItem }) => (
+    <Swipeable renderRightActions={() => renderRightActions(item.id)}>
+      <TouchableOpacity 
+        style={[
+          styles.card, 
+          { backgroundColor: theme.card, borderColor: theme.border },
+          !item.read && { backgroundColor: theme.unreadBg, borderColor: theme.unreadBorder }
+        ]} 
+        activeOpacity={0.7}
+        onPress={() => markAsRead(item.id)}
+      >
+        <View style={styles.cardRow}>
+          <View style={[styles.iconBox, { backgroundColor: getIconBg(item.type) }]}>
+            {getIcon(item.type)}
+          </View>
+
+          <View style={styles.contentBox}>
+            <View style={styles.headerRow}>
+              <Text style={[styles.cardTitle, { color: theme.text }, !item.read && styles.unreadText]}>
+                  {item.title}
+              </Text>
+              <Text style={[styles.timeText, { color: theme.sub }]}>{item.time}</Text>
+            </View>
+            
+            <Text style={[styles.messageText, { color: theme.sub }]} numberOfLines={2}>
+              {item.message}
+            </Text>
+          </View>
+
+          {!item.read && <View style={[styles.unreadDot, { backgroundColor: theme.primary }]} />}
+        </View>
+      </TouchableOpacity>
+    </Swipeable>
+  );
+
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={BG_COLOR} />
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.bg }]}>
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={theme.bg} />
       <Stack.Screen options={{ headerShown: false }} />
 
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Feather name="arrow-left" size={24} color="#111827" />
+      <View style={[styles.header, { backgroundColor: theme.bg }]}>
+        <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: theme.card, borderColor: theme.border }]}>
+          <Feather name="arrow-left" size={24} color={theme.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Notifications</Text>
+        <Text style={[styles.headerTitle, { color: theme.text }]}>Notifications</Text>
         <TouchableOpacity onPress={markAllRead} style={styles.markReadBtn}>
-            <Feather name="check-circle" size={16} color={THEME_COLOR} />
-            <Text style={styles.markReadText}>Read All</Text>
+            <Feather name="check-circle" size={16} color={isDark ? theme.primary : '#000000'} />
+            <Text style={[styles.markReadText, { color: isDark ? theme.primary : '#000000' }]}>Read All</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.tabsContainer}>
-        {categories.map((tab) => (   // ← Now fully dynamic!
+        {categories.map((tab) => (
             <TouchableOpacity
                 key={tab}
-                style={[styles.tab, activeTab === tab && styles.activeTab]}
+                style={[
+                  styles.tab, 
+                  { backgroundColor: theme.card, borderColor: theme.border },
+                  activeTab === tab && { backgroundColor: isDark ? 'rgba(248, 185, 23, 0.15)' : theme.primary, borderColor: theme.primary }
+                ]}
                 onPress={() => setActiveTab(tab)}
             >
-                <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>
+                <Text style={[
+                  styles.tabText, 
+                  { color: theme.sub },
+                  activeTab === tab && { color: isDark ? theme.primary : '#000000', fontWeight: '700' }
+                ]}>
                     {tab}
                 </Text>
             </TouchableOpacity>
@@ -230,7 +301,7 @@ export default function NotificationsPage() {
 
       {isLoading ? (
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color={THEME_COLOR} />
+          <ActivityIndicator size="large" color={theme.primary} />
         </View>
       ) : (
         <FlatList
@@ -240,15 +311,15 @@ export default function NotificationsPage() {
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[THEME_COLOR]} />
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.primary]} tintColor={theme.primary} />
           }
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <View style={styles.emptyIconBg}>
-                <Feather name="bell-off" size={32} color="#9CA3AF" />
+              <View style={[styles.emptyIconBg, { backgroundColor: theme.iconBg }]}>
+                <Feather name="bell-off" size={32} color={theme.sub} />
               </View>
-              <Text style={styles.emptyTitle}>No Notifications</Text>
-              <Text style={styles.emptySub}>You are all caught up! Check back later.</Text>
+              <Text style={[styles.emptyTitle, { color: theme.text }]}>No Notifications</Text>
+              <Text style={[styles.emptySub, { color: theme.sub }]}>You are all caught up! Check back later.</Text>
             </View>
           }
         />
@@ -344,11 +415,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderWidth: 1,
     borderColor: '#E5E7EB',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    elevation: 2,
   },
   unreadCard: {
     backgroundColor: '#F0F9FF', 
@@ -383,7 +449,6 @@ const styles = StyleSheet.create({
     paddingRight: 8,
   },
   unreadText: {
-    color: '#111827',
     fontWeight: '700',
   },
   timeText: {
@@ -403,6 +468,15 @@ const styles = StyleSheet.create({
     backgroundColor: THEME_COLOR,
     marginLeft: 8,
     marginTop: 6,
+  },
+  deleteAction: {
+    backgroundColor: '#EF4444',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 80,
+    marginBottom: 12,
+    borderRadius: 16,
+    marginLeft: 10,
   },
 
   // Empty State

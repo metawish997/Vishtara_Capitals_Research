@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import subscriptionService from '@/services/api/methods/subscriptionService';
+import agreementService from '@/services/api/methods/agreementService';
 import customerProfileServices from '@/services/api/methods/profileService';
 
 export default function RazorpayWebView() {
@@ -22,15 +22,23 @@ export default function RazorpayWebView() {
     currency?: string;
     coupon?: string;
     contact?: string;
+    plan_id?: string;
+    duration_id?: string;
   }>();
 
   const router = useRouter();
   const [verifying, setVerifying] = useState(false);
+  const [paymentVerified, setPaymentVerified] = useState(false);
   const [userContact, setUserContact] = useState<string | null>(null);
   const [loadingContact, setLoadingContact] = useState(true);
 
   // coupon passed via query (may be empty string)
-  const coupon = params?.coupon ? String(params.coupon) : null;
+  const coupon =
+    params?.coupon &&
+      params?.coupon !== 'undefined' &&
+      params?.coupon !== 'null'
+      ? String(params.coupon)
+      : null;
   const contactFromParam = params?.contact ?? null;
 
   useEffect(() => {
@@ -99,7 +107,7 @@ export default function RazorpayWebView() {
                 "order_id": "${order_id}",
                 "amount": "${safeAmount}",
                 "currency": "${currency}",
-                "name": "Bharat Stock Market",
+                "name": "Vishtara Capitals Research Market",
                 "description": "Subscription Purchase",
                 "prefill": {
                   "contact": "${prefillContact}"
@@ -108,12 +116,12 @@ export default function RazorpayWebView() {
                   "coupon": "${couponNote}"
                 },
                 "handler": function (response){
-                  var url = "https://mobile-app-payment-callback.local/?razorpay_payment_id=" + response.razorpay_payment_id + "&razorpay_order_id=" + response.razorpay_order_id + "&razorpay_signature=" + response.razorpay_signature;
+                  var url = "https://vishtaracapitalsresearch.com/mobile-payment-callback/?razorpay_payment_id=" + response.razorpay_payment_id + "&razorpay_order_id=" + response.razorpay_order_id + "&razorpay_signature=" + response.razorpay_signature;
                   window.location.href = url;
                 },
                 "modal": {
                   "ondismiss": function() {
-                    window.location.href = "https://mobile-app-payment-callback.local/?status=cancelled";
+                    window.location.href = "https://vishtaracapitalsresearch.com/mobile-payment-callback/?status=cancelled";
                   }
                 }
               };
@@ -129,14 +137,14 @@ export default function RazorpayWebView() {
   // Build webViewSource (hosted-URL uses coupon appended, order-based uses generated HTML)
   const webViewSource = checkoutUrl
     ? {
-        uri:
-          coupon && !checkoutUrl.includes('coupon=')
-            ? `${checkoutUrl}${checkoutUrl.includes('?') ? '&' : '?'}coupon=${encodeURIComponent(coupon)}`
-            : checkoutUrl,
-      }
+      uri:
+        coupon && !checkoutUrl.includes('coupon=')
+          ? `${checkoutUrl}${checkoutUrl.includes('?') ? '&' : '?'}coupon=${encodeURIComponent(coupon)}`
+          : checkoutUrl,
+    }
     : generatedHtml
-    ? { html: generatedHtml }
-    : null;
+      ? { html: generatedHtml }
+      : null;
 
   if (!webViewSource) {
     return (
@@ -151,21 +159,43 @@ export default function RazorpayWebView() {
 
   const parseQuery = (url: string) => {
     try {
-      const q = url.split('?')[1] ?? '';
-      const params = new URLSearchParams(q);
-      const payment_id = params.get('razorpay_payment_id') ?? params.get('payment_id');
-      const order_id = params.get('razorpay_order_id') ?? params.get('order_id');
-      const signature = params.get('razorpay_signature') ?? params.get('signature');
-      const status = params.get('status') ?? null;
-      return { payment_id, order_id, signature, status };
+      const parsed = new URL(url);
+
+      const payment_id =
+        parsed.searchParams.get('razorpay_payment_id') ??
+        parsed.searchParams.get('payment_id');
+
+      const order_id =
+        parsed.searchParams.get('razorpay_order_id') ??
+        parsed.searchParams.get('order_id');
+
+      const signature =
+        parsed.searchParams.get('razorpay_signature') ??
+        parsed.searchParams.get('signature');
+
+      const status =
+        parsed.searchParams.get('status') ?? null;
+
+      return {
+        payment_id,
+        order_id,
+        signature,
+        status,
+      };
     } catch (e) {
-      return { payment_id: null, order_id: null, signature: null, status: null };
+      return {
+        payment_id: null,
+        order_id: null,
+        signature: null,
+        status: null,
+      };
     }
   };
 
   const onNavChange = async (navState: any) => {
+    if (paymentVerified) return;
     const navUrl = navState?.url ?? '';
-    if (!navUrl.includes('mobile-app-payment-callback.local')) return;
+    if (!navUrl.includes('vishtaracapitalsresearch.com/mobile-payment-callback')) return;
 
     const { payment_id, order_id: r_order_id, signature, status } = parseQuery(navUrl);
 
@@ -182,15 +212,27 @@ export default function RazorpayWebView() {
     }
 
     setVerifying(true);
+    setPaymentVerified(true);
     try {
       const payload: any = {
         razorpay_order_id: r_order_id,
         razorpay_payment_id: payment_id,
         razorpay_signature: signature,
       };
-      if (coupon) payload.coupon = coupon;
 
-      const verifyResp: any = await subscriptionService.verifyRazorpay(payload);
+      if (params?.plan_id) {
+        payload.plan_id = String(params.plan_id);
+      }
+
+      if (params?.duration_id) {
+        payload.duration_id = String(params.duration_id);
+      }
+
+      if (coupon) {
+        payload.coupon = String(coupon);
+      }
+
+      const verifyResp: any = await agreementService.verifyRazorpayPayment(payload);
       console.log('verifyResp', verifyResp);
 
       if (verifyResp?.success) {

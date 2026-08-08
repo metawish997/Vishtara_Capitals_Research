@@ -9,6 +9,7 @@ import {
   FlatList,
 } from 'react-native';
 import { fetchGainersLosers, AngelGainerLoserRaw } from '../../services/api/methods/marketService';
+import { useAppearance } from '@/context/AppearanceContext';
 
 type TabOption = 'gainers' | 'losers';
 
@@ -17,6 +18,25 @@ const MarketMovers: React.FC = () => {
   const [losers, setLosers] = useState<AngelGainerLoserRaw[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabOption>('gainers');
+
+  const { colorScheme } = useAppearance();
+  const isDark = colorScheme === 'dark';
+
+  const theme = {
+    cardBg: isDark ? '#040410' : '#ffffff',
+    textPrimary: isDark ? '#FFFFFF' : '#141723',
+    textSecondary: isDark ? '#B5B2B1' : '#4f5568',
+    borderColor: isDark ? 'rgba(248, 185, 23, 0.15)' : 'rgba(20, 23, 35, 0.12)',
+    divider: isDark ? 'rgba(255,255,255,0.05)' : '#f1f5f9',
+    tabBg: isDark ? 'rgba(255,255,255,0.03)' : '#f8fafc',
+    activeTabBg: isDark ? 'rgba(248, 185, 23, 0.08)' : '#ffffff',
+    activeTabBorder: isDark ? 'rgba(248, 185, 23, 0.3)' : 'transparent',
+    footerBg: isDark ? 'rgba(255,255,255,0.01)' : '#fafbfc',
+    btnText: isDark ? '#f8b917' : '#3b82f6',
+    liveBg: isDark ? 'rgba(248, 185, 23, 0.15)' : '#dcfce7',
+    liveBorder: isDark ? 'rgba(248, 185, 23, 0.3)' : '#bbf7d0',
+    liveText: isDark ? '#f8b917' : '#15803d',
+  };
 
   const isMounted = useRef(true);
 
@@ -161,20 +181,20 @@ const MarketMovers: React.FC = () => {
       <View style={styles.rowWrapper}>
         <View style={styles.moverRow}>
           <View style={styles.nameCol}>
-            <Text style={styles.moverTitle} numberOfLines={1}>
+            <Text style={[styles.moverTitle, { color: theme.textPrimary }]} numberOfLines={1}>
               {displayName}
             </Text>
-            <Text style={styles.moverSubtitle}>NSE</Text>
+            <Text style={[styles.moverSubtitle, { color: theme.textSecondary }]}>NSE</Text>
           </View>
 
           <View style={styles.priceCol}>
-            <Text style={styles.moverPrice}>{fmtPrice(currentPrice)}</Text>
+            <Text style={[styles.moverPrice, { color: theme.textPrimary }]}>{fmtPrice(currentPrice)}</Text>
             <Text style={[styles.moverChange, colorStyle]}>
               {net.toFixed(2)} ({sign}{Math.abs(percent).toFixed(2)}%)
             </Text>
           </View>
         </View>
-        {index < currentList.length - 1 && <View style={styles.separator} />}
+        {index < currentList.length - 1 && <View style={[styles.separator, { backgroundColor: theme.divider }]} />}
       </View>
     );
   };
@@ -184,28 +204,28 @@ const MarketMovers: React.FC = () => {
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
-        <Text style={styles.sectionTitle}>Market Movers</Text>
-        <View style={styles.liveBadge}>
-          <Text style={styles.liveText}>LIVE</Text>
+        <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>Market Movers</Text>
+        <View style={[styles.liveBadge, { backgroundColor: theme.liveBg, borderColor: theme.liveBorder }]}>
+          <Text style={[styles.liveText, { color: theme.liveText }]}>LIVE</Text>
         </View>
       </View>
 
-      <View style={styles.cardContainer}>
+      <View style={[styles.cardContainer, { backgroundColor: theme.cardBg, borderColor: theme.borderColor }]}>
         {/* Tab Header */}
-        <View style={styles.tabContainer}>
+        <View style={[styles.tabContainer, { backgroundColor: theme.tabBg }]}>
           <TouchableOpacity
-            style={[styles.tabButton, activeTab === 'gainers' && styles.activeTab]}
+            style={[styles.tabButton, activeTab === 'gainers' && [styles.activeTab, { backgroundColor: theme.activeTabBg, borderColor: theme.activeTabBorder, borderWidth: isDark ? 1 : 0 }]]}
             onPress={() => setActiveTab('gainers')}
           >
-            <Text style={[styles.tabText, activeTab === 'gainers' ? styles.activeTabText : styles.inactiveTabText]}>
+            <Text style={[styles.tabText, activeTab === 'gainers' ? [styles.activeTabText, { color: theme.textPrimary }] : [styles.inactiveTabText, { color: theme.textSecondary }]]}>
               Top Gainers
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.tabButton, activeTab === 'losers' && styles.activeTab]}
+            style={[styles.tabButton, activeTab === 'losers' && [styles.activeTab, { backgroundColor: theme.activeTabBg, borderColor: theme.activeTabBorder, borderWidth: isDark ? 1 : 0 }]]}
             onPress={() => setActiveTab('losers')}
           >
-            <Text style={[styles.tabText, activeTab === 'losers' ? styles.activeTabText : styles.inactiveTabText]}>
+            <Text style={[styles.tabText, activeTab === 'losers' ? [styles.activeTabText, { color: theme.textPrimary }] : [styles.inactiveTabText, { color: theme.textSecondary }]]}>
               Top Losers
             </Text>
           </TouchableOpacity>
@@ -233,11 +253,11 @@ const MarketMovers: React.FC = () => {
         )}
 
         <TouchableOpacity
-          style={styles.viewAllBtn}
+          style={[styles.viewAllBtn, { backgroundColor: theme.footerBg, borderTopColor: theme.divider }]}
           onPress={() => loadData(false)}
           activeOpacity={0.7}
         >
-          <Text style={styles.viewAllText}>Refresh Data</Text>
+          <Text style={[styles.viewAllText, { color: theme.btnText }]}>Refresh Data</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -266,19 +286,19 @@ const styles = StyleSheet.create({
   moverRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12 },
   nameCol: { flex: 1 },
   priceCol: { alignItems: 'flex-end' },
-  moverTitle: { fontSize: 14, fontWeight: '700', color: '#1e293b' },
-  moverSubtitle: { fontSize: 11, color: '#94a3b8', marginTop: 2, fontWeight: '500' },
-  moverPrice: { fontSize: 14, fontWeight: '700', color: '#0f172a' },
+  moverTitle: { fontSize: 14, fontWeight: '700' },
+  moverSubtitle: { fontSize: 11, marginTop: 2, fontWeight: '500' },
+  moverPrice: { fontSize: 14, fontWeight: '700' },
   moverChange: { fontSize: 12, fontWeight: '600', marginTop: 2 },
-  textUp: { color: '#22c55e' },
+  textUp: { color: '#10b981' },
   textDown: { color: '#ef4444' },
-  separator: { height: 1, backgroundColor: '#f1f5f9' },
+  separator: { height: 1 },
 
   // Empty/Footer
   emptyContainer: { padding: 30, alignItems: 'center' },
   emptyText: { color: '#94a3b8', fontSize: 13 },
-  viewAllBtn: { borderTopWidth: 1, borderTopColor: '#f1f5f9', paddingVertical: 14, alignItems: 'center', backgroundColor: '#fafbfc' },
-  viewAllText: { fontSize: 13, fontWeight: '600', color: '#3b82f6' },
+  viewAllBtn: { borderTopWidth: 1, paddingVertical: 14, alignItems: 'center' },
+  viewAllText: { fontSize: 13, fontWeight: '600' },
 });
 
 export default MarketMovers;

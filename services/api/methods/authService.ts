@@ -3,40 +3,24 @@ import { API_ENDPOINTS } from '../endpoints';
 import { LoginRequest, RegisterRequest, AuthResponse } from '../../../types/auth.types';
 
 export const authService = {
-  
+
   // 1. Login
   login: async (data: LoginRequest): Promise<AuthResponse> => {
     const response = await apiClient.post(API_ENDPOINTS.AUTH.LOGIN, data);
     return response.data;
   },
 
-  // 2. Register (Get Temp Key)
-  register: async (data: Omit<RegisterRequest, 'dob'>): Promise<AuthResponse> => {
-    const payload = {
-      name: data.name,
-      email: data.email,
-      password: data.password,
-      password_confirmation: data.password_confirmation,
-      dob: '2000-01-01', 
-    };
-    const response = await apiClient.post(API_ENDPOINTS.AUTH.REGISTER, payload);
+  // 2. Register (Finalize)
+  register: async (data: RegisterRequest): Promise<AuthResponse> => {
+    const response = await apiClient.post(API_ENDPOINTS.AUTH.REGISTER, data);
     return response.data;
   },
 
-  // 3. Send OTP (Link Mobile to Temp Key)
-  sendOtp: async (tempKey: string, phone: string) => {
-    const response = await apiClient.post(API_ENDPOINTS.AUTH.SEND_OTP, { 
-      temp_key: tempKey,
-      phone: phone 
-    });
-    return response.data;
-  },
-
-  // 4. Verify OTP (Finalize)
-  verifyOtp: async (tempKey: string, otp: string): Promise<AuthResponse> => {
-    const response = await apiClient.post(API_ENDPOINTS.AUTH.VERIFY_OTP, {
-      temp_key: tempKey,
-      otp: otp,
+  // 3. Send OTP
+  sendOtp: async (email: string, phone: string) => {
+    const response = await apiClient.post(API_ENDPOINTS.AUTH.SEND_OTP, {
+      email: email,
+      phone: phone
     });
     return response.data;
   },
@@ -44,7 +28,7 @@ export const authService = {
   // 5. Get Acceptance Policy (GET)
   getAcceptancePolicy: async (token: string) => {
     const response = await apiClient.get('/acceptance', {
-      headers: { 
+      headers: {
         Authorization: `Bearer ${token}`,
         Accept: 'application/json'
       }
@@ -52,16 +36,16 @@ export const authService = {
     return response.data;
   },
 
-// 6. Accept Policy (POST)
+  // 6. Accept Policy (POST)
   acceptPolicy: async (token: string) => {
     const response = await apiClient.post(
       API_ENDPOINTS.ACCEPTANCE.ACCEPT, // <-- Using the endpoint from your constants
-      {}, 
-      { 
-        headers: { 
+      {},
+      {
+        headers: {
           Authorization: `Bearer ${token}`,
           Accept: 'application/json'
-        } 
+        }
       }
     );
     return response.data;
@@ -76,4 +60,37 @@ export const authService = {
     const response = await apiClient.get(API_ENDPOINTS.AUTH.PROFILE);
     return response.data;
   },
+
+  // --- Mocked Forgot Password Methods ---
+  requestPasswordReset: async (contact: string) => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Simulated success response
+    return { success: true, message: `OTP sent to ${contact}` };
+  },
+
+  verifyResetOtp: async (otp: string) => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    if (otp !== '123456') { // Simple mock validation for testing
+      // You can use 123456 to pass or anything else to fail
+      throw new Error('Invalid OTP');
+    }
+    return { success: true, token: 'mock-reset-token' };
+  },
+
+  resetPassword: async (password: string, token: string) => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return { success: true, message: 'Password reset successfully.' };
+  },
+
+  // --- FCM Methods ---
+  updateFcmToken: async (token: string) => {
+    const response = await apiClient.post(API_ENDPOINTS.AUTH.UPDATE_FCM_TOKEN, { fcm_token: token });
+    return response.data;
+  },
+
+  removeFcmToken: async () => {
+    const response = await apiClient.delete(API_ENDPOINTS.AUTH.UPDATE_FCM_TOKEN);
+    return response.data;
+  }
 };

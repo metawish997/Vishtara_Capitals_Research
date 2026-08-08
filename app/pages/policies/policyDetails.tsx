@@ -11,12 +11,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
+import { useAppearance } from '@/context/AppearanceContext';
 
 import policyService, { Policy } from '@/services/api/methods/policyServices';
-
-const THEME_COLOR = '#0a7ea4';
-const BG_COLOR = '#F8F9FA';
-const CARD_BG = '#FFFFFF';
 
 // Extend the imported Policy type to include the missing properties.
 // This satisfies TypeScript without requiring changes to the external service file.
@@ -49,7 +46,19 @@ const stripHtmlTags = (htmlString?: string) => {
 
 const PolicyDetails = () => {
   const router = useRouter();
-  
+  const { colorScheme } = useAppearance();
+  const isDark = colorScheme === 'dark';
+
+  const THEME_COLOR = isDark ? '#f8b917' : '#8cc63f';
+  const BG_COLOR = isDark ? '#020210' : '#F8F9FA';
+  const CARD_BG = isDark ? '#040410' : '#FFFFFF';
+  const TEXT_PRIMARY = isDark ? '#FFFFFF' : '#111827';
+  const TEXT_SECONDARY = isDark ? '#B5B2B1' : '#6B7280';
+  const BORDER_COLOR = isDark ? 'rgba(248, 185, 23, 0.15)' : '#E5E7EB';
+  const BACK_ICON_COLOR = isDark ? '#FFFFFF' : '#1F2937';
+
+  const styles = getStyles({ THEME_COLOR, BG_COLOR, CARD_BG, TEXT_PRIMARY, TEXT_SECONDARY, BORDER_COLOR, isDark });
+
   const { slug, id } = useLocalSearchParams<{ slug?: string; id?: string }>();
   
   const identifier = slug || id;
@@ -152,10 +161,10 @@ const PolicyDetails = () => {
   return (
     <SafeAreaView style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <StatusBar barStyle="dark-content" backgroundColor={BG_COLOR} />
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={BG_COLOR} />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backIcon}>
-          <Feather name="arrow-left" size={24} color="#1F2937" />
+          <Feather name="arrow-left" size={24} color={BACK_ICON_COLOR} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Policy</Text>
         <View style={styles.balanceView} />
@@ -176,25 +185,25 @@ const PolicyDetails = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = ({ THEME_COLOR, BG_COLOR, CARD_BG, TEXT_PRIMARY, TEXT_SECONDARY, BORDER_COLOR, isDark }: any) => StyleSheet.create({
   container: { flex: 1, backgroundColor: BG_COLOR },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: BG_COLOR, gap: 16 },
-  loadingText: { marginTop: 12, color: '#6B7280', fontSize: 16 },
+  loadingText: { marginTop: 12, color: TEXT_SECONDARY, fontSize: 16 },
   errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
-  errorText: { fontSize: 16, color: '#4B5563', textAlign: 'center', marginVertical: 16, lineHeight: 24 },
+  errorText: { fontSize: 16, color: TEXT_SECONDARY, textAlign: 'center', marginVertical: 16, lineHeight: 24 },
   retryButton: { marginTop: 12, backgroundColor: THEME_COLOR, paddingHorizontal: 28, paddingVertical: 14, borderRadius: 12 },
-  retryButtonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '600' },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 14, backgroundColor: CARD_BG, borderBottomWidth: 1, borderBottomColor: '#E5E7EB' },
+  retryButtonText: { color: isDark ? '#040410' : '#FFFFFF', fontSize: 16, fontWeight: '600' },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 14, backgroundColor: CARD_BG, borderBottomWidth: 1, borderBottomColor: BORDER_COLOR },
   backIcon: { padding: 8 },
-  headerTitle: { fontSize: 19, fontWeight: '700', color: '#111827' },
+  headerTitle: { fontSize: 19, fontWeight: '700', color: TEXT_PRIMARY },
   balanceView: { width: 40 },
   scrollView: { flex: 1 },
   scrollContent: { padding: 16, paddingBottom: 40 },
   card: { backgroundColor: CARD_BG, borderRadius: 16, padding: 24, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 8 },
-  policyTitle: { fontSize: 24, fontWeight: '700', color: '#111827', lineHeight: 32, marginBottom: 8 },
-  dateText: { fontSize: 13.5, color: '#6B7280', marginBottom: 20 },
-  divider: { height: 1, backgroundColor: '#E5E7EB', marginVertical: 20 },
-  policyContent: { fontSize: 15.5, lineHeight: 26, color: '#374151' },
+  policyTitle: { fontSize: 24, fontWeight: '700', color: TEXT_PRIMARY, lineHeight: 32, marginBottom: 8 },
+  dateText: { fontSize: 13.5, color: TEXT_SECONDARY, marginBottom: 20 },
+  divider: { height: 1, backgroundColor: BORDER_COLOR, marginVertical: 20 },
+  policyContent: { fontSize: 15.5, lineHeight: 26, color: isDark ? '#D1D5DB' : '#374151' },
 });
 
 export default PolicyDetails;

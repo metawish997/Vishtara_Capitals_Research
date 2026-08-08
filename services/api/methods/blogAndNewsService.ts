@@ -1,4 +1,4 @@
-// C:\Users\Bhupendra Dhote\OneDrive\Desktop\bharat-stockApp\services\api\methods\blogAndNewsService.ts
+// C:\Users\Bhupendra Dhote\OneDrive\Desktop\Vishtara Capitals Research-stockApp\services\api\methods\blogAndNewsService.ts
 
 import apiClient from '../apiClient';
 import { API_ENDPOINTS } from '../endpoints';

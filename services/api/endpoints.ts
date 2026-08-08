@@ -1,12 +1,13 @@
 export const API_ENDPOINTS = {
   AUTH: {
     LOGIN: '/auth/login',
-    REGISTER: '/auth/register/details',
-    SEND_OTP: '/auth/register/phone',
+    REGISTER: '/auth/register',
+    SEND_OTP: '/auth/send-otp',
     VERIFY_OTP: '/auth/register/verify-otp',
     VERIFY_EMAIL: '/auth/verify-email',
     LOGOUT: '/auth/logout',
-    PROFILE: '/user',
+    PROFILE: '/auth/me',
+    UPDATE_FCM_TOKEN: '/auth/fcm-token',
   },
 
   USER: {
@@ -18,8 +19,8 @@ export const API_ENDPOINTS = {
   PROFILE: {
     GET: '/profile',
     UPDATE: '/profile/update',
-    OTP_SEND: '/profile/otp/send',
-    OTP_VERIFY: '/profile/otp/verify',
+    OTP_SEND: '/auth/send-update-otp',
+    OTP_VERIFY: '/auth/verify-update-contact',
     PASSWORD: {
       SEND_OTP: '/profile/password/send-otp',
       VERIFY_OTP: '/profile/password/verify-otp',
@@ -29,30 +30,42 @@ export const API_ENDPOINTS = {
 
   // Notification Bell Icon / Quick Actions
   NOTIFICATIONS: {
-    UNSEEN: '/notifications/unseen',
-    MARK_READ: (id: number | string) => `/notifications/mark-read/${id}`,
+    UNSEEN: '/notifications',
+    MARK_READ: (id: number | string) => `/notifications/${id}`,
   },
 
   // Full Notification Management (user/notifications prefix)
   USER_NOTIFICATIONS: {
-    LIST: '/user/notifications',
-    READ: '/user/notifications/read',
-    READ_ALL: '/user/notifications/read-all',
-    DELETE: '/user/notifications/delete',
-    UNREAD_COUNT: '/user/notifications/unread-count',
+    LIST: '/notifications/all-list',
+    READ: (id: string | number) => `/notifications/${id}`,
+    READ_ALL: '/notifications/mark-all-read',
+    DELETE: (id: string | number) => `/notifications/${id}`,
+    UNREAD_COUNT: '/notifications/unread-count',
   },
 
   MARKET: {
     STOCKS: '/market/stocks',
   },
 
+  OPTION_CHAIN: {
+    DATA: '/option-chain/data',
+    EXPIRIES: '/angel/expiries',
+    QUOTE: '/angel/quote',
+  },
+
   SERVICE_PLANS: {
-    LIST: '/service-plans',
-    DETAILS: (id: number | string) => `/service-plans/${id}`,
+    LIST: '/services',
+    DETAILS: (id: number | string) => `/services/${id}`,
   },
 
   CUSTOMER_PROFILE: {
-    GET_PROFILE: '/customer/profile',
+    GET_PROFILE: '/profile',
+  },
+
+  TIPS: {
+    LIST: '/tips',
+    DETAILS: (id: string | number) => `/tips/${id}`,
+    CATEGORIES: '/tips/categories',
   },
 
   NEWS: {
@@ -75,25 +88,26 @@ export const API_ENDPOINTS = {
   // Announcements
   ANNOUNCEMENTS: {
     LIST: '/announcements',
-    ACTIVE: '/announcements/active',
+    ACTIVE: '/announcements',
     DETAILS: (id: number | string) => `/announcements/${id}`,
   },
 
-//  Policies API
- POLICIES: {
-  LIST: '/policies',
-  SLUG_POLICY: '/policies/:slug',   
-},
+  //  Policies API
+  POLICIES: {
+    LIST: '/policies/masters',
+    SLUG_POLICY: '/policies/content/:slug',
+  },
 
-// Acceptance Endpoints
+  // Acceptance Endpoints
   ACCEPTANCE: {
     BASE: '/acceptance',
     ACCEPT: '/policy/accept',
   },
   // KYC Endpoints (auth:sanctum)
   KYC: {
-    START: '/kyc/start',
+    START: '/kyc/initiate',
     STATUS: '/kyc/status',
+    FULL_DETAILS: '/kyc/full-details',
   },
 
   // Mobile Subscription & Razorpay (auth:sanctum)
@@ -113,20 +127,59 @@ export const API_ENDPOINTS = {
     },
   },
 
-  // Tickets (auth:sanctum)
+  AGREEMENT: {
+    DRAFT: '/user/agreements/draft',
+    FIND_DRAFT: (planId: number | string, durationId: number | string) => `/user/agreements/draft/${planId}/${durationId}`,
+    STATUS: (id: number | string) => `/user/agreements/status/${id}`,
+    MANUAL_PAYMENT: '/user/agreements/manual-payment',
+    CREATE_RAZORPAY_ORDER: '/user/agreements/create-razorpay-order',
+    VERIFY_RAZORPAY_PAYMENT: '/user/agreements/verify-razorpay-payment',
+    INCREMENT_TRY: (id: number | string) => `/user/agreements/increment-try/${id}`,
+    ACCOUNT_SERVICES: '/user/agreements/account-services',
+    RESUME_DRAFT: (id: number | string) => `/user/agreements/resume-draft/${id}`,
+    COMPLETE_USER_AGREEMENT_ESIGN: (id: number | string) => `/user/agreements/complete-esign/${id}`,
+    CHECK_USER_ESIGN_STATUS: (id: number | string) => `/user/agreements/check-esign-status/${id}`,
+  },
+
+  COUPONS: {
+    ACTIVE: '/coupons/active',
+  },
+
+  // Tickets
   TICKETS: {
-    LIST: '/ticket/list',
-    STORE: '/ticket/store',
-    DETAILS: (id: number | string) => `/ticket/${id}`,
+    LIST: '/tickets/my-tickets',
+    STORE: '/tickets',
+    DETAILS: (id: number | string) => `/tickets/${id}`,
   },
 
   // User Chat Api (auth:sanctum)
   CHAT: {
+    SUPPORT_ADMIN: '/chat/support-admin',
+    CONVERSATIONS: '/chat/conversations',
     HISTORY: '/chat/history',
+    MESSAGES: (userId: string) => `/chat/messages/${userId}`,
     SEND: '/chat/send',
     NOTIFICATIONS: {
       MARK_READ: (id: number | string) => `/chat/notifications/read/${id}`,
       READ_ALL: '/chat/notifications/read-all',
     },
   },
+
+  // Watchlist (auth:protect)
+  WATCHLIST: {
+    LIST: '/user/watchlists',
+    CREATE: '/user/watchlists',
+    UPDATE: (id: string) => `/user/watchlists/${id}`,
+    DELETE: (id: string) => `/user/watchlists/${id}`,
+    SCRIPTS: (id: string) => `/user/watchlists/${id}/scripts`,
+    ADD_SCRIPT: '/user/watchlists/scripts',
+    REMOVE_SCRIPT: (id: string) => `/user/watchlists/scripts/${id}`,
+    SEARCH: '/user/watchlists/search',
+  },
+  // Option Chain
+  // OPTION_CHAIN: {
+  //   DATA: '/option-chain/data',
+  //   EXPIRIES: '/angel/expiries',
+  //   QUOTE: '/angel/quote',
+  // },
 };

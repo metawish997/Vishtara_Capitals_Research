@@ -2,13 +2,38 @@ import apiClient from '../apiClient';
 import { API_ENDPOINTS } from '../endpoints';
 
 const chatServices = {
-  // Get chat history
-  getChatHistory: async () => {
+  // Get support admin info
+  getSupportAdmin: async () => {
     try {
-      const response = await apiClient.get(API_ENDPOINTS.CHAT.HISTORY);
-      
-    //   console.log('Chat History Response:', response.data);
+      const response = await apiClient.get(API_ENDPOINTS.CHAT.SUPPORT_ADMIN);
+      return response.data?.data || response.data;
+    } catch (error) {
+      console.error('Error in getSupportAdmin:', error);
+      return null;
+    }
+  },
 
+  // Get conversations (for admin)
+  getConversations: async () => {
+    try {
+      const response = await apiClient.get(API_ENDPOINTS.CHAT.CONVERSATIONS);
+      return response.data?.data || response.data;
+    } catch (error) {
+      console.error('Error in getConversations:', error);
+      return [];
+    }
+  },
+
+  // Get chat history
+  getChatHistory: async (adminId?: string) => {
+    try {
+      // If adminId is provided, use the new route. Otherwise fallback.
+      const endpoint = adminId ? API_ENDPOINTS.CHAT.MESSAGES(adminId) : API_ENDPOINTS.CHAT.HISTORY;
+      const response = await apiClient.get(endpoint);
+      
+      if (response.data && Array.isArray(response.data.data)) {
+        return response.data.data;
+      }
       if (response.data && Array.isArray(response.data.messages)) {
         return response.data.messages;
       }
@@ -20,7 +45,7 @@ const chatServices = {
     }
   },
 
-  sendMessage: async (data: any) => {
+  sendMessage: async (data: { receiverId: string, message: string } | any) => {
     try {
       const response = await apiClient.post(API_ENDPOINTS.CHAT.SEND, data);
       return response.data?.data || response.data;

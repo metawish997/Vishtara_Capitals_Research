@@ -1,4 +1,6 @@
 import React, { useState, useCallback } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { notificationService } from '@/services/notificationService';
 import {
   View,
   StyleSheet,
@@ -7,15 +9,14 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '@/components/includes/header';
-import Sidebar from '@/components/includes/sidebar';
 import Indices from '@/components/dasboardSections/indices';
 import SectoralIndices from '@/components/dasboardSections/sectoralIndices';
 import MarketMovers from '@/components/dasboardSections/marketMovers';
 import TodaysMarketHighlights from '@/components/dasboardSections/todaysMarketHighlights'; 
 import Search from '@/components/includes/search';
+import { useAppearance } from '@/context/AppearanceContext';
 
 export default function App() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [refreshing, setRefreshing] = useState(false);
 
@@ -26,14 +27,22 @@ export default function App() {
     }, 2000);
   }, []);
 
-  return (
-    <SafeAreaView style={styles.safe}>
-      <Sidebar
-        visible={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
-      />
 
+
+  useFocusEffect(
+    useCallback(() => {
+      notificationService.checkAndPromptDailyPermission();
+    }, [])
+  );
+
+  const { colorScheme } = useAppearance();
+  const isDark = colorScheme === 'dark';
+  const bgColor = isDark ? '#020210' : '#FFFFFF';
+
+  return (
+    <SafeAreaView style={[styles.safe, { backgroundColor: bgColor }]}>
       <View style={styles.container}>
+        <Header />
         <ScrollView 
           contentContainerStyle={{ paddingBottom: 100 }} 
           showsVerticalScrollIndicator={false}
@@ -42,19 +51,16 @@ export default function App() {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
         >
-          <Header
-            onMenuPress={() => setIsSidebarOpen(true)}
-          />
           {/* <Search value={search} onChangeText={setSearch} /> */}
           
           <Indices />
-
+          
           <TodaysMarketHighlights />
-
+          
           <SectoralIndices />
-
+          
           <MarketMovers />
-
+          
         </ScrollView>
       </View>
     </SafeAreaView>

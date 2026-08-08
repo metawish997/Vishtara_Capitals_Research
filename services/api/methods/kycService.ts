@@ -3,16 +3,21 @@ import { API_ENDPOINTS } from '../endpoints';
 
 
 export interface KycStartResponse {
-  message: string;
-  status: string;
-  reference_id?: string;
+  success: boolean;
+  message?: string;
+  document_id?: string;
+  redirect_url?: string;
+  kyc_url?: string;
 }
 
 export interface KycStatusResponse {
-  status: 'pending' | 'approved' | 'rejected';
+  success: boolean;
+  kyc_status: 'none' | 'initiated' | 'pending' | 'approval_pending' | 'approved' | 'completed' | 'success' | 'failed' | 'rejected' | string;
+  digio_active?: boolean;
   message?: string;
-  reason?: string;
-  updated_at?: string;
+  kyc_details?: any;
+  aadhaar_details?: any;
+  raw_response?: any;
 }
 
 const kycService = {
@@ -28,6 +33,13 @@ const kycService = {
   getKycStatus: async (): Promise<KycStatusResponse> => {
     const response = await apiClient.get(
       API_ENDPOINTS.KYC.STATUS
+    );
+    return response.data;
+  },
+
+  getKycFullDetails: async (): Promise<any> => {
+    const response = await apiClient.get(
+      API_ENDPOINTS.KYC.FULL_DETAILS
     );
     return response.data;
   },

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router'; // 1. Import useRouter
+import { useAppearance } from '@/context/AppearanceContext';
 
 interface SearchProps {
   value: string;
@@ -19,6 +20,15 @@ const Search: React.FC<SearchProps> = ({
   onNotificationPress 
 }) => {
   const router = useRouter(); // 2. Initialize router
+  const { colorScheme } = useAppearance();
+  const isDark = colorScheme === 'dark';
+
+  const theme = {
+    bg: isDark ? 'rgba(255, 255, 255, 0.03)' : '#ffffff',
+    textPrimary: isDark ? '#FFFFFF' : '#141723',
+    textSecondary: isDark ? '#B5B2B1' : '#64748b',
+    border: isDark ? 'rgba(248, 185, 23, 0.15)' : 'rgba(20, 23, 35, 0.08)',
+  };
 
   const handleNotificationPress = () => {
     // Priority to custom prop if passed, otherwise default navigation
@@ -31,25 +41,25 @@ const Search: React.FC<SearchProps> = ({
 
   return (
     <View style={styles.searchRow}>
-      <View style={styles.searchBox}>
-        <Feather name="search" size={18} color="#999" />
+      <View style={[styles.searchBox, { backgroundColor: theme.bg, borderColor: theme.border, borderWidth: 1 }]}>
+        <Feather name="search" size={18} color={theme.textSecondary} />
         <TextInput
           placeholder={placeholder}
-          style={styles.searchInput}
+          style={[styles.searchInput, { color: theme.textPrimary }]}
           value={value}
           onChangeText={onChangeText}
-          placeholderTextColor="#999"
+          placeholderTextColor={theme.textSecondary}
         />
       </View>
 
       <TouchableOpacity 
-        style={styles.notificationBtn} 
+        style={[styles.notificationBtn, { backgroundColor: theme.bg, borderColor: theme.border, borderWidth: 1 }]} 
         onPress={handleNotificationPress} // 3. Use the handler
       >
         <Ionicons
           name="notifications-outline"
           size={22}
-          color="#444"
+          color={theme.textSecondary}
         />
       </TouchableOpacity>
     </View>
@@ -67,7 +77,6 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f1f5f9',
     borderRadius: 12,
     paddingHorizontal: 12,
     height: 44,
@@ -76,14 +85,12 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 8,
     fontSize: 14,
-    color: '#111',
   },
   notificationBtn: {
     marginLeft: 12,
     width: 44,
     height: 44,
     borderRadius: 12,
-    backgroundColor: '#f1f5f9',
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -8,15 +8,16 @@ import {
   ScrollView,
   RefreshControl,
 } from 'react-native';
-import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
+import Svg, { Path, Defs, LinearGradient, Stop, Circle } from 'react-native-svg';
 import { fetchAngelIndices, AngelQuoteRaw } from '../../services/api/methods/marketService';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 
-// New Dimensions for "Carousel" feel
-const CARD_WIDTH = width * 0.46;
-const CARD_HEIGHT = 180;
-const CHART_HEIGHT = 65;
+const CARD_WIDTH = width * 0.45;
+const CARD_HEIGHT = 120;
+const CHART_HEIGHT = 45;
 
 type IndexModel = {
   id: string;
@@ -29,7 +30,6 @@ type IndexModel = {
   percent: string;
   up: boolean;
   chart: number[];
-  // Raw numbers
   rawPrice: number;
   rawChange: number;
   rawPercent: number;
@@ -48,10 +48,7 @@ const SYMBOLS = [
   { id: 'cpse', token: '99926020', title: 'CPSE', exchange: 'NSE' },
 ];
 
-// --- Sub-Components ---
-
-const SparklineComponent = ({ data, up }: { data: number[]; up: boolean }) => {
-  // Full width of card (no padding) for bleed effect
+const SparklineComponent = ({ data, up, theme }: { data: number[]; up: boolean; theme: any }) => {
   const chartWidth = CARD_WIDTH;
   const chartHeight = CHART_HEIGHT;
 
@@ -63,27 +60,38 @@ const SparklineComponent = ({ data, up }: { data: number[]; up: boolean }) => {
   const min = Math.min(...data);
   const diff = max - min;
 
-  const points = data.map((value, index) => {
+  // Convert values to X/Y coordinates
+  const pointsObj = data.map((value, index) => {
     const denom = diff === 0 ? 1 : diff;
     const x = (index / (data.length - 1)) * chartWidth;
-    // Leave 20px padding at top so line doesn't hit text
-    const y = chartHeight - ((value - min) / denom) * (chartHeight - 20); 
-    return `${x},${y}`;
+    const y = chartHeight - ((value - min) / denom) * (chartHeight - 15) - 5; 
+    return { x, y };
   });
 
-  const lineCommand = `M ${points.join(' L ')}`;
+  // Generate smooth Cubic Bezier curve
+  let lineCommand = `M ${pointsObj[0].x},${pointsObj[0].y}`;
+  for (let i = 0; i < pointsObj.length - 1; i++) {
+    const p1 = pointsObj[i];
+    const p2 = pointsObj[i + 1];
+    const cp1x = p1.x + (p2.x - p1.x) * 0.4;
+    const cp1y = p1.y;
+    const cp2x = p1.x + (p2.x - p1.x) * 0.6;
+    const cp2y = p2.y;
+    lineCommand += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`;
+  }
+
   const fillCommand = `${lineCommand} L ${chartWidth},${chartHeight} L 0,${chartHeight} Z`;
 
-  // Dynamic Colors based on Trend
-  const color = up ? '#10b981' : '#f43f5e'; // Emerald-500 vs Rose-500
+  const color = up ? theme.upColor : theme.downColor;
   const gradientId = `grad-${up ? 'up' : 'down'}`;
+  const lastPoint = pointsObj[pointsObj.length - 1];
 
   return (
     <View style={styles.chartContainer}>
       <Svg width={chartWidth} height={chartHeight}>
         <Defs>
           <LinearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-            <Stop offset="0" stopColor={color} stopOpacity="0.25" />
+            <Stop offset="0" stopColor={color} stopOpacity="0.4" />
             <Stop offset="1" stopColor={color} stopOpacity="0" />
           </LinearGradient>
         </Defs>
@@ -92,10 +100,12 @@ const SparklineComponent = ({ data, up }: { data: number[]; up: boolean }) => {
           d={lineCommand}
           fill="none"
           stroke={color}
-          strokeWidth={2}
+          strokeWidth={2.5}
           strokeLinecap="round"
           strokeLinejoin="round"
         />
+        {/* Live Tracking Dot */}
+        <Circle cx={lastPoint.x} cy={lastPoint.y} r={3} fill="#fff" stroke={color} strokeWidth={2} />
       </Svg>
     </View>
   );
@@ -104,39 +114,25 @@ const SparklineComponent = ({ data, up }: { data: number[]; up: boolean }) => {
 const Sparkline = React.memo(SparklineComponent);
 Sparkline.displayName = 'Sparkline';
 
-// --- Utilities ---
-
 function generateInitialGraph(quote: AngelQuoteRaw): number[] {
-  const open = Number(quote.open || 0);
+  const open = Number(quote.open || 100);
   const close = Number(quote.ltp || quote.close || open);
-  let high = Number(quote.high || Math.max(open, close));
-  let low = Number(quote.low || Math.min(open, close));
-  high = Math.max(high, open, close);
-  low = Math.min(low, open, close);
-
+  
   if (open === 0) return [0, 0, 0, 0];
-  const steps = 10;
+  const steps = 15; 
   const path: number[] = new Array(steps).fill(0);
   path[0] = open;
-  path[steps - 1] = close;
 
-  const highIndex = Math.floor(Math.random() * (steps - 2)) + 1;
-  let lowIndex = Math.floor(Math.random() * (steps - 2)) + 1;
-  while (lowIndex === highIndex) lowIndex = Math.floor(Math.random() * (steps - 2)) + 1;
-
+  // Realistic random walk generator
   for (let i = 1; i < steps - 1; i++) {
-    if (i === highIndex) path[i] = high;
-    else if (i === lowIndex) path[i] = low;
-    else {
-      const progress = i / (steps - 1);
-      const linearPoint = open + (close - open) * progress;
-      const range = high - low || (open * 0.01);
-      const noise = (Math.random() - 0.5) * range * 0.6;
-      let val = linearPoint + noise;
-      val = Math.max(low, Math.min(high, val));
-      path[i] = val;
-    }
+    const progress = i / (steps - 1);
+    const linearPoint = open + (close - open) * progress;
+    const volatility = open * 0.003; 
+    const noise = (Math.random() - 0.5) * volatility;
+    path[i] = linearPoint + noise;
   }
+  
+  path[steps - 1] = close;
   return path;
 }
 
@@ -157,8 +153,6 @@ const findMarketData = (fetchedData: AngelQuoteRaw[], symbol: typeof SYMBOLS[0])
   return fetchedData.find((f) => (f.tradingSymbol?.toLowerCase() || '').includes(symbol.title.toLowerCase()));
 };
 
-// --- Main Component ---
-
 const Indices: React.FC = () => {
   const [indices, setIndices] = useState<IndexModel[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -168,8 +162,38 @@ const Indices: React.FC = () => {
   const isMounted = useRef(true);
   const isFetching = useRef(false);
 
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+
+  const theme = {
+    bg: isDark ? '#020210' : '#f7f9fc',
+    cardBg: isDark ? '#040410' : '#ffffff',
+    textPrimary: isDark ? '#FFFFFF' : '#141723',
+    textSecondary: isDark ? '#B5B2B1' : '#4f5568',
+    borderColor: isDark ? 'rgba(248, 185, 23, 0.15)' : 'rgba(20, 23, 35, 0.12)',
+    upColor: '#10B981', 
+    downColor: '#EF4444', 
+    upBg: isDark ? 'rgba(16, 185, 129, 0.15)' : '#ecfdf5',
+    downBg: isDark ? 'rgba(239, 68, 68, 0.15)' : '#fef2f2',
+    exchangeBg: isDark ? 'rgba(255,255,255,0.1)' : '#eef1f6',
+  };
+
   useEffect(() => {
     isMounted.current = true;
+    
+    // Load from cache initially
+    const loadCache = async () => {
+      try {
+        const cached = await AsyncStorage.getItem('MAIN_INDICES_CACHE');
+        if (cached && isMounted.current) {
+          setIndices(JSON.parse(cached));
+        }
+      } catch (e) {
+        // ignore
+      }
+    };
+    loadCache();
+
     return () => { isMounted.current = false; };
   }, []);
 
@@ -184,59 +208,66 @@ const Indices: React.FC = () => {
       const fetched = await fetchAngelIndices();
       if (!isMounted.current) return;
 
-      const mapped: IndexModel[] = SYMBOLS.map((s) => {
-        const q = findMarketData(fetched, s);
-        if (!q) {
-          const cachedChart = chartCache.current.get(s.token) || [];
-          const oldIndex = indices?.find(i => i.id === s.id);
-          if (oldIndex) return oldIndex;
-          return { 
-            ...s, 
-            price: '-', 
-            currency: 'INR', 
-            change: '-', 
-            percent: '0.00', 
-            up: false, 
-            chart: cachedChart,
-            rawPrice: 0,
-            rawChange: 0,
-            rawPercent: 0,
-          };
-        }
+      if (isMounted.current) {
+        setIndices((prevIndices) => {
+          const mapped = SYMBOLS.map((s) => {
+            const q = findMarketData(fetched, s);
+            if (!q) {
+              const cachedChart = chartCache.current.get(s.token) || [];
+              const oldIndex = prevIndices?.find(i => i.id === s.id);
+              if (oldIndex) return oldIndex;
+              return { 
+                ...s, 
+                price: '-', 
+                currency: 'INR', 
+                change: '-', 
+                percent: '0.00', 
+                up: false, 
+                chart: cachedChart,
+                rawPrice: 0,
+                rawChange: 0,
+                rawPercent: 0,
+              };
+            }
 
-        const currentLTP = Number(q.ltp ?? q.close ?? 0);
-        const netChange = Number(q.netChange);
-        const percentChange = Number(q.percentChange);
-        const up = netChange >= 0;
-        const price = fmt(currentLTP);
-        const change = `${netChange.toFixed(2)}`;
-        const percent = `${percentChange.toFixed(2)}%`;
+            const currentLTP = Number(q.ltp ?? q.close ?? 0);
+            const netChange = Number(q.netChange);
+            const percentChange = Number(q.percentChange);
+            const up = netChange >= 0;
+            const price = fmt(currentLTP);
+            const change = `${netChange.toFixed(2)}`;
+            const percent = `${percentChange.toFixed(2)}%`;
 
-        let chartData = chartCache.current.get(s.token);
-        if (!chartData || chartData.length === 0) {
-          chartData = generateInitialGraph(q);
-        } else {
-          chartData = [...chartData];
-          chartData[chartData.length - 1] = currentLTP;
-        }
-        chartCache.current.set(s.token, chartData);
+            let chartData = chartCache.current.get(s.token);
+            if (!chartData || chartData.length === 0) {
+              chartData = generateInitialGraph(q);
+            } else {
+              chartData = [...chartData];
+              chartData[chartData.length - 1] = currentLTP;
+            }
+            chartCache.current.set(s.token, chartData);
 
-        return {
-          ...s,
-          exchange: q.exchange || s.exchange,
-          price,
-          currency: 'INR',
-          change,
-          percent,
-          up,
-          chart: chartData,
-          rawPrice: currentLTP,
-          rawChange: netChange,
-          rawPercent: percentChange,
-        };
-      });
-
-      if (isMounted.current) setIndices(mapped);
+            return {
+              ...s,
+              exchange: q.exchange || s.exchange,
+              price,
+              currency: 'INR',
+              change,
+              percent,
+              up,
+              chart: chartData,
+              rawPrice: currentLTP,
+              rawChange: netChange,
+              rawPercent: percentChange,
+            };
+          });
+          
+          // Save to cache
+          AsyncStorage.setItem('MAIN_INDICES_CACHE', JSON.stringify(mapped)).catch(() => {});
+          
+          return mapped;
+        });
+      }
     } catch (err: any) {
       console.warn('Indices polling failed:', err.message || 'Unknown error');
     } finally {
@@ -246,7 +277,7 @@ const Indices: React.FC = () => {
         setRefreshing(false);
       }
     }
-  }, [indices]);
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -261,21 +292,19 @@ const Indices: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {/* Header Section */}
       <View style={styles.header}>
         <View>
-          <Text style={styles.headerTitle}>Market Indices</Text>
-          <Text style={styles.headerSubtitle}>Live Performance</Text>
+          <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>Market Indices</Text>
         </View>
-        <View style={styles.liveBadge}>
+        <View style={[styles.liveBadge, { backgroundColor: theme.cardBg, borderColor: theme.borderColor }]}>
            <View style={styles.pulseDot} />
-           <Text style={styles.liveText}>LIVE</Text>
+           <Text style={[styles.liveText, { color: theme.textPrimary }]}>LIVE</Text>
         </View>
       </View>
 
       {loading && !indices ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#4f46e5" />
+          <ActivityIndicator size="large" color="#10B981" />
         </View>
       ) : (
         <ScrollView
@@ -284,39 +313,37 @@ const Indices: React.FC = () => {
           contentContainerStyle={styles.scrollContent}
           decelerationRate="fast"
           snapToInterval={CARD_WIDTH + 16} 
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#4f46e5" />}
         >
           {(indices ?? []).map((idx) => (
             <View 
               key={idx.id} 
-              style={styles.card}
+              style={[
+                styles.card, 
+                { backgroundColor: theme.cardBg, borderColor: theme.borderColor }
+              ]}
             >
-              {/* Top Row: Title & Exchange */}
-              <View style={styles.cardHeader}>
-                <View style={styles.titleWrapper}>
-                  <Text style={styles.indexTitle} numberOfLines={1}>{idx.title}</Text>
-                  <Text style={styles.exchangeTag}>{idx.exchange}</Text>
+              <View style={styles.topSection}>
+                <View style={styles.leftCol}>
+                  <Text style={[styles.indexTitle, { color: theme.textPrimary }]} numberOfLines={1}>{idx.title}</Text>
+                  <Text style={[styles.exchangeTag, { color: theme.textSecondary, backgroundColor: theme.exchangeBg }]}>{idx.exchange}</Text>
                 </View>
-                
-                {/* Percent Badge Pill */}
-                <View style={[styles.percentBadge, idx.up ? styles.bgUp : styles.bgDown]}>
-                   <Text style={[styles.percentText, idx.up ? styles.textUp : styles.textDown]}>
-                     {idx.up ? '↑' : '↓'} {idx.percent}
-                   </Text>
+                <View style={styles.rightCol}>
+                  <Text style={[styles.priceText, { color: theme.textPrimary }]}>{idx.price}</Text>
+                  <View style={styles.changeRow}>
+                    <Text style={[styles.changeText, { color: idx.up ? theme.upColor : theme.downColor }]}>
+                      {idx.up ? '+' : ''}{idx.change}
+                    </Text>
+                    <View style={[styles.percentBadge, { backgroundColor: idx.up ? theme.upBg : theme.downBg }]}>
+                       <Text style={[styles.percentText, { color: idx.up ? theme.upColor : theme.downColor }]}>
+                         {idx.up ? '↑' : '↓'} {idx.percent}
+                       </Text>
+                    </View>
+                  </View>
                 </View>
               </View>
 
-              {/* Middle: Big Price */}
-              <View style={styles.priceContainer}>
-                <Text style={styles.priceText}>{idx.price}</Text>
-                <Text style={[styles.changeText, idx.up ? styles.textUp : styles.textDown]}>
-                   {idx.up ? '+' : ''}{idx.change}
-                </Text>
-              </View>
-
-              {/* Bottom: Full Width Chart */}
               <View style={styles.chartWrapper}>
-                <Sparkline data={idx.chart} up={idx.up} />
+                <Sparkline data={idx.chart} up={idx.up} theme={theme} />
               </View>
             </View>
           ))}
@@ -334,30 +361,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     marginBottom: 20,
   },
   headerTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontSize: 18,
+    fontFamily: 'Manrope_800ExtraBold',
     letterSpacing: -0.5,
-  },
-  headerSubtitle: {
-    fontSize: 13,
-    color: '#64748b',
-    fontWeight: '500',
-    marginTop: 2,
   },
   liveBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
     shadowColor: '#000',
     shadowOpacity: 0.05,
     shadowOffset: { width: 0, height: 2 },
@@ -372,8 +390,7 @@ const styles = StyleSheet.create({
   },
   liveText: {
     fontSize: 10,
-    fontWeight: '700',
-    color: '#0f172a',
+    fontFamily: 'Manrope_700Bold',
   },
   loadingContainer: {
     height: CARD_HEIGHT,
@@ -381,83 +398,75 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   scrollContent: {
-    paddingHorizontal: 10,
-    paddingBottom: 15,
+    paddingHorizontal: 16,
+    paddingBottom: 20,
   },
-  
-  // --- CARD STYLES ---
   card: {
     width: CARD_WIDTH,
     height: CARD_HEIGHT,
-    backgroundColor: '#ffffff',
-    borderRadius: 24,
+    borderRadius: 12,
     marginRight: 16,
     overflow: 'hidden', 
     borderWidth: 1,
-    borderColor: '#f1f5f9',
-    shadowColor: '#334155',
-    shadowOpacity: 0.08,
-    shadowOffset: { width: 0, height: 8 },
-    shadowRadius: 16,
-    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 10,
+    elevation: 2,
     justifyContent: 'space-between',
   },
-  cardHeader: {
+  topSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    padding: 16,
+    padding: 12,
+    paddingBottom: 4,
   },
-  titleWrapper: {
+  leftCol: {
     flex: 1,
+    justifyContent: 'flex-start',
+  },
+  rightCol: {
+    alignItems: 'flex-end',
+    flexShrink: 1,
   },
   indexTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#1e293b',
+    fontSize: 13,
+    fontFamily: 'Manrope_700Bold',
     marginBottom: 4,
   },
   exchangeTag: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#94a3b8',
-    backgroundColor: '#f8fafc',
+    fontSize: 9,
+    fontFamily: 'Manrope_600SemiBold',
     alignSelf: 'flex-start',
-    paddingHorizontal: 6,
+    paddingHorizontal: 4,
     paddingVertical: 2,
     borderRadius: 4,
     overflow: 'hidden',
   },
-  percentBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginLeft: 8,
-  },
-  percentText: {
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  
-  // --- PRICE ---
-  priceContainer: {
-    paddingHorizontal: 16,
-    marginBottom: 4, 
-    zIndex: 2, 
-  },
   priceText: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontSize: 15,
+    fontFamily: 'Manrope_800ExtraBold',
     letterSpacing: -0.5,
+    marginBottom: 4,
+  },
+  changeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   changeText: {
-    fontSize: 12,
-    fontWeight: '600',
-    marginTop: 2,
+    fontSize: 10,
+    fontFamily: 'Manrope_700Bold',
   },
-
-  // --- CHART ---
+  percentBadge: {
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  percentText: {
+    fontSize: 9,
+    fontFamily: 'Manrope_800ExtraBold',
+  },
   chartWrapper: {
     height: CHART_HEIGHT,
     width: '100%',
@@ -468,12 +477,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-
-  // --- COLORS ---
-  bgUp: { backgroundColor: '#ecfdf5' }, // Green-50
-  bgDown: { backgroundColor: '#fef2f2' }, // Red-50
-  textUp: { color: '#059669' }, // Green-600
-  textDown: { color: '#dc2626' }, // Red-600
 });
 
 export default Indices;

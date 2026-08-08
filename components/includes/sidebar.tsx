@@ -37,7 +37,7 @@ const Sidebar: React.FC<SidebarProps> = ({ visible, onClose }) => {
   const router = useRouter();
   const { signOut } = useAuth();
   const [showModal, setShowModal] = useState(visible);
-  
+
   const [userData, setUserData] = useState({
     name: 'User',
     role: 'Member',
@@ -64,7 +64,8 @@ const Sidebar: React.FC<SidebarProps> = ({ visible, onClose }) => {
         // 1. Try fetching fresh data
         try {
           const response: any = await customerProfileServices.getAllProfiles();
-          user = response?.user ?? response?.data?.user;
+          const rawUserData = response?.data?.user || response?.user || response?.data || response || {};
+          user = Object.keys(rawUserData).length > 0 && !rawUserData.name && rawUserData.data ? rawUserData.data : rawUserData;
         } catch (apiError) {
           console.warn("Sidebar API fetch failed, falling back to storage");
         }
@@ -80,17 +81,22 @@ const Sidebar: React.FC<SidebarProps> = ({ visible, onClose }) => {
 
           setUserData({
             name: user.name || user.full_name || 'User',
-            role: user.role || 'Member', 
+            role: user.role || 'Member',
             phone: user.phone || '',
             email: user.email || '',
             status: user.status || 'Active',
-            plan: planName 
+            plan: planName
           });
 
-          // Image Logic
           let finalImage = DEFAULT_IMAGE;
-          if (user.profile_image_url) {
+          if (typeof user?.image === 'string' && user.image.trim() !== '') {
+            finalImage = user.image.startsWith('http') ? user.image : `https://vishtaracapitalsresearch.com${user.image}`;
+          } else if (typeof user?.profile_image_url === 'string' && user.profile_image_url.trim() !== '') {
             finalImage = user.profile_image_url;
+          } else if (typeof user?.kyc?.selfie_image === 'string' && user.kyc.selfie_image.trim() !== '') {
+            finalImage = user.kyc.selfie_image.startsWith('http') ? user.kyc.selfie_image : `https://vishtaracapitalsresearch.com${user.kyc.selfie_image}`;
+          } else if (typeof user?.kyc?.aadhaar_image === 'string' && user.kyc.aadhaar_image.trim() !== '') {
+            finalImage = user.kyc.aadhaar_image.startsWith('http') ? user.kyc.aadhaar_image : `https://vishtaracapitalsresearch.com${user.kyc.aadhaar_image}`;
           } else {
             const kycActions = user.kyc?.raw_response?.actions;
             if (Array.isArray(kycActions)) {
@@ -143,19 +149,19 @@ const Sidebar: React.FC<SidebarProps> = ({ visible, onClose }) => {
   const handleLogout = async () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
       { text: "Cancel", style: "cancel" },
-      { 
-        text: "Logout", 
+      {
+        text: "Logout",
         style: "destructive",
         onPress: async () => {
           setLoading(true);
           try {
-            await authService.logout(); 
+            await authService.logout();
           } catch (error) {
             console.log("API logout failed");
           } finally {
             setLoading(false);
-            onClose(); 
-            await signOut(); 
+            onClose();
+            await signOut();
           }
         }
       }
@@ -163,11 +169,11 @@ const Sidebar: React.FC<SidebarProps> = ({ visible, onClose }) => {
   };
 
   const navigateTo = (path: string) => {
-      onClose();
-      // small delay to allow sidebar to close smoothly
-      setTimeout(() => {
-        router.push(path as any);
-      }, 100);
+    onClose();
+    // small delay to allow sidebar to close smoothly
+    setTimeout(() => {
+      router.push(path as any);
+    }, 100);
   };
 
   if (!showModal) return null;
@@ -193,102 +199,102 @@ const Sidebar: React.FC<SidebarProps> = ({ visible, onClose }) => {
             { transform: [{ translateX: slideAnim }] },
           ]}
         >
-            {/* 1. Header Section (Colored) */}
-            <View style={styles.headerSection}>
-                <View style={styles.userInfoRow}>
-                    <Image
-                        source={{ uri: profileImage }}
-                        style={styles.avatar}
-                    />
-                    <View style={styles.userTextContainer}>
-                        <Text style={styles.userName} numberOfLines={1}>{userData.name}</Text>
-                        <View style={styles.planBadge}>
-                            <MaterialIcons name="star" size={12} color="#F59E0B" />
-                            <Text style={styles.planText}>{userData.plan}</Text>
-                        </View>
-                    </View>
+          {/* 1. Header Section (Colored) */}
+          <View style={styles.headerSection}>
+            <View style={styles.userInfoRow}>
+              <Image
+                source={{ uri: profileImage }}
+                style={styles.avatar}
+              />
+              <View style={styles.userTextContainer}>
+                <Text style={styles.userName} numberOfLines={1}>{userData.name}</Text>
+                <View style={styles.planBadge}>
+                  <MaterialIcons name="star" size={12} color="#F59E0B" />
+                  <Text style={styles.planText}>{userData.plan}</Text>
                 </View>
-                <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
-                    <Feather name="x" size={20} color="#fff" />
-                </TouchableOpacity>
+              </View>
             </View>
+            <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
+              <Feather name="x" size={20} color="#fff" />
+            </TouchableOpacity>
+          </View>
 
-            {/* 2. Content Scroll */}
-            <View style={styles.contentContainer}>
-                
-                {/* User Info Details */}
-                <View style={styles.detailsCard}>
-                    {userData.phone ? (
-                        <View style={styles.detailRow}>
-                            <Feather name="phone" size={16} color="#6B7280" style={styles.detailIcon} />
-                            <Text style={styles.detailText}>{userData.phone}</Text>
-                        </View>
-                    ) : null}
-                    
-                    {userData.email ? (
-                        <View style={styles.detailRow}>
-                            <Feather name="mail" size={16} color="#6B7280" style={styles.detailIcon} />
-                            <Text style={styles.detailText} numberOfLines={1}>{userData.email}</Text>
-                        </View>
-                    ) : null}
+          {/* 2. Content Scroll */}
+          <View style={styles.contentContainer}>
 
-                    <View style={styles.detailRow}>
-                        <Feather name="shield" size={16} color="#6B7280" style={styles.detailIcon} />
-                        <Text style={styles.detailText}>{userData.role} • </Text>
-                        <Text style={[styles.detailText, {color: userData.status === 'Active' ? '#10B981' : '#EF4444'}]}>
-                            {userData.status}
-                        </Text>
-                    </View>
+            {/* User Info Details */}
+            <View style={styles.detailsCard}>
+              {userData.phone ? (
+                <View style={styles.detailRow}>
+                  <Feather name="phone" size={16} color="#6B7280" style={styles.detailIcon} />
+                  <Text style={styles.detailText}>{userData.phone}</Text>
                 </View>
+              ) : null}
 
-                {/* Primary Action */}
-                <TouchableOpacity 
-                    style={styles.ctaButton} 
-                    activeOpacity={0.9}
-                    onPress={() => navigateTo('../(tabs)/market-calls')}
-                >
-                    <View style={styles.ctaIconBg}>
-                        <Feather name="trending-up" size={20} color={THEME_COLOR} />
-                    </View>
-                    <Text style={styles.ctaText}>View Market Calls</Text>
-                    <Feather name="chevron-right" size={20} color="#fff" />
-                </TouchableOpacity>
+              {userData.email ? (
+                <View style={styles.detailRow}>
+                  <Feather name="mail" size={16} color="#6B7280" style={styles.detailIcon} />
+                  <Text style={styles.detailText} numberOfLines={1}>{userData.email}</Text>
+                </View>
+              ) : null}
 
-                <View style={styles.divider} />
-
-                {/* Menu Items */}
-                <TouchableOpacity style={styles.menuItem} onPress={() => navigateTo('../(tabs)/settings')}>
-                    <View style={styles.menuIconBox}>
-                        <Feather name="settings" size={20} color="#4B5563" />
-                    </View>
-                    <Text style={styles.menuText}>Settings</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.menuItem} onPress={() => navigateTo('/pages/support/SupportPage')}>
-                    <View style={styles.menuIconBox}>
-                        <Feather name="help-circle" size={20} color="#4B5563" />
-                    </View>
-                    <Text style={styles.menuText}>Help & Support</Text>
-                </TouchableOpacity>
-
+              <View style={styles.detailRow}>
+                <Feather name="shield" size={16} color="#6B7280" style={styles.detailIcon} />
+                <Text style={styles.detailText}>{userData.role} • </Text>
+                <Text style={[styles.detailText, { color: userData.status === 'Active' ? '#10B981' : '#EF4444' }]}>
+                  {userData.status}
+                </Text>
+              </View>
             </View>
 
-            {/* 3. Footer / Logout */}
-            <View style={styles.footerContainer}>
-                <TouchableOpacity 
-                    style={styles.logoutBtn}
-                    onPress={handleLogout}
-                    disabled={loading}
-                >
-                    {loading ? (
-                         <ActivityIndicator size="small" color="#EF4444" style={{marginRight: 8}}/>
-                    ) : (
-                        <Feather name="log-out" size={20} color="#EF4444" style={{marginRight: 12}} />
-                    )}
-                    <Text style={styles.logoutText}>Log Out</Text>
-                </TouchableOpacity>
-                <Text style={styles.versionText}>v1.0.4</Text>
-            </View>
+            {/* Primary Action */}
+            <TouchableOpacity
+              style={styles.ctaButton}
+              activeOpacity={0.9}
+              onPress={() => navigateTo('../(tabs)/market-calls')}
+            >
+              <View style={styles.ctaIconBg}>
+                <Feather name="trending-up" size={20} color={THEME_COLOR} />
+              </View>
+              <Text style={styles.ctaText}>View Market Calls</Text>
+              <Feather name="chevron-right" size={20} color="#fff" />
+            </TouchableOpacity>
+
+            <View style={styles.divider} />
+
+            {/* Menu Items */}
+            <TouchableOpacity style={styles.menuItem} onPress={() => navigateTo('../(tabs)/settings')}>
+              <View style={styles.menuIconBox}>
+                <Feather name="settings" size={20} color="#4B5563" />
+              </View>
+              <Text style={styles.menuText}>Settings</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.menuItem} onPress={() => navigateTo('/pages/support/SupportPage')}>
+              <View style={styles.menuIconBox}>
+                <Feather name="help-circle" size={20} color="#4B5563" />
+              </View>
+              <Text style={styles.menuText}>Help & Support</Text>
+            </TouchableOpacity>
+
+          </View>
+
+          {/* 3. Footer / Logout */}
+          <View style={styles.footerContainer}>
+            <TouchableOpacity
+              style={styles.logoutBtn}
+              onPress={handleLogout}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator size="small" color="#EF4444" style={{ marginRight: 8 }} />
+              ) : (
+                <Feather name="log-out" size={20} color="#EF4444" style={{ marginRight: 12 }} />
+              )}
+              <Text style={styles.logoutText}>Log Out</Text>
+            </TouchableOpacity>
+            <Text style={styles.versionText}>v1.0.4</Text>
+          </View>
 
         </Animated.View>
       </View>
@@ -320,7 +326,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 24,
     overflow: 'hidden',
   },
-  
+
   // Header
   headerSection: {
     backgroundColor: THEME_COLOR,
@@ -367,10 +373,10 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   closeBtn: {
-      position: 'absolute',
-      top: Platform.OS === 'ios' ? 50 : 40,
-      right: 16,
-      padding: 8,
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 50 : 40,
+    right: 16,
+    padding: 8,
   },
 
   // Content
@@ -378,114 +384,114 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
   },
-  
+
   // Details Card
   detailsCard: {
-      backgroundColor: '#F9FAFB',
-      borderRadius: 16,
-      padding: 16,
-      marginBottom: 24,
-      borderWidth: 1,
-      borderColor: '#E5E7EB',
+    backgroundColor: '#F9FAFB',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
   detailRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
   },
   detailIcon: {
-      marginRight: 10,
-      width: 20, 
-      textAlign: 'center',
+    marginRight: 10,
+    width: 20,
+    textAlign: 'center',
   },
   detailText: {
-      fontSize: 14,
-      color: '#374151',
-      flex: 1,
+    fontSize: 14,
+    color: '#374151',
+    flex: 1,
   },
 
   // CTA
   ctaButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: THEME_COLOR,
-      padding: 14,
-      borderRadius: 16,
-      shadowColor: THEME_COLOR,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.3,
-      shadowRadius: 8,
-      elevation: 4,
-      marginBottom: 24,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: THEME_COLOR,
+    padding: 14,
+    borderRadius: 16,
+    shadowColor: THEME_COLOR,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+    marginBottom: 24,
   },
   ctaIconBg: {
-      width: 32,
-      height: 32,
-      borderRadius: 16,
-      backgroundColor: '#fff',
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginRight: 12,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
   },
   ctaText: {
-      flex: 1,
-      color: '#fff',
-      fontSize: 15,
-      fontWeight: '600',
+    flex: 1,
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '600',
   },
 
   divider: {
-      height: 1,
-      backgroundColor: '#F3F4F6',
-      marginBottom: 20,
+    height: 1,
+    backgroundColor: '#F3F4F6',
+    marginBottom: 20,
   },
 
   // Menu Items
   menuItem: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingVertical: 14,
-      borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    borderRadius: 12,
   },
   menuIconBox: {
-      width: 36,
-      height: 36,
-      borderRadius: 10,
-      backgroundColor: '#F3F4F6',
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginRight: 14,
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#F3F4F6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
   },
   menuText: {
-      fontSize: 16,
-      color: '#374151',
-      fontWeight: '500',
+    fontSize: 16,
+    color: '#374151',
+    fontWeight: '500',
   },
 
   // Footer
   footerContainer: {
-      padding: 20,
-      borderTopWidth: 1,
-      borderTopColor: '#F3F4F6',
+    padding: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
   },
   logoutBtn: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      paddingVertical: 12,
-      backgroundColor: '#FEF2F2',
-      borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    backgroundColor: '#FEF2F2',
+    borderRadius: 12,
   },
   logoutText: {
-      color: '#EF4444',
-      fontSize: 16,
-      fontWeight: '600',
+    color: '#EF4444',
+    fontSize: 16,
+    fontWeight: '600',
   },
   versionText: {
-      textAlign: 'center',
-      color: '#9CA3AF',
-      fontSize: 12,
-      marginTop: 12,
+    textAlign: 'center',
+    color: '#9CA3AF',
+    fontSize: 12,
+    marginTop: 12,
   },
 });
 

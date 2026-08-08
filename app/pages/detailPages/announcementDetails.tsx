@@ -5,10 +5,13 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
+  useWindowDimensions,
 } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import OtherPagesInc from '@/components/includes/otherPagesInc';
 import announcementServices from '@/services/api/methods/announcementService';
+import RenderHtml from 'react-native-render-html';
+import { useAppearance } from '@/context/AppearanceContext';
 
 interface AnnouncementData {
   title: string;
@@ -34,6 +37,7 @@ function toText(value: unknown, fallback = ''): string {
 }
 
 export default function AnnouncementDetails() {
+  const { width } = useWindowDimensions();
   const params = useLocalSearchParams<{
     id?: string | string[];
     title?: string | string[];
@@ -45,6 +49,19 @@ export default function AnnouncementDetails() {
   const titleParam = firstValue(params.title);
   const dateParam = firstValue(params.date);
   const tagParam = firstValue(params.tag);
+
+  const { colorScheme } = useAppearance();
+  const isDark = colorScheme === 'dark';
+
+  const theme = {
+    bg: isDark ? '#020210' : '#F8F9FA',
+    cardBg: isDark ? '#040410' : '#FFFFFF',
+    textPrimary: isDark ? '#FFFFFF' : '#111827',
+    textSecondary: isDark ? '#9CA3AF' : '#6B7280',
+    textBody: isDark ? '#D1D5DB' : '#374151',
+    borderColor: isDark ? 'rgba(248, 185, 23, 0.15)' : '#E5E7EB',
+    loader: isDark ? '#f8b917' : '#0a7ea4',
+  };
 
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState<AnnouncementData>({
@@ -65,7 +82,10 @@ export default function AnnouncementDetails() {
       }
 
       try {
-        const response = await announcementServices.getAnnouncementById(id);
+        const allAnnouncements = await announcementServices.getAllAnnouncements();
+        const response = Array.isArray(allAnnouncements) 
+          ? allAnnouncements.find((item: any) => item._id === id || item.id === id)
+          : null;
 
         if (response) {
           const createdAtValue = response?.createdAt
@@ -88,8 +108,8 @@ export default function AnnouncementDetails() {
             tag: responseTag,
             bodyTitle: toText(response?.bodyTitle, toText(response?.subtitle, 'Details')),
             bodyText: toText(
-              response?.bodyText,
-              toText(response?.description, toText(response?.content, ''))
+              response?.detail,
+              toText(response?.bodyText, toText(response?.description, toText(response?.content, '')))
             ),
             bullets: Array.isArray(response?.bullets)
               ? response.bullets.map((item: unknown) => toText(item)).filter(Boolean)
@@ -128,19 +148,19 @@ export default function AnnouncementDetails() {
       <Stack.Screen options={{ headerShown: false }} />
 
       {isLoading ? (
-        <View style={styles.loaderContainer}>
-          <ActivityIndicator size="large" color={THEME_COLOR} />
+        <View style={[styles.loaderContainer, { backgroundColor: theme.bg }]}>
+          <ActivityIndicator size="large" color={theme.loader} />
         </View>
       ) : (
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.card}>
-            <Text style={styles.title}>{toText(data.title, '')}</Text>
+          <View style={[styles.card, { backgroundColor: theme.cardBg, borderColor: theme.borderColor }]}>
+            <Text style={[styles.title, { color: theme.textPrimary }]}>{toText(data.title, '')}</Text>
 
             {(data.date || data.tag) ? (
-              <Text style={styles.meta}>
+              <Text style={[styles.meta, { color: theme.textSecondary }]}>
                 {toText(data.date, '')}
                 {data.date && data.tag ? ' • ' : ''}
                 <Text style={styles.metaTag}>{toText(data.tag, '')}</Text>
@@ -148,26 +168,40 @@ export default function AnnouncementDetails() {
             ) : null}
 
             {data.bodyTitle ? (
-              <Text style={styles.sectionHeader}>{toText(data.bodyTitle, '')}</Text>
+              <Text style={[styles.sectionHeader, { color: theme.textPrimary }]}>{toText(data.bodyTitle, '')}</Text>
             ) : null}
 
             {data.bodyText ? (
-              <Text style={styles.bodyText}>{toText(data.bodyText, '')}</Text>
+              <RenderHtml
+                contentWidth={width - 48} // 24 padding on each side
+                source={{ html: toText(data.bodyText, '') }}
+                baseStyle={{ ...styles.bodyText, color: theme.textBody }}
+                tagsStyles={{
+                  p: { color: theme.textBody, fontSize: 15, lineHeight: 24, marginBottom: 16, marginTop: 0 },
+                  strong: { color: theme.textPrimary, fontWeight: '700' },
+                  li: { color: theme.textBody, fontSize: 15, lineHeight: 24 },
+                  ul: { paddingLeft: 20 },
+                  ol: { paddingLeft: 20 },
+                  h1: { color: theme.textPrimary, fontSize: 20, fontWeight: '700', marginBottom: 12 },
+                  h2: { color: theme.textPrimary, fontSize: 18, fontWeight: '700', marginBottom: 10 },
+                  h3: { color: theme.textPrimary, fontSize: 16, fontWeight: '700', marginBottom: 8 },
+                }}
+              />
             ) : null}
 
             {data.bullets.length > 0 ? (
               <View style={styles.bulletContainer}>
                 {data.bullets.map((point, index) => (
                   <View key={`${index}-${point}`} style={styles.bulletRow}>
-                    <Text style={styles.bulletDot}>•</Text>
-                    <Text style={styles.bulletText}>{toText(point, '')}</Text>
+                    <Text style={[styles.bulletDot, { color: theme.textBody }]}>•</Text>
+                    <Text style={[styles.bulletText, { color: theme.textBody }]}>{toText(point, '')}</Text>
                   </View>
                 ))}
               </View>
             ) : null}
 
             {data.footer ? (
-              <Text style={styles.footerNote}>{toText(data.footer, '')}</Text>
+              <Text style={[styles.footerNote, { color: theme.textSecondary }]}>{toText(data.footer, '')}</Text>
             ) : null}
           </View>
         </ScrollView>
@@ -181,18 +215,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F8F9FA',
   },
   scrollContent: {
     padding: 10,
     paddingBottom: 20,
   },
   card: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 24,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.03,
@@ -203,29 +234,24 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#111827',
     marginBottom: 8,
     letterSpacing: -0.5,
   },
   meta: {
     fontSize: 13,
-    color: '#9CA3AF',
     fontWeight: '500',
     marginBottom: 24,
   },
   metaTag: {
-    color: '#9CA3AF',
   },
   sectionHeader: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#111827',
     marginBottom: 12,
   },
   bodyText: {
     fontSize: 15,
     lineHeight: 24,
-    color: '#374151',
     marginBottom: 16,
   },
   bulletContainer: {
@@ -239,19 +265,16 @@ const styles = StyleSheet.create({
   bulletDot: {
     fontSize: 18,
     lineHeight: 24,
-    color: '#374151',
     marginRight: 8,
   },
   bulletText: {
     flex: 1,
     fontSize: 15,
     lineHeight: 24,
-    color: '#374151',
   },
   footerNote: {
     fontSize: 13,
     lineHeight: 20,
-    color: '#6B7280',
     marginTop: 10,
   },
 });

@@ -17,7 +17,7 @@ const notificationServices = {
   // Mark a specific notification as read via ID (Bell Icon route)
   markAsRead: async (id: string | number) => {
     try {
-      const response = await apiClient.post(API_ENDPOINTS.NOTIFICATIONS.MARK_READ(id));
+      const response = await apiClient.put(API_ENDPOINTS.USER_NOTIFICATIONS.READ(id));
       return response.data;
     } catch (error) {
       console.error(`Error marking notification ${id} as read:`, error);
@@ -40,10 +40,9 @@ const notificationServices = {
   // Mark specific notification(s) as read
   userMarkRead: async (ids: (string | number)[]) => {
     try {
-      const response = await apiClient.post(API_ENDPOINTS.USER_NOTIFICATIONS.READ, { 
-        ids: Array.isArray(ids) ? ids : [ids] 
-      });
-      return response.data;
+      const idArray = Array.isArray(ids) ? ids : [ids];
+      const responses = await Promise.all(idArray.map(id => apiClient.put(API_ENDPOINTS.USER_NOTIFICATIONS.READ(id))));
+      return responses.map(res => res.data);
     } catch (error) {
       console.error('Error marking notifications as read:', error);
       throw error;
@@ -64,10 +63,9 @@ const notificationServices = {
   // Delete specific notification(s)
   deleteNotifications: async (ids: (string | number)[]) => {
     try {
-      const response = await apiClient.post(API_ENDPOINTS.USER_NOTIFICATIONS.DELETE, { 
-        ids: Array.isArray(ids) ? ids : [ids] 
-      });
-      return response.data;
+      const idArray = Array.isArray(ids) ? ids : [ids];
+      const responses = await Promise.all(idArray.map(id => apiClient.delete(API_ENDPOINTS.USER_NOTIFICATIONS.DELETE(id))));
+      return responses.map(res => res.data);
     } catch (error) {
       console.error('Error deleting notifications:', error);
       throw error;

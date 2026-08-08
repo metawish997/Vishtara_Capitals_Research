@@ -19,12 +19,10 @@ import { MaterialIcons, Ionicons, Feather } from '@expo/vector-icons';
 import { Tabs, useRouter } from 'expo-router';
 
 import announcementServices from '@/services/api/methods/announcementService';
+import { useAppearance } from '@/context/AppearanceContext';
 
 // --- Constants ---
 const { width } = Dimensions.get('window');
-const THEME_COLOR = '#0a7ea4';
-const BG_COLOR = '#F8F9FA';
-const CARD_BG = '#FFFFFF';
 
 // --- Types ---
 interface AnnouncementItem {
@@ -50,6 +48,30 @@ export default function Announcements() {
   const [search, setSearch] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('All');
 
+  const { colorScheme } = useAppearance();
+  const isDark = colorScheme === 'dark';
+
+  const theme = {
+    bg: isDark ? '#020210' : '#FFFFFF',
+    cardBg: isDark ? '#040410' : '#ffffff',
+    textPrimary: isDark ? '#FFFFFF' : '#141723',
+    textSecondary: isDark ? '#B5B2B1' : '#4f5568',
+    borderColor: isDark ? 'rgba(248, 185, 23, 0.15)' : 'rgba(20, 23, 35, 0.12)',
+    accent: isDark ? '#f8b917' : '#011d52',
+    searchBg: isDark ? 'rgba(255,255,255,0.02)' : '#ffffff',
+    chipBg: isDark ? 'rgba(255,255,255,0.02)' : '#ffffff',
+    chipActiveBg: isDark ? '#f8b917' : '#011d52',
+    chipActiveText: isDark ? '#020210' : '#000000',
+    chipCountBg: isDark ? 'rgba(255,255,255,0.05)' : '#F3F4F6',
+    chipCountActiveBg: isDark ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)',
+    tagNewBg: isDark ? 'rgba(248, 185, 23, 0.1)' : '#ecfccb',
+    tagNewBorder: isDark ? 'rgba(248, 185, 23, 0.3)' : '#d9f99d',
+    tagNewText: isDark ? '#f8b917' : '#4d7c0f',
+    tagStandardBg: isDark ? 'rgba(255,255,255,0.05)' : '#f1f5f9',
+    tagStandardBorder: isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0',
+    tagStandardText: isDark ? '#e2e8f0' : '#475569',
+  };
+
   // --- API Integration ---
   useEffect(() => {
     fetchData();
@@ -65,7 +87,7 @@ export default function Announcements() {
         // Map API data to our local AnnouncementItem interface
         // Adjust these mappings based on your actual API response structure
         const mappedData: AnnouncementItem[] = response.map((item: any) => ({
-          id: item.id?.toString() || Math.random().toString(),
+          id: item._id?.toString() || item.id?.toString() || Math.random().toString(),
           title: item.title || 'No Title',
           subtitle: item.subtitle || item.description || item.content || '',
           when: item.when || item.createdAt 
@@ -128,13 +150,13 @@ export default function Announcements() {
         key={item.key}
         onPress={() => setSelectedFilter(item.key)}
         activeOpacity={0.8}
-        style={[styles.chip, active && styles.chipActive]}
+        style={[styles.chip, { backgroundColor: active ? theme.chipActiveBg : theme.chipBg, borderColor: active ? theme.chipActiveBg : theme.borderColor }]}
       >
-        <Text style={[styles.chipText, active && styles.chipTextActive]}>
+        <Text style={[styles.chipText, { color: active ? theme.chipActiveText : theme.textSecondary }]}>
           {item.key}
         </Text>
-        <View style={[styles.chipCountBadge, active ? {backgroundColor: 'rgba(255,255,255,0.2)'} : {backgroundColor: '#F3F4F6'}]}>
-             <Text style={[styles.chipCountText, active ? {color: '#fff'} : {color: '#6B7280'}]}>{item.count}</Text>
+        <View style={[styles.chipCountBadge, { backgroundColor: active ? theme.chipCountActiveBg : theme.chipCountBg }]}>
+             <Text style={[styles.chipCountText, { color: active ? theme.chipActiveText : theme.textSecondary }]}>{item.count}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -144,7 +166,7 @@ export default function Announcements() {
     return (
       <TouchableOpacity 
         activeOpacity={0.9} 
-        style={styles.card}
+        style={[styles.card, { backgroundColor: theme.cardBg, borderColor: theme.borderColor }]}
         onPress={() => {
           router.push({
             pathname: '/pages/detailPages/announcementDetails',
@@ -162,23 +184,26 @@ export default function Announcements() {
                 {item.tags.map((t, index) => {
                     const isNew = t.toLowerCase() === 'new';
                     return (
-                        <View key={index} style={[styles.tagBadge, isNew ? styles.tagNew : styles.tagStandard]}>
-                            <Text style={[styles.tagText, isNew ? styles.tagTextNew : styles.tagTextStandard]}>{t}</Text>
+                        <View key={index} style={[styles.tagBadge, { 
+                          backgroundColor: isNew ? theme.tagNewBg : theme.tagStandardBg,
+                          borderColor: isNew ? theme.tagNewBorder : theme.tagStandardBorder
+                        }]}>
+                            <Text style={[styles.tagText, { color: isNew ? theme.tagNewText : theme.tagStandardText }]}>{t}</Text>
                         </View>
                     );
                 })}
             </View>
-            <Text style={styles.dateText}>{item.when}</Text>
+            <Text style={[styles.dateText, { color: theme.textSecondary }]}>{item.when}</Text>
         </View>
 
-        <Text style={styles.cardTitle}>{item.title}</Text>
-        <Text numberOfLines={2} style={styles.cardSubtitle}>
+        <Text style={[styles.cardTitle, { color: theme.textPrimary }]}>{item.title}</Text>
+        <Text numberOfLines={2} style={[styles.cardSubtitle, { color: theme.textSecondary }]}>
           {item.subtitle}
         </Text>
 
         <View style={styles.cardFooter}>
-            <Text style={styles.readMoreText}>Read Details</Text>
-            <Feather name="arrow-right" size={16} color={THEME_COLOR} />
+            <Text style={[styles.readMoreText, { color: theme.accent }]}>Read Details</Text>
+            <Feather name="arrow-right" size={16} color={theme.accent} />
         </View>
       </TouchableOpacity>
     );
@@ -196,30 +221,30 @@ export default function Announcements() {
         }}
       />
 
-      <SafeAreaView style={styles.safeArea}>
-        <StatusBar barStyle="dark-content" backgroundColor={BG_COLOR} />
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.bg }]}>
+        <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={theme.bg} />
         
         <View style={styles.container}>
             
             {/* Header / Search */}
-            <View style={styles.headerContainer}>
-                <Text style={styles.pageTitle}>Updates Feed</Text>
+            <View style={[styles.headerContainer, { backgroundColor: theme.bg }]}>
+                <Text style={[styles.pageTitle, { color: theme.textPrimary }]}>Updates Feed</Text>
                 
                 <View style={styles.searchRow}>
-                    <View style={styles.searchBar}>
-                        <Feather name="search" size={20} color="#9CA3AF" style={{ marginRight: 10 }} />
+                    <View style={[styles.searchBar, { backgroundColor: theme.searchBg, borderColor: theme.borderColor }]}>
+                        <Feather name="search" size={20} color={theme.textSecondary} style={{ marginRight: 10 }} />
                         <TextInput
                             placeholder="Search updates..."
-                            placeholderTextColor="#9CA3AF"
+                            placeholderTextColor={theme.textSecondary}
                             value={search}
                             onChangeText={setSearch}
-                            style={styles.searchInput}
+                            style={[styles.searchInput, { color: theme.textPrimary }]}
                             returnKeyType="search"
                         />
                     </View>
                     {/* Timeframe Button (Mock) */}
-                    <TouchableOpacity style={styles.filterBtn}>
-                         <Ionicons name="filter" size={20} color="#4B5563" />
+                    <TouchableOpacity style={[styles.filterBtn, { backgroundColor: theme.searchBg, borderColor: theme.borderColor }]}>
+                         <Ionicons name="filter" size={20} color={theme.textPrimary} />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -238,7 +263,7 @@ export default function Announcements() {
             {/* Main Content Area */}
             {isLoading ? (
               <View style={styles.centerContainer}>
-                <ActivityIndicator size="large" color={THEME_COLOR} />
+                <ActivityIndicator size="large" color={theme.accent} />
               </View>
             ) : (
               <FlatList
@@ -248,12 +273,12 @@ export default function Announcements() {
                   contentContainerStyle={styles.listContent}
                   showsVerticalScrollIndicator={false}
                   refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[THEME_COLOR]} />
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.accent} colors={[theme.accent]} />
                   }
                   ListEmptyComponent={
                     <View style={styles.emptyState}>
-                        <Feather name="inbox" size={40} color="#D1D5DB" />
-                        <Text style={styles.emptyText}>
+                        <Feather name="inbox" size={40} color={theme.textSecondary} />
+                        <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
                           {search ? "No matching announcements." : "No announcements found."}
                         </Text>
                     </View>
@@ -269,12 +294,10 @@ export default function Announcements() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: BG_COLOR,
   },
   container: {
     flex: 1,
     paddingTop: 15,
-
   },
   centerContainer: {
     flex: 1,
@@ -287,12 +310,10 @@ const styles = StyleSheet.create({
       paddingHorizontal: 10,
       paddingTop: 10,
       paddingBottom: 10,
-      backgroundColor: BG_COLOR,
   },
   pageTitle: {
       fontSize: 24,
       fontWeight: '700',
-      color: '#111827',
       marginBottom: 16,
   },
   searchRow: {
@@ -303,9 +324,7 @@ const styles = StyleSheet.create({
       flex: 1,
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: '#fff',
       borderWidth: 1,
-      borderColor: '#E5E7EB',
       borderRadius: 12,
       paddingHorizontal: 14,
       height: 46,
@@ -313,14 +332,11 @@ const styles = StyleSheet.create({
   searchInput: {
       flex: 1,
       fontSize: 14,
-      color: '#1F2937',
   },
   filterBtn: {
       width: 46,
       height: 46,
-      backgroundColor: '#fff',
       borderWidth: 1,
-      borderColor: '#E5E7EB',
       borderRadius: 12,
       justifyContent: 'center',
       alignItems: 'center',
@@ -337,26 +353,16 @@ const styles = StyleSheet.create({
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
     marginRight: 8,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  chipActive: {
-    backgroundColor: THEME_COLOR,
-    borderColor: THEME_COLOR,
   },
   chipText: {
     fontSize: 13,
-    color: '#4B5563',
     fontWeight: '500',
     marginRight: 6,
-  },
-  chipTextActive: {
-    color: '#fff',
   },
   chipCountBadge: {
       paddingHorizontal: 6,
@@ -376,12 +382,10 @@ const styles = StyleSheet.create({
   
   // Card
   card: {
-    backgroundColor: CARD_BG,
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -404,39 +408,22 @@ const styles = StyleSheet.create({
       borderRadius: 8,
       borderWidth: 1,
   },
-  tagNew: {
-      backgroundColor: '#ECFDF5',
-      borderColor: '#A7F3D0',
-  },
-  tagStandard: {
-      backgroundColor: '#EFF6FF',
-      borderColor: '#BFDBFE',
-  },
   tagText: {
       fontSize: 11,
       fontWeight: '600',
   },
-  tagTextNew: {
-      color: '#059669',
-  },
-  tagTextStandard: {
-      color: '#2563EB',
-  },
   dateText: {
       fontSize: 12,
-      color: '#9CA3AF',
       fontWeight: '500',
   },
   
   cardTitle: {
       fontSize: 16,
       fontWeight: '700',
-      color: '#111827',
       marginBottom: 6,
   },
   cardSubtitle: {
       fontSize: 14,
-      color: '#6B7280',
       lineHeight: 20,
       marginBottom: 16,
   },
@@ -448,7 +435,6 @@ const styles = StyleSheet.create({
   readMoreText: {
       fontSize: 13,
       fontWeight: '600',
-      color: THEME_COLOR,
       marginRight: 4,
   },
 
@@ -460,7 +446,6 @@ const styles = StyleSheet.create({
   },
   emptyText: {
       marginTop: 12,
-      color: '#9CA3AF',
       fontSize: 14,
   },
 });

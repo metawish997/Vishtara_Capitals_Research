@@ -1,5 +1,15 @@
 import axios from 'axios';
 
+export const BASE_URL = 'https://vishtaracapitalsresearch.com';
+export const API_BASE_URL = `${BASE_URL}/api/v1`;
+
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
 // --- Types ---
 
 export type AngelQuoteRaw = {
@@ -83,19 +93,15 @@ export type EquityTokenResponse = {
 };
 
 // --- API Config ---
-
-const API_BASE = 'https://bharatstockmarketresearch.com/api/angel';
-
 const ENDPOINTS = {
-  QUOTE: `${API_BASE}/quote`,
-  INDICES: `${API_BASE}/indices`,
-  MOVERS: `${API_BASE}/gainers-losers`,
-  HISTORY: `${API_BASE}/history`,
-  MARQUEE: `${API_BASE}/nifty50-marquee`,
-  WEEK_52: `${API_BASE}/52-week-data`,
-  // New Equity Routes
-  SEARCH_EQUITY: `${API_BASE}/search-equity-names`,
-  FIND_EQUITY_TOKEN: `${API_BASE}/find-equity-token`,
+  QUOTE: '/angel/quote',
+  INDICES: '/angel/indices',
+  MOVERS: '/angel/gainers-losers',
+  HISTORY: '/angel/history',
+  MARQUEE: '/angel/marquee',
+  WEEK_52: '/angel/52-week-data',
+  SEARCH_EQUITY: '/angel/equity/search',
+  FIND_EQUITY_TOKEN: '/angel/find-token',
 };
 
 const DEFAULT_TIMEOUT = 15000; // Increased to 15s to handle backend delays
@@ -108,22 +114,19 @@ const JSON_HEADERS = { Accept: 'application/json' };
  */
 export async function fetchAngelIndices(): Promise<AngelQuoteRaw[]> {
   try {
-    const res = await axios.get<AngelQuoteResponse>(ENDPOINTS.INDICES, {
-      headers: JSON_HEADERS,
-      timeout: DEFAULT_TIMEOUT,
-    });
+    const res = await api.get<AngelQuoteResponse>(ENDPOINTS.INDICES);
 
     if (!res.data?.status) {
-      console.warn('fetchAngelIndices: Backend returned false status');
+      // console.warn('fetchAngelIndices: Backend returned false status');
       return [];
     }
     return res.data?.data?.fetched ?? [];
   } catch (err: any) {
     // 500 Error Handler: Prevent Red Screen in React Native
     if (err.response?.status === 500) {
-      console.warn('fetchAngelIndices: Server Error (500). Check Backend Logs (Angel Login Failed).');
+      // console.warn('fetchAngelIndices: Server Error (500). Check Backend Logs (Angel Login Failed).');
     } else {
-      console.error('fetchAngelIndices Error:', err.message);
+      // console.error('fetchAngelIndices Error:', err.message);
     }
     return [];
   }
@@ -134,13 +137,10 @@ export async function fetchAngelIndices(): Promise<AngelQuoteRaw[]> {
  */
 export async function fetchNifty50Marquee(): Promise<any[]> {
   try {
-    const res = await axios.get(ENDPOINTS.MARQUEE, {
-      headers: JSON_HEADERS,
-      timeout: DEFAULT_TIMEOUT,
-    });
+    const res = await api.get(ENDPOINTS.MARQUEE);
     return res.data?.status ? res.data.data : [];
   } catch (err) {
-    console.warn('fetchNifty50Marquee Failed:', err);
+    // console.warn('fetchNifty50Marquee Failed:', err);
     return [];
   }
 }
@@ -155,14 +155,12 @@ export async function fetchGainersLosers(): Promise<MarketMoversResult> {
 
     // Parallel requests for speed
     const [gainersRes, losersRes] = await Promise.all([
-      axios.get<AngelMoverAPIResponse>(ENDPOINTS.MOVERS, { 
-        ...config, 
-        params: { ...params, datatype: 'GAINERS' } 
+      api.get<AngelMoverAPIResponse>(ENDPOINTS.MOVERS, {
+        params: { ...params, datatype: 'PercPriceGainers' }
       }).catch(() => null), // Return null instead of throwing
 
-      axios.get<AngelMoverAPIResponse>(ENDPOINTS.MOVERS, { 
-        ...config, 
-        params: { ...params, datatype: 'LOSERS' } 
+      api.get<AngelMoverAPIResponse>(ENDPOINTS.MOVERS, {
+        params: { ...params, datatype: 'PercPriceLosers' }
       }).catch(() => null),
     ]);
 
@@ -172,7 +170,7 @@ export async function fetchGainersLosers(): Promise<MarketMoversResult> {
     return { gainers, losers };
 
   } catch (err) {
-    console.error('fetchGainersLosers Critical Error:', err);
+    // console.error('fetchGainersLosers Critical Error:', err);
     return { gainers: [], losers: [] };
   }
 }
@@ -184,24 +182,21 @@ export async function fetchAngelQuotes(symbolTokens?: string[]): Promise<AngelQu
   try {
     if (!symbolTokens || symbolTokens.length === 0) return [];
 
-    // Backend expects comma-separated string in 'symbol' param
-    const params = { 
-        symbol: symbolTokens.join(','),
-        exchange: 'NSE' 
+    // Backend expects array in 'symbols' payload for POST request
+    const payload = {
+      symbols: symbolTokens,
+      exchange: 'NSE',
+      mode: 'FULL'
     };
 
-    const res = await axios.get<AngelQuoteResponse>(ENDPOINTS.QUOTE, {
-      params,
-      headers: JSON_HEADERS,
-      timeout: DEFAULT_TIMEOUT,
-    });
+    const res = await api.post<AngelQuoteResponse>(ENDPOINTS.QUOTE, payload);
 
     const fetched = res.data?.data?.fetched ?? [];
-    
+
     // Ensure we return data in the order requested if possible, or just raw list
     return fetched;
   } catch (err) {
-    console.warn('fetchAngelQuotes Error:', err);
+    // console.warn('fetchAngelQuotes Error:', err);
     return [];
   }
 }
@@ -217,11 +212,7 @@ export async function fetchAngelHistory(params: {
   to: string;
 }): Promise<AngelCandle[]> {
   try {
-    const res = await axios.get<AngelHistoryResponse>(ENDPOINTS.HISTORY, {
-      params,
-      headers: JSON_HEADERS,
-      timeout: DEFAULT_TIMEOUT,
-    });
+    const res = await api.get<AngelHistoryResponse>(ENDPOINTS.HISTORY, { params });
 
     const data = res.data?.data;
     if (Array.isArray(data)) {
@@ -247,17 +238,15 @@ export async function fetchAngelHistory(params: {
 }
 export async function searchEquityNames(query: string): Promise<string[]> {
   if (query.length < 2) return [];
-  
+
   try {
-    const res = await axios.get<EquitySearchResponse>(ENDPOINTS.SEARCH_EQUITY, {
-      params: { query, exchange: 'NSE' },
-      headers: JSON_HEADERS,
-      timeout: 5000,
+    const res = await api.get<EquitySearchResponse>(ENDPOINTS.SEARCH_EQUITY, {
+      params: { query, exchange: 'NSE' }
     });
 
     return res.data?.status ? res.data.data : [];
   } catch (err) {
-    console.warn('searchEquityNames Error:', err);
+    // console.warn('searchEquityNames Error:', err);
     return [];
   }
 }
@@ -265,10 +254,8 @@ export async function searchEquityNames(query: string): Promise<string[]> {
 
 export async function findEquityToken(name: string): Promise<EquityTokenData | null> {
   try {
-    const res = await axios.get<EquityTokenResponse>(ENDPOINTS.FIND_EQUITY_TOKEN, {
-      params: { name, exchange: 'NSE' },
-      headers: JSON_HEADERS,
-      timeout: 5000,
+    const res = await api.get<EquityTokenResponse>(ENDPOINTS.FIND_EQUITY_TOKEN, {
+      params: { name, exchange: 'NSE' }
     });
 
     if (res.data?.status && res.data?.data) {
@@ -276,7 +263,7 @@ export async function findEquityToken(name: string): Promise<EquityTokenData | n
     }
     return null;
   } catch (err) {
-    console.warn('findEquityToken Error:', err);
+    // console.warn('findEquityToken Error:', err);
     return null;
   }
 }

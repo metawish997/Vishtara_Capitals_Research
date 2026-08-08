@@ -1,20 +1,33 @@
 {
   "expo": {
-    "name": "Rapid Invest",
-    "slug": "rapit-invest",
-    "version": "1.0.0",
+    "name": "Vishtara Capital Research",
+    "slug": "vishtara-app",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "rapidinvest",
+    "scheme": "vishtaraapp",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app needs access to your camera to take your photo for E-Sign and KYC.",
+        "NSMicrophoneUsageDescription": "This app needs access to your microphone for video KYC."
+      }
     },
     "android": {
-      "package": "com.rapidinvest.app",
+      "package": "com.vishtaracapital.app",
+      "versionCode": 5,
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO",
+        "MODIFY_AUDIO_SETTINGS",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ],
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/icon.png",
-        "backgroundColor": "#E6F4FE"
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
       },
       "softwareKeyboardLayoutMode": "pan",
       "statusBar": {
@@ -34,7 +47,16 @@
         {
           "image": "./assets/images/icon.png",
           "resizeMode": "contain",
-          "backgroundColor": "#FFFFFF"
+          "backgroundColor": "#ffffff"
+        }
+      ],
+      "expo-font",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#ffffff",
+          "defaultChannel": "sound-channel-1"
         }
       ]
     ],
@@ -43,10 +65,13 @@
     },
     "extra": {
       "router": {},
+      "expo": {
+        "name": "Vishtara Capital Research",
+        "slug": "vishtara-app"
+      },
       "eas": {
-        "projectId": "bba92853-cca4-4e84-85cb-c0ab746756de"
+        "projectId": "eb50b70f-61dd-41e3-b515-49b68e779a12"
       }
-    },
-    "owner": "bhupendra_dhote"
+    }
   }
 }

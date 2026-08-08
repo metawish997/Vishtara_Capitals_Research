@@ -17,6 +17,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 // Ensure this path matches your project structure
 import blogAndNewsService from '@/services/api/methods/blogAndNewsService';
+import { useAppearance } from '@/context/AppearanceContext';
+import { IMAGE_BASE_URL } from '@/services/api/apiClient';
 
 // --- Unified Interface for both News and Blogs ---
 interface ArticleData {
@@ -35,6 +37,28 @@ export default function ArticleDetailsPage() {
   const [article, setArticle] = useState<ArticleData | null>(null);
   const [recentUpdates, setRecentUpdates] = useState<ArticleData[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const { colorScheme } = useAppearance();
+  const isDark = colorScheme === 'dark';
+
+  const theme = {
+    bg: isDark ? '#020210' : '#ffffff',
+    cardBg: isDark ? '#040410' : '#ffffff',
+    textPrimary: isDark ? '#FFFFFF' : '#111827',
+    textSecondary: isDark ? '#B5B2B1' : '#6B7280',
+    textBody: isDark ? '#D1D5DB' : '#374151',
+    borderColor: isDark ? 'rgba(248, 185, 23, 0.15)' : '#E5E7EB',
+    divider: isDark ? 'rgba(255,255,255,0.05)' : '#F3F4F6',
+    accent: isDark ? '#f8b917' : '#0a7ea4',
+    backBtnBg: isDark ? 'rgba(4, 4, 16, 0.7)' : 'rgba(255, 255, 255, 0.9)',
+    backBtnIcon: isDark ? '#FFFFFF' : '#000000',
+    typeBadgeBg: isDark ? 'rgba(255,255,255,0.1)' : '#E5E7EB',
+    typeText: isDark ? '#FFFFFF' : '#4B5563',
+    imgBg: isDark ? '#1C1C24' : '#F3F4F6',
+    loader: isDark ? '#f8b917' : '#000000',
+    goBackBg: isDark ? 'rgba(255,255,255,0.1)' : '#000',
+    goBackText: isDark ? '#FFFFFF' : '#FFFFFF',
+  };
 
   // --- Helper Functions ---
 
@@ -64,11 +88,21 @@ export default function ArticleDetailsPage() {
   };
 
   const getImageUrl = (item: any) => {
-    return item.image || item.image_url || item.thumbnail || 'https://via.placeholder.com/600';
+    const img = item.image || item.image_url || item.thumbnail;
+    let url = '';
+    if (typeof img === 'string') url = img;
+    else if (img && typeof img === 'object' && img.url) url = img.url;
+    else if (img && typeof img === 'object' && img.uri) url = img.uri;
+
+    if (url) {
+      if (url.startsWith('/uploads')) return `${IMAGE_BASE_URL}${url}`;
+      return url;
+    }
+    return 'https://via.placeholder.com/600';
   };
 
   // --- Main Fetch Logic ---
-  
+
   useEffect(() => {
     if (id) {
       fetchData();
@@ -79,7 +113,7 @@ export default function ArticleDetailsPage() {
     try {
       setLoading(true);
       // Scroll to top when loading new article (optional UX improvement)
-      
+
       // 1. Fetch Both Data Sources
       const [newsResponse, blogsResponse] = await Promise.all([
         blogAndNewsService.news.getAllNews(),
@@ -99,19 +133,19 @@ export default function ArticleDetailsPage() {
 
       // 2. Find the Current Article (Based on ID and Type)
       let currentItem: any = null;
-      
+
       if (type === 'blog') {
-        currentItem = rawBlogs.find((item: any) => item.id.toString() === id?.toString());
+        currentItem = rawBlogs.find((item: any) => (item._id || item.id)?.toString() === id?.toString());
       } else {
         // Default to news if type is missing or 'news'
-        currentItem = rawNews.find((item: any) => item.id.toString() === id?.toString());
+        currentItem = rawNews.find((item: any) => (item._id || item.id)?.toString() === id?.toString());
       }
 
       // 3. Set Current Article State
       if (currentItem) {
         // Logic to determine Meta text (Blogs get reading time, News gets simple date)
         const dateStr = formatDate(currentItem.published_at || currentItem.created_at);
-        const metaText = type === 'blog' && currentItem.reading_time 
+        const metaText = type === 'blog' && currentItem.reading_time
           ? `${dateStr} • ${currentItem.reading_time} min read`
           : dateStr;
 
@@ -131,7 +165,7 @@ export default function ArticleDetailsPage() {
       const taggedBlogs = rawBlogs.map((item: any) => ({ ...item, _type: 'blog' }));
 
       const combinedList = [...taggedNews, ...taggedBlogs]
-        .filter((item: any) => item.id.toString() !== id?.toString()) // Remove current article
+        .filter((item: any) => (item._id || item.id)?.toString() !== id?.toString()) // Remove current article
         .sort((a: any, b: any) => {
           // Sort by newest
           const dateA = new Date(a.published_at || a.created_at || 0).getTime();
@@ -142,7 +176,7 @@ export default function ArticleDetailsPage() {
 
       // Map to valid ArticleData interface
       const formattedRecent: ArticleData[] = combinedList.map((item: any) => ({
-        id: item.id,
+        id: item._id || item.id,
         title: item.title,
         meta: formatDate(item.published_at || item.created_at),
         imageUrl: getImageUrl(item),
@@ -163,90 +197,90 @@ export default function ArticleDetailsPage() {
 
   if (loading) {
     return (
-      <View style={[styles.container, styles.center]}>
-        <ActivityIndicator size="large" color="#000" />
+      <View style={[styles.container, styles.center, { backgroundColor: theme.bg }]}>
+        <ActivityIndicator size="large" color={theme.loader} />
       </View>
     );
   }
 
   if (!article) {
     return (
-      <View style={[styles.container, styles.center]}>
-        <Text style={styles.errorText}>Article not found.</Text>
-        <TouchableOpacity style={styles.goBackBtn} onPress={() => router.back()}>
-          <Text style={styles.goBackText}>Go Back</Text>
+      <View style={[styles.container, styles.center, { backgroundColor: theme.bg }]}>
+        <Text style={[styles.errorText, { color: theme.textSecondary }]}>Article not found.</Text>
+        <TouchableOpacity style={[styles.goBackBtn, { backgroundColor: theme.goBackBg }]} onPress={() => router.back()}>
+          <Text style={[styles.goBackText, { color: theme.goBackText }]}>Go Back</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.bg }]}>
       <Stack.Screen options={{ headerShown: false }} />
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={theme.bg} />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        
+
         {/* --- Hero Image --- */}
-        <View style={styles.imageContainer}>
+        <View style={[styles.imageContainer, { backgroundColor: theme.imgBg }]}>
           <Image source={{ uri: article.imageUrl }} style={styles.heroImage} />
-          
-          <TouchableOpacity 
-            style={styles.backButton} 
+
+          <TouchableOpacity
+            style={[styles.backButton, { backgroundColor: theme.backBtnBg }]}
             onPress={() => router.back()}
             activeOpacity={0.8}
           >
-            <Ionicons name="arrow-back" size={24} color="#000" />
+            <Ionicons name="arrow-back" size={24} color={theme.backBtnIcon} />
           </TouchableOpacity>
         </View>
 
         {/* --- Article Body --- */}
         <View style={styles.contentContainer}>
           {/* Badge for Type */}
-          <View style={styles.typeBadge}>
-            <Text style={styles.typeText}>{article.type === 'blog' ? 'BLOG' : 'NEWS'}</Text>
+          <View style={[styles.typeBadge, { backgroundColor: theme.typeBadgeBg }]}>
+            <Text style={[styles.typeText, { color: theme.typeText }]}>{article.type === 'blog' ? 'BLOG' : 'NEWS'}</Text>
           </View>
 
-          <Text style={styles.headline}>{article.title}</Text>
-          <Text style={styles.dateLine}>{article.meta}</Text>
+          <Text style={[styles.headline, { color: theme.textPrimary }]}>{article.title}</Text>
+          <Text style={[styles.dateLine, { color: theme.textSecondary }]}>{article.meta}</Text>
 
-          <Text style={styles.bodyText}>
+          <Text style={[styles.bodyText, { color: theme.textBody }]}>
             {article.body}
           </Text>
         </View>
 
         {/* --- Recent Updates Section --- */}
         {recentUpdates.length > 0 && (
-          <View style={styles.recentSection}>
-            <Text style={styles.recentHeader}>Recent Updates</Text>
-            
+          <View style={[styles.recentSection, { borderTopColor: theme.divider }]}>
+            <Text style={[styles.recentHeader, { color: theme.textPrimary }]}>Recent Updates</Text>
+
             <View style={styles.listContainer}>
               {recentUpdates.map((item, index) => (
-                <TouchableOpacity 
-                  key={`${item.type}-${item.id}-${index}`} 
-                  style={styles.card} 
+                <TouchableOpacity
+                  key={`${item.type}-${item.id}-${index}`}
+                  style={[styles.card, { backgroundColor: theme.cardBg, borderColor: theme.borderColor }]}
                   activeOpacity={0.7}
                   onPress={() => {
                     // Navigate to the same page with new params
                     router.push({
                       pathname: '/pages/detailPages/newsDetails', // Ensure this path matches your file name
-                      params: { id: item.id, type: item.type } 
+                      params: { id: item.id, type: item.type }
                     });
                   }}
                 >
                   <View style={styles.textContainer}>
-                    <Text style={styles.cardTitle} numberOfLines={3}>
+                    <Text style={[styles.cardTitle, { color: theme.textPrimary }]} numberOfLines={3}>
                       {item.title}
                     </Text>
-                    <Text style={styles.cardMeta}>
-                      {item.type === 'blog' ? 'Blog • ' : 'News • '} 
+                    <Text style={[styles.cardMeta, { color: theme.textSecondary }]}>
+                      {item.type === 'blog' ? 'Blog • ' : 'News • '}
                       {item.meta}
                     </Text>
                   </View>
 
-                  <Image 
-                    source={{ uri: item.imageUrl }} 
-                    style={styles.thumbnail}
+                  <Image
+                    source={{ uri: item.imageUrl }}
+                    style={[styles.thumbnail, { backgroundColor: theme.imgBg }]}
                   />
                 </TouchableOpacity>
               ))}
@@ -262,7 +296,6 @@ export default function ArticleDetailsPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   center: {
@@ -274,25 +307,21 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 16,
-    color: '#666',
     marginBottom: 20,
   },
   goBackBtn: {
     padding: 10,
-    backgroundColor: '#000',
     borderRadius: 8,
   },
   goBackText: {
-    color: '#fff',
     fontWeight: '600',
   },
-  
+
   // Hero Section
   imageContainer: {
     width: '100%',
     height: 260,
     position: 'relative',
-    backgroundColor: '#f0f0f0',
   },
   heroImage: {
     width: '100%',
@@ -301,12 +330,11 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    top: 20, 
+    top: 20,
     left: 20,
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     justifyContent: 'center',
     alignItems: 'center',
     // Shadow
@@ -323,7 +351,6 @@ const styles = StyleSheet.create({
   },
   typeBadge: {
     alignSelf: 'flex-start',
-    backgroundColor: '#E5E7EB',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
@@ -332,27 +359,23 @@ const styles = StyleSheet.create({
   typeText: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#4B5563',
     letterSpacing: 0.5,
   },
   headline: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#111827',
     marginBottom: 8,
     lineHeight: 30,
     textAlign: 'left',
   },
   dateLine: {
     fontSize: 12,
-    color: '#6B7280',
     fontWeight: '500',
     marginBottom: 24,
   },
   bodyText: {
     fontSize: 15,
     lineHeight: 26,
-    color: '#374151',
     textAlign: 'justify',
   },
 
@@ -361,13 +384,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingHorizontal: 20,
     borderTopWidth: 8,
-    borderTopColor: '#F3F4F6', // Thick divider
     paddingTop: 24,
   },
   recentHeader: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#111827',
     marginBottom: 16,
   },
   listContainer: {
@@ -375,10 +396,8 @@ const styles = StyleSheet.create({
   },
   card: {
     flexDirection: 'row',
-    backgroundColor: '#fff', 
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
     padding: 12,
     justifyContent: 'space-between',
     alignItems: 'flex-start',
@@ -387,18 +406,16 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 12,
     justifyContent: 'space-between',
-    minHeight: 80, 
+    minHeight: 80,
   },
   cardTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#111827',
     lineHeight: 20,
     marginBottom: 8,
   },
   cardMeta: {
     fontSize: 11,
-    color: '#6B7280', 
     fontWeight: '500',
     marginTop: 'auto',
   },
@@ -406,7 +423,6 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 8,
-    backgroundColor: '#F3F4F6',
     resizeMode: 'cover',
   },
 });

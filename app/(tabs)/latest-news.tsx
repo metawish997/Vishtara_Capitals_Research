@@ -15,11 +15,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import blogAndNewsService from '@/services/api/methods/blogAndNewsService';
+import { useAppearance } from '@/context/AppearanceContext';
+import { IMAGE_BASE_URL } from '@/services/api/apiClient';
 
 // --- Constants ---
 const { width } = Dimensions.get('window');
-const THEME_COLOR = '#0a7ea4';
-const BG_COLOR = '#F8F9FA';
 
 interface NewsItem {
   id: number | string;
@@ -37,6 +37,21 @@ const NewsPage = () => {
   const [feedData, setFeedData] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const { colorScheme } = useAppearance();
+  const isDark = colorScheme === 'dark';
+
+  const theme = {
+    bg: isDark ? '#020210' : '#FFFFFF',
+    cardBg: isDark ? '#040410' : '#ffffff',
+    textPrimary: isDark ? '#FFFFFF' : '#141723',
+    textSecondary: isDark ? '#B5B2B1' : '#4f5568',
+    borderColor: isDark ? 'rgba(248, 185, 23, 0.15)' : 'rgba(20, 23, 35, 0.12)',
+    accent: isDark ? '#f8b917' : '#011d52',
+    btnBg: isDark ? 'rgba(255,255,255,0.02)' : '#ffffff',
+    imgBg: isDark ? 'rgba(255,255,255,0.02)' : '#F3F4F6',
+    blogBadge: isDark ? '#0284c7' : '#0e46a0',
+  };
+
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -48,7 +63,17 @@ const NewsPage = () => {
   };
 
   const getImageUrl = (item: any) => {
-    return item.image || item.image_url || item.thumbnail || 'https://via.placeholder.com/300';
+    const img = item.image || item.image_url || item.thumbnail;
+    let url = '';
+    if (typeof img === 'string') url = img;
+    else if (img && typeof img === 'object' && img.url) url = img.url;
+    else if (img && typeof img === 'object' && img.uri) url = img.uri;
+
+    if (url) {
+      if (url.startsWith('/uploads')) return `${IMAGE_BASE_URL}${url}`;
+      return url;
+    }
+    return 'https://via.placeholder.com/300';
   };
 
   useEffect(() => {
@@ -73,7 +98,7 @@ const NewsPage = () => {
       const rawBlogs = getArray(blogsResponse);
 
       const formattedNews: NewsItem[] = rawNews.map((item: any) => ({
-        id: item.id,
+        id: item._id || item.id,
         title: item.title,
         meta: formatDate(item.published_at || item.created_at) || 'Latest',
         imageUrl: getImageUrl(item),
@@ -82,7 +107,7 @@ const NewsPage = () => {
       }));
 
       const formattedBlogs: NewsItem[] = rawBlogs.map((item: any) => ({
-        id: item.id,
+        id: item._id || item.id,
         title: item.title,
         meta: `${formatDate(item.published_at || item.created_at)} • ${item.reading_time || 5} min read`,
         imageUrl: getImageUrl(item),
@@ -105,28 +130,28 @@ const NewsPage = () => {
   const renderCard = (item: NewsItem, isHero = false) => (
     <TouchableOpacity
       key={`${item.type}-${item.id}`}
-      style={isHero ? styles.heroCard : styles.listCard}
+      style={[isHero ? styles.heroCard : styles.listCard, !isHero && { backgroundColor: theme.cardBg, borderColor: theme.borderColor }]}
       activeOpacity={0.9}
       onPress={() => router.push({ pathname: '/pages/detailPages/newsDetails', params: { id: item.id, type: item.type } })}
     >
-      <Image source={{ uri: item.imageUrl }} style={isHero ? styles.heroImage : styles.listThumbnail} />
-      
+      <Image source={{ uri: item.imageUrl }} style={[isHero ? styles.heroImage : styles.listThumbnail, !isHero && { backgroundColor: theme.imgBg }]} />
+
       <View style={isHero ? styles.heroOverlay : styles.listTextContent}>
         <View style={styles.badgeRow}>
-          <View style={[styles.typeBadge, { backgroundColor: item.type === 'blog' ? '#0e46a0' : THEME_COLOR }]}>
+          <View style={[styles.typeBadge, { backgroundColor: item.type === 'blog' ? theme.blogBadge : theme.accent }]}>
             <Text style={styles.typeBadgeText}>{item.type.toUpperCase()}</Text>
           </View>
           {isHero && <Text style={styles.heroMeta}>{item.meta}</Text>}
         </View>
 
-        <Text style={isHero ? styles.heroTitle : styles.listTitle} numberOfLines={isHero ? 2 : 3}>
+        <Text style={[isHero ? styles.heroTitle : styles.listTitle, !isHero && { color: theme.textPrimary }]} numberOfLines={isHero ? 2 : 3}>
           {item.title}
         </Text>
 
         {!isHero && (
           <View style={styles.listFooter}>
-            <Text style={styles.listMeta}>{item.meta}</Text>
-            <Feather name="arrow-right" size={14} color={THEME_COLOR} />
+            <Text style={[styles.listMeta, { color: theme.textSecondary }]}>{item.meta}</Text>
+            <Feather name="arrow-right" size={14} color={theme.accent} />
           </View>
         )}
       </View>
@@ -134,23 +159,23 @@ const NewsPage = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={BG_COLOR} />
-      
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.bg }]}>
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={theme.bg} />
+
       {loading ? (
         <View style={styles.loaderContainer}>
-          <ActivityIndicator size="large" color={THEME_COLOR} />
-          <Text style={styles.loadingText}>Fetching latest insights...</Text>
+          <ActivityIndicator size="large" color={theme.accent} />
+          <Text style={[styles.loadingText, { color: theme.textSecondary }]}>Fetching latest insights...</Text>
         </View>
       ) : (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
             <View>
-              <Text style={styles.welcomeText}>Insights & Updates</Text>
-              <Text style={styles.subHeaderText}>Smart moves for smart investors</Text>
+              <Text style={[styles.welcomeText, { color: theme.textPrimary }]}>Insights & Updates</Text>
+              <Text style={[styles.subHeaderText, { color: theme.textSecondary }]}>Smart moves for smart investors</Text>
             </View>
-            <TouchableOpacity onPress={fetchData} style={styles.refreshBtn}>
-              <Feather name="refresh-cw" size={20} color={THEME_COLOR} />
+            <TouchableOpacity onPress={fetchData} style={[styles.refreshBtn, { backgroundColor: theme.btnBg, borderColor: theme.borderColor }]}>
+              <Feather name="refresh-cw" size={20} color={theme.accent} />
             </TouchableOpacity>
           </View>
 
@@ -161,14 +186,14 @@ const NewsPage = () => {
           )}
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Recent Stories</Text>
+            <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>Recent Stories</Text>
             {feedData.slice(1).map((item) => renderCard(item))}
           </View>
 
           {feedData.length === 0 && (
             <View style={styles.emptyContainer}>
-              <MaterialCommunityIcons name="newspaper-variant-outline" size={60} color="#D1D5DB" />
-              <Text style={styles.emptyText}>No updates found at the moment.</Text>
+              <MaterialCommunityIcons name="newspaper-variant-outline" size={60} color={theme.textSecondary} />
+              <Text style={[styles.emptyText, { color: theme.textSecondary }]}>No updates found at the moment.</Text>
             </View>
           )}
         </ScrollView>
@@ -180,7 +205,6 @@ const NewsPage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: BG_COLOR,
     paddingTop: 15,
   },
   loaderContainer: {
@@ -191,7 +215,6 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 14,
-    color: '#6B7280',
     fontWeight: '500',
   },
   scrollContent: {
@@ -208,19 +231,15 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#111827',
   },
   subHeaderText: {
     fontSize: 13,
-    color: '#6B7280',
     marginTop: 2,
   },
   refreshBtn: {
     padding: 10,
-    backgroundColor: '#fff',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
   },
   section: {
     paddingHorizontal: 10,
@@ -229,7 +248,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#111827',
     marginBottom: 16,
   },
   // Hero Card Styles
@@ -240,7 +258,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#000',
     elevation: 10,
-    shadowColor: THEME_COLOR,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 10,
@@ -273,19 +290,16 @@ const styles = StyleSheet.create({
   // List Card Styles
   listCard: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
     borderRadius: 16,
     padding: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
     alignItems: 'center',
   },
   listThumbnail: {
     width: 100,
     height: 100,
     borderRadius: 12,
-    backgroundColor: '#F3F4F6',
   },
   listTextContent: {
     flex: 1,
@@ -296,12 +310,10 @@ const styles = StyleSheet.create({
   listTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#1F2937',
     lineHeight: 21,
   },
   listMeta: {
     fontSize: 11,
-    color: '#9CA3AF',
     fontWeight: '600',
   },
   listFooter: {
@@ -332,7 +344,6 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     marginTop: 12,
-    color: '#9CA3AF',
     fontSize: 15,
     fontWeight: '500',
   },

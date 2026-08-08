@@ -12,18 +12,38 @@ import {
 import { Ionicons, Feather, MaterialIcons } from '@expo/vector-icons';
 import { useRouter, Stack } from 'expo-router';
 import customerProfileServices from '@/services/api/methods/profileService';
+import agreementService from '@/services/api/methods/agreementService';
 import OtherPagesInc from '@/components/includes/otherPagesInc';
+import { useAppearance } from '@/context/AppearanceContext';
 
 // --- Constants ---
-const THEME_COLOR = '#0a7ea4';
+const THEME_COLOR = '#011d52';
 const BG_COLOR = '#F8F9FA';
 const CARD_BG = '#FFFFFF';
 
 export default function PaymentAndInvoices() {
   const router = useRouter();
+  const { colorScheme } = useAppearance();
+  const isDark = colorScheme === 'dark';
+  
+  const theme = {
+    bg: isDark ? '#020210' : '#FFFFFF',
+    card: isDark ? '#040410' : '#FFFFFF',
+    textPrimary: isDark ? '#FFFFFF' : '#111827',
+    textSecondary: isDark ? '#B5B2B1' : '#6B7280',
+    border: isDark ? 'rgba(248, 185, 23, 0.15)' : '#E5E7EB',
+    primary: isDark ? '#f8b917' : '#011d52',
+    danger: '#EF4444',
+    success: '#10B981',
+    menuIconBg: isDark ? 'rgba(248, 185, 23, 0.1)' : '#F3F4F6',
+    dateBoxBg: isDark ? 'rgba(255, 255, 255, 0.03)' : '#F9FAFB',
+    btnText: isDark ? '#000000' : '#FFFFFF',
+  };
+
   const [loading, setLoading] = useState(true);
   const [subscription, setSubscription] = useState<any>(null);
   const [planName, setPlanName] = useState('Free Tier');
+  const [isKycVerified, setIsKycVerified] = useState(true);
 
   // --- Helpers ---
   const formatDate = (dateString: string | null) => {
@@ -60,19 +80,38 @@ export default function PaymentAndInvoices() {
     let mounted = true;
     const fetchSubscriptionDetails = async () => {
       try {
-        const response: any = await customerProfileServices.getAllProfiles();
+        const [profileRes, accountRes] = await Promise.all([
+          customerProfileServices.getAllProfiles().catch(() => null),
+          agreementService.getAccountServices().catch(() => null)
+        ]);
+
         if (mounted) {
-          const user = response?.user ?? response?.data?.user ?? {};
-          const subData = user.subscription;
-          
-          if (subData) {
-            setSubscription(subData);
-            if (user.plan?.name) {
-              setPlanName(user.plan.name);
-            } else if (subData.status === 'active') {
-              setPlanName('Standard Plan');
-            } else {
-              setPlanName('Free Tier');
+          const user = (profileRes as any)?.user ?? (profileRes as any)?.data?.user ?? profileRes ?? {};
+          const kycStatus = user?.kyc_status || user?.kyc?.status || 'pending';
+          setIsKycVerified(kycStatus === 'verified' || kycStatus === 'approved');
+
+          if (accountRes && accountRes.success) {
+             const subs = accountRes.subscriptions || [];
+             const activeSub = subs.find((s: any) => s.status === 'ACTIVE' || s.status === 'active') || subs[0];
+             if (activeSub) {
+                 setSubscription(activeSub);
+                 const planData = activeSub.service_plan;
+                 setPlanName(planData?.name || 'Standard Plan');
+             } else {
+                 setPlanName('Free Tier');
+             }
+          } else {
+            // Fallback
+            const subData = user.subscription;
+            if (subData) {
+              setSubscription(subData);
+              if (user.plan?.name) {
+                setPlanName(user.plan.name);
+              } else if (subData.status === 'active') {
+                setPlanName('Standard Plan');
+              } else {
+                setPlanName('Free Tier');
+              }
             }
           }
         }
@@ -87,7 +126,7 @@ export default function PaymentAndInvoices() {
   }, []);
 
   // --- Derived State ---
-  const isActive = subscription?.status === 'active';
+  const isActive = subscription?.status === 'ACTIVE' || subscription?.status === 'active';
   const validityStart = subscription?.start_date;
   const validityEnd = subscription?.end_date;
   
@@ -100,66 +139,65 @@ export default function PaymentAndInvoices() {
   const formattedStart = formatDate(validityStart);
   const formattedEnd = formatDate(validityEnd);
   
-  const statusColor = isActive ? '#10B981' : '#6B7280';
   const statusText = isActive ? 'Active' : (subscription?.status || 'Inactive');
 
   if (loading) {
     return (
       <OtherPagesInc>
-         <Stack.Screen options={{ headerShown: false }} />
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={THEME_COLOR} />
+        <Stack.Screen options={{ headerShown: false }} />
+        <View style={[styles.loadingContainer, { backgroundColor: theme.bg }]}>
+          <ActivityIndicator size="large" color={theme.primary} />
         </View>
       </OtherPagesInc>
     );
   }
 
   return (
-    <OtherPagesInc>
+    <OtherPagesInc title="Payment & Invoices">
       <Stack.Screen options={{ headerShown: false }} />
-      <StatusBar barStyle="dark-content" backgroundColor={BG_COLOR} />
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={theme.bg} />
 
       <ScrollView 
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { backgroundColor: theme.bg }]}
+        style={{ backgroundColor: theme.bg }}
       >
         <View style={styles.headerContainer}>
-            <Text style={styles.pageTitle}>Payment & Invoices</Text>
-            <Text style={styles.pageSubtitle}>
+            <Text style={[styles.pageSubtitle, { color: theme.textSecondary, marginTop: 4 }]}>
             Manage your subscription plan, download invoices, and view payment history.
             </Text>
         </View>
 
         {/* --- Main Subscription Card --- */}
-        <View style={styles.cardContainer}>
+        <View style={[styles.cardContainer, { backgroundColor: theme.card, borderColor: theme.border }]}>
             <View style={styles.cardHeaderRow}>
-                <View style={styles.iconContainer}>
-                    <Feather name="package" size={24} color="#fff" />
+                <View style={[styles.iconContainer, { backgroundColor: theme.primary }]}>
+                    <Feather name="package" size={24} color={theme.btnText} />
                 </View>
                 <View style={{flex: 1}}>
-                    <Text style={styles.planNameLabel}>Current Plan</Text>
-                    <Text style={styles.planNameValue}>{planName}</Text>
+                    <Text style={[styles.planNameLabel, { color: theme.textSecondary }]}>Current Plan Summary</Text>
+                    <Text style={[styles.planNameValue, { color: theme.textPrimary }]}>{planName}</Text>
                 </View>
-                <View style={[styles.statusBadge, { backgroundColor: isActive ? '#DCFCE7' : '#F3F4F6' }]}>
-                    <Text style={[styles.statusText, { color: isActive ? '#15803D' : '#374151' }]}>
+                <View style={[styles.statusBadge, { backgroundColor: isActive ? (isDark ? 'rgba(16, 185, 129, 0.15)' : '#DCFCE7') : (isDark ? 'rgba(255, 255, 255, 0.05)' : '#F3F4F6') }]}>
+                    <Text style={[styles.statusText, { color: isActive ? theme.success : theme.textSecondary }]}>
                         {statusText.toUpperCase()}
                     </Text>
                 </View>
             </View>
 
-            <View style={styles.divider} />
+            <View style={[styles.divider, { backgroundColor: theme.border }]} />
 
             <View style={styles.statsRow}>
                 <View style={styles.statItem}>
-                    <Text style={styles.statLabel}>Plan Duration</Text>
-                    <Text style={styles.statValue}>{durationLabel}</Text>
+                    <Text style={[styles.statLabel, { color: theme.textSecondary }]}>Validity</Text>
+                    <Text style={[styles.statValue, { color: theme.textPrimary }]}>{durationLabel}</Text>
                 </View>
                 {isActive && (
                     <>
-                    <View style={styles.verticalDivider} />
+                    <View style={[styles.verticalDivider, { backgroundColor: theme.border }]} />
                     <View style={styles.statItem}>
-                        <Text style={styles.statLabel}>Days Left</Text>
-                        <Text style={[styles.statValue, { color: daysRemaining < 7 ? '#EF4444' : THEME_COLOR }]}>
+                        <Text style={[styles.statLabel, { color: theme.textSecondary }]}>Days Left</Text>
+                        <Text style={[styles.statValue, { color: daysRemaining < 7 ? theme.danger : theme.primary }]}>
                             {daysRemaining} Days
                         </Text>
                     </View>
@@ -168,82 +206,95 @@ export default function PaymentAndInvoices() {
             </View>
 
             {isActive && (
-                <View style={styles.datesContainer}>
+                <View style={[styles.datesContainer, { backgroundColor: theme.dateBoxBg }]}>
                     <View style={styles.dateBox}>
-                        <Text style={styles.dateLabel}>Start Date</Text>
-                        <Text style={styles.dateValue}>{formattedStart}</Text>
+                        <Text style={[styles.dateLabel, { color: theme.textSecondary }]}>Start Date</Text>
+                        <Text style={[styles.dateValue, { color: theme.textPrimary }]}>{formattedStart}</Text>
                     </View>
-                    <Feather name="arrow-right" size={16} color="#9CA3AF" />
+                    <Feather name="arrow-right" size={16} color={theme.textSecondary} />
                     <View style={[styles.dateBox, { alignItems: 'flex-end' }]}>
-                        <Text style={styles.dateLabel}>End Date</Text>
-                        <Text style={styles.dateValue}>{formattedEnd}</Text>
+                        <Text style={[styles.dateLabel, { color: theme.textSecondary }]}>Valid Till</Text>
+                        <Text style={[styles.dateValue, { color: theme.textPrimary }]}>{formattedEnd}</Text>
                     </View>
                 </View>
             )}
 
             {/* --- Action Buttons --- */}
             <View style={styles.actionRow}>
-                <TouchableOpacity 
-                    style={styles.primaryBtn}
-                    onPress={() => router.push('/pages/settingsInnerPages/pricingPlans')}
-                    activeOpacity={0.8}
-                >
-                    <Text style={styles.primaryBtnText}>
-                        {isActive ? "Upgrade Plan" : "Buy Subscription"}
-                    </Text>
-                    <Feather name="zap" size={16} color="#fff" style={{marginLeft: 8}} />
-                </TouchableOpacity>
+                {isKycVerified ? (
+                    <>
+                        <TouchableOpacity 
+                            style={[styles.primaryBtn, { backgroundColor: theme.primary }]}
+                            onPress={() => router.push('/pages/settingsInnerPages/pricingPlans')}
+                            activeOpacity={0.8}
+                        >
+                            <Text style={[styles.primaryBtnText, { color: theme.btnText }]}>
+                                {isActive ? "Upgrade Plan" : "Buy Subscription"}
+                            </Text>
+                            <Feather name="zap" size={16} color={theme.btnText} style={{marginLeft: 8}} />
+                        </TouchableOpacity>
 
-                {isActive && (
-                     <TouchableOpacity 
-                        style={styles.secondaryBtn}
-                        onPress={() => router.push('/pages/settingsInnerPages/pricingPlans')}
+                        {isActive && (
+                            <TouchableOpacity 
+                                style={[styles.secondaryBtn, { borderColor: theme.border, backgroundColor: theme.card }]}
+                                onPress={() => router.push('/pages/settingsInnerPages/pricingPlans')}
+                            >
+                                <Text style={[styles.secondaryBtnText, { color: theme.textPrimary }]}>Renew</Text>
+                            </TouchableOpacity>
+                        )}
+                    </>
+                ) : (
+                    <TouchableOpacity 
+                        style={[styles.primaryBtn, { backgroundColor: theme.primary }]}
+                        onPress={() => router.push('/pages/kyc/kycAgreement')}
+                        activeOpacity={0.8}
                     >
-                        <Text style={styles.secondaryBtnText}>Renew</Text>
-                     </TouchableOpacity>
+                        <Text style={[styles.primaryBtnText, { color: theme.btnText }]}>Complete KYC to Purchase</Text>
+                        <Feather name="file-text" size={16} color={theme.btnText} style={{marginLeft: 8}} />
+                    </TouchableOpacity>
                 )}
             </View>
         </View>
 
         {/* --- Alert Section (If Expiring) --- */}
         {isActive && daysRemaining < 7 && (
-            <View style={styles.alertBox}>
-                <Feather name="alert-circle" size={20} color="#B91C1C" />
+            <View style={[styles.alertBox, { backgroundColor: isDark ? 'rgba(239, 68, 68, 0.1)' : '#FEF2F2', borderColor: theme.danger }]}>
+                <Feather name="alert-circle" size={20} color={theme.danger} />
                 <View style={{marginLeft: 10, flex: 1}}>
-                    <Text style={styles.alertTitle}>Plan Expiring Soon</Text>
-                    <Text style={styles.alertDesc}>Your subscription ends on {formattedEnd}. Renew now to avoid interruption.</Text>
+                    <Text style={[styles.alertTitle, { color: theme.danger }]}>Plan Expiring Soon</Text>
+                    <Text style={[styles.alertDesc, { color: theme.textSecondary }]}>Your subscription ends on {formattedEnd}. Renew now to avoid interruption.</Text>
                 </View>
             </View>
         )}
 
         {/* --- Menu Links --- */}
         <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>History & Legal</Text>
+            <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>Quick Links</Text>
         </View>
 
-        <View style={styles.menuContainer}>
+        <View style={[styles.menuContainer, { backgroundColor: theme.card, borderColor: theme.border }]}>
             <TouchableOpacity 
                 style={styles.menuItem}
                 onPress={() => router.push('/pages/settingsInnerPages/paymentHistory')}
             >
-                <View style={styles.menuIconBox}>
-                    <Feather name="clock" size={20} color="#4B5563" />
+                <View style={[styles.menuIconBox, { backgroundColor: theme.menuIconBg }]}>
+                    <Feather name="clock" size={20} color={theme.textSecondary} />
                 </View>
-                <Text style={styles.menuText}>Payment History & Invoices</Text>
-                <Feather name="chevron-right" size={20} color="#9CA3AF" />
+                <Text style={[styles.menuText, { color: theme.textPrimary }]}>Payment History & Invoices</Text>
+                <Feather name="chevron-right" size={20} color={theme.textSecondary} />
             </TouchableOpacity>
 
-            <View style={styles.menuDivider} />
+            <View style={[styles.menuDivider, { backgroundColor: theme.border }]} />
 
             <TouchableOpacity 
                 style={styles.menuItem}
                 onPress={() => router.push('/pages/settingsInnerPages/legalDisclaimer')}
             >
-                <View style={styles.menuIconBox}>
-                    <Feather name="shield" size={20} color="#4B5563" />
+                <View style={[styles.menuIconBox, { backgroundColor: theme.menuIconBg }]}>
+                    <Feather name="shield" size={20} color={theme.textSecondary} />
                 </View>
-                <Text style={styles.menuText}>Legal Disclaimer</Text>
-                <Feather name="chevron-right" size={20} color="#9CA3AF" />
+                <Text style={[styles.menuText, { color: theme.textPrimary }]}>Legal Disclaimer</Text>
+                <Feather name="chevron-right" size={20} color={theme.textSecondary} />
             </TouchableOpacity>
         </View>
 

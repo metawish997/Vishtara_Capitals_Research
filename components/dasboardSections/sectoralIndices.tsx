@@ -14,6 +14,8 @@ import {
   fetchAngelIndices,
   AngelQuoteRaw,
 } from '../../services/api/methods/marketService';
+import { useAppearance } from '@/context/AppearanceContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 
@@ -69,7 +71,7 @@ const SparklineBase = ({ data, up }: { data: number[]; up: boolean }) => {
   const lineCommand = `M ${points.join(' L ')}`;
   const fillCommand = `${lineCommand} L ${GRAPH_WIDTH},${GRAPH_HEIGHT} L 0,${GRAPH_HEIGHT} Z`;
 
-  const color = up ? '#22c55e' : '#ef4444';
+  const color = up ? '#10b981' : '#ef4444';
   const gradientId = `grad-${up ? 'up' : 'down'}-${Math.random()}`;
 
   return (
@@ -169,12 +171,36 @@ const SectoralIndices: React.FC = () => {
 
   const chartCache = useRef<Map<string, number[]>>(new Map());
   const isMounted = useRef(true);
+  const { colorScheme } = useAppearance();
+  const isDark = colorScheme === 'dark';
+
+  const theme = {
+    cardBg: isDark ? '#040410' : '#ffffff',
+    textPrimary: isDark ? '#FFFFFF' : '#141723',
+    textSecondary: isDark ? '#B5B2B1' : '#4f5568',
+    borderColor: isDark ? 'rgba(248, 185, 23, 0.15)' : 'rgba(20, 23, 35, 0.12)',
+    divider: isDark ? 'rgba(255,255,255,0.05)' : '#f1f5f9',
+  };
   
   // Guard against overlapping requests
   const isFetching = useRef(false);
 
   useEffect(() => {
     isMounted.current = true;
+    
+    // Load from cache initially
+    const loadCache = async () => {
+      try {
+        const cached = await AsyncStorage.getItem('SECTORAL_INDICES_CACHE');
+        if (cached && isMounted.current) {
+          setIndices(JSON.parse(cached));
+        }
+      } catch (e) {
+        // ignore
+      }
+    };
+    loadCache();
+
     return () => {
       isMounted.current = false;
     };
@@ -199,66 +225,71 @@ const SectoralIndices: React.FC = () => {
       
       if (!isMounted.current) return;
 
-      const mapped: IndexModel[] = SECTORAL_SYMBOLS.map((s) => {
-        const q = findMarketData(fetched, s);
-
-        if (!q) {
-           // Fallback: Try to keep existing data if available
-           const cachedChart = chartCache.current.get(s.token) || [];
-           const oldIndex = indices?.find(i => i.id === s.id);
-           if(oldIndex) return oldIndex;
-
-          return {
-            ...s,
-            price: '-',
-            currency: 'INR',
-            change: '-',
-            percentChange: '-',
-            up: false,
-            chart: cachedChart,
-            rawPrice: 0,
-            rawChange: 0,
-            rawPercent: 0,
-          };
-        }
-
-        const currentLTP = Number(q.ltp ?? q.close ?? 0);
-        const netChange = Number(q.netChange);
-        const percentChangeRaw = Number(q.percentChange);
-        const up = netChange >= 0;
-        const price = fmt(currentLTP);
-        const change = netChange > 0 ? `+${netChange.toFixed(2)}` : netChange.toFixed(2);
-        const percentChange = `${Math.abs(percentChangeRaw).toFixed(2)}%`;
-
-        // Chart Logic
-        let chartData = chartCache.current.get(s.token);
-        if (!chartData || chartData.length === 0) {
-          chartData = generateInitialGraph(q);
-          chartCache.current.set(s.token, chartData);
-        } else {
-          const updatedChart = [...chartData];
-          updatedChart[updatedChart.length - 1] = currentLTP;
-          chartCache.current.set(s.token, updatedChart);
-          chartData = updatedChart;
-        }
-
-        return {
-          ...s,
-          exchange: q.exchange || s.exchange,
-          price,
-          currency: 'INR',
-          change,
-          percentChange,
-          up,
-          chart: chartData,
-          rawPrice: currentLTP,
-          rawChange: netChange,
-          rawPercent: percentChangeRaw,
-        };
-      });
-
       if (isMounted.current) {
-        setIndices(mapped);
+        setIndices((prevIndices) => {
+          const mapped: IndexModel[] = SECTORAL_SYMBOLS.map((s) => {
+            const q = findMarketData(fetched, s);
+
+            if (!q) {
+               // Fallback: Try to keep existing data if available
+               const cachedChart = chartCache.current.get(s.token) || [];
+               const oldIndex = prevIndices?.find(i => i.id === s.id);
+               if(oldIndex) return oldIndex;
+
+              return {
+                ...s,
+                price: '-',
+                currency: 'INR',
+                change: '-',
+                percentChange: '-',
+                up: false,
+                chart: cachedChart,
+                rawPrice: 0,
+                rawChange: 0,
+                rawPercent: 0,
+              };
+            }
+
+            const currentLTP = Number(q.ltp ?? q.close ?? 0);
+            const netChange = Number(q.netChange);
+            const percentChangeRaw = Number(q.percentChange);
+            const up = netChange >= 0;
+            const price = fmt(currentLTP);
+            const change = netChange > 0 ? `+${netChange.toFixed(2)}` : netChange.toFixed(2);
+            const percentChange = `${Math.abs(percentChangeRaw).toFixed(2)}%`;
+
+            // Chart Logic
+            let chartData = chartCache.current.get(s.token);
+            if (!chartData || chartData.length === 0) {
+              chartData = generateInitialGraph(q);
+              chartCache.current.set(s.token, chartData);
+            } else {
+              const updatedChart = [...chartData];
+              updatedChart[updatedChart.length - 1] = currentLTP;
+              chartCache.current.set(s.token, updatedChart);
+              chartData = updatedChart;
+            }
+
+            return {
+              ...s,
+              exchange: q.exchange || s.exchange,
+              price,
+              currency: 'INR',
+              change,
+              percentChange,
+              up,
+              chart: chartData,
+              rawPrice: currentLTP,
+              rawChange: netChange,
+              rawPercent: percentChangeRaw,
+            };
+          });
+
+          // Save to cache
+          AsyncStorage.setItem('SECTORAL_INDICES_CACHE', JSON.stringify(mapped)).catch(() => {});
+          
+          return mapped;
+        });
       }
     } catch (err: any) {
       console.warn('Sectoral Indices fetch failed:', err.message || 'Unknown');
@@ -269,7 +300,7 @@ const SectoralIndices: React.FC = () => {
         setRefreshing(false);
       }
     }
-  }, [indices]);
+  }, []);
 
   // Initial Load & Polling
   useEffect(() => {
@@ -290,19 +321,19 @@ const SectoralIndices: React.FC = () => {
   }, [fetchData]);
 
   const renderHeader = () => (
-    <View style={styles.headerRow}>
-      <Text style={[styles.headerText, { flex: 3 }]}>Index</Text>
-      <Text style={[styles.headerText, { flex: 2, textAlign: 'center' }]}>Trend</Text>
-      <Text style={[styles.headerText, { flex: 2, textAlign: 'right' }]}>Price</Text>
-      <Text style={[styles.headerText, { flex: 2, textAlign: 'right' }]}>Chg %</Text>
+    <View style={[styles.headerRow, { borderBottomColor: theme.divider }]}>
+      <Text style={[styles.headerText, { color: theme.textSecondary, flex: 3 }]}>Index</Text>
+      <Text style={[styles.headerText, { color: theme.textSecondary, flex: 2, textAlign: 'center' }]}>Trend</Text>
+      <Text style={[styles.headerText, { color: theme.textSecondary, flex: 2, textAlign: 'right' }]}>Price</Text>
+      <Text style={[styles.headerText, { color: theme.textSecondary, flex: 2, textAlign: 'right' }]}>Chg %</Text>
     </View>
   );
 
   const renderItem = ({ item }: { item: IndexModel }) => (
     <View style={styles.row}>
       <View style={styles.nameCol}>
-        <Text style={styles.symbolTitle}>{item.title}</Text>
-        <Text style={styles.exchangeText}>{item.exchange}</Text>
+        <Text style={[styles.symbolTitle, { color: theme.textPrimary }]}>{item.title}</Text>
+        <Text style={[styles.exchangeText, { color: theme.textSecondary }]}>{item.exchange}</Text>
       </View>
 
       <View style={styles.chartCol}>
@@ -310,7 +341,7 @@ const SectoralIndices: React.FC = () => {
       </View>
 
       <View style={styles.priceCol}>
-        <Text style={styles.priceText}>{item.price}</Text>
+        <Text style={[styles.priceText, { color: theme.textPrimary }]}>{item.price}</Text>
       </View>
 
       <View style={styles.changeCol}>
@@ -325,8 +356,8 @@ const SectoralIndices: React.FC = () => {
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.sectionTitle}>Sectoral Indices</Text>
+    <View style={[styles.container, { backgroundColor: theme.cardBg, borderColor: theme.borderColor }]}>
+      <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>Sectoral Indices</Text>
 
       {loading && !indices ? (
         <View style={styles.loadingContainer}>
@@ -341,7 +372,7 @@ const SectoralIndices: React.FC = () => {
             renderItem={renderItem}
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             scrollEnabled={false}
-            ItemSeparatorComponent={() => <View style={styles.separator} />}
+            ItemSeparatorComponent={() => <View style={[styles.separator, { backgroundColor: theme.divider }]} />}
           />
         </View>
       )}

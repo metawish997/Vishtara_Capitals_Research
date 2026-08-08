@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "866867654706",
+    "project_id": "vishtara-capital-research",
+    "storage_bucket": "vishtara-capital-research.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:866867654706:android:3acc9004a2bee054b08c2b",
+        "android_client_info": {
+          "package_name": "com.vishtaracapital.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXHFe6SFFXr718wyX1_TtGQ4p7h-qIsHg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

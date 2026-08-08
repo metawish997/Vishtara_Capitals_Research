@@ -15,12 +15,26 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, Stack } from 'expo-router';
 import OtherPagesInc from '@/components/includes/otherPagesInc';
+import { useAppearance } from '@/context/AppearanceContext';
 
 // IMPORTANT: Adjust this path to wherever your profileServices file is located
 import customerProfileServices from '@/services/api/methods/profileService';
 
 const VerifyNumberPage = () => {
   const router = useRouter();
+  const { colorScheme } = useAppearance();
+  const isDark = colorScheme === 'dark';
+
+  const theme = {
+    bg: isDark ? '#020210' : '#FFFFFF',
+    card: isDark ? '#040410' : '#FFFFFF',
+    textPrimary: isDark ? '#FFFFFF' : '#111827',
+    textSecondary: isDark ? '#B5B2B1' : '#6B7280',
+    border: isDark ? 'rgba(248, 185, 23, 0.15)' : '#E5E7EB',
+    primary: isDark ? '#f8b917' : '#005BC1',
+    primaryText: isDark ? '#000000' : '#FFFFFF',
+    inputBg: isDark ? 'rgba(255, 255, 255, 0.03)' : '#F5F5F5',
+  };
   
   // State to manage the step: 'number' or 'otp'
   const [step, setStep] = useState<'number' | 'otp'>('number');
@@ -141,9 +155,9 @@ await customerProfileServices.sendUpdateOtp({
         style={{ flex: 1 }}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={styles.innerContainer}>
+          <View style={[styles.innerContainer, { backgroundColor: theme.bg }]}>
             
-            <Text style={styles.title}>Verify Phone Number</Text>
+            <Text style={[styles.title, { color: theme.textPrimary }]}>Verify Phone Number</Text>
 
             {/* --- Success Message Display --- */}
             {successMessage && (
@@ -156,12 +170,12 @@ await customerProfileServices.sendUpdateOtp({
             {/* --- STEP 1: ENTER PHONE NUMBER --- */}
             {step === 'number' && (
               <View style={styles.formContainer}>
-                <Text style={styles.label}>Enter Phone Number</Text>
+                <Text style={[styles.label, { color: theme.textPrimary }]}>Enter Phone Number</Text>
                 
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, { backgroundColor: theme.inputBg, color: theme.textPrimary, borderColor: theme.border }]}
                   placeholder="+91 98765 43210"
-                  placeholderTextColor="#A0A0A0"
+                  placeholderTextColor={theme.textSecondary}
                   value={phoneNumber}
                   onChangeText={setPhoneNumber}
                   keyboardType="phone-pad"
@@ -170,7 +184,7 @@ await customerProfileServices.sendUpdateOtp({
                 />
 
                 <TouchableOpacity 
-                  style={[styles.primaryBtn, isSending && styles.disabledBtn]}
+                  style={[styles.primaryBtn, { backgroundColor: theme.primary }, isSending && styles.disabledBtn]}
                   activeOpacity={0.8}
                   onPress={handleSendOtp}
                   disabled={isSending}
@@ -178,7 +192,7 @@ await customerProfileServices.sendUpdateOtp({
                   {isSending ? (
                     <ActivityIndicator color="#fff" />
                   ) : (
-                    <Text style={styles.primaryBtnText}>Continue</Text>
+                    <Text style={[styles.primaryBtnText, { color: theme.primaryText }]}>Continue</Text>
                   )}
                 </TouchableOpacity>
               </View>
@@ -187,28 +201,28 @@ await customerProfileServices.sendUpdateOtp({
             {/* --- STEP 2: ENTER OTP --- */}
             {step === 'otp' && (
               <View style={styles.formContainer}>
-                <Text style={styles.label}>Enter OTP to Verify</Text>
+                <Text style={[styles.label, { color: theme.textPrimary }]}>Enter OTP to Verify</Text>
                 
                 <View style={styles.otpContainer}>
                   {otp.map((digit, index) => (
                     <TextInput
                         key={index}
                         ref={(ref) => { inputRefs.current[index] = ref }} 
-                        style={styles.otpInput}
+                        style={[styles.otpInput, { backgroundColor: theme.inputBg, color: theme.textPrimary, borderColor: theme.border }]}
                         value={digit}
                         onChangeText={(text) => handleOtpChange(text, index)}
                         onKeyPress={(e) => handleKeyPress(e, index)}
                         keyboardType="number-pad"
                         maxLength={1}
                         placeholder="0"
-                        placeholderTextColor="#C0C0C0"
+                        placeholderTextColor={theme.textSecondary}
                         editable={!isVerifying}
                         />
                   ))}
                 </View>
 
                 <TouchableOpacity 
-                  style={[styles.primaryBtn, isVerifying && styles.disabledBtn]}
+                  style={[styles.primaryBtn, { backgroundColor: theme.primary }, isVerifying && styles.disabledBtn]}
                   activeOpacity={0.8}
                   onPress={handleVerifyOtp}
                   disabled={isVerifying}
@@ -216,7 +230,7 @@ await customerProfileServices.sendUpdateOtp({
                   {isVerifying ? (
                     <ActivityIndicator color="#fff" />
                   ) : (
-                    <Text style={styles.primaryBtnText}>Verify Number</Text>
+                    <Text style={[styles.primaryBtnText, { color: theme.primaryText }]}>Verify Number</Text>
                   )}
                 </TouchableOpacity>
 
@@ -228,7 +242,7 @@ await customerProfileServices.sendUpdateOtp({
                     }}
                     disabled={isVerifying}
                 >
-                    <Text style={styles.resendText}>Change Number</Text>
+                    <Text style={[styles.resendText, { color: theme.primary }]}>Change Number</Text>
                 </TouchableOpacity>
               </View>
             )}
