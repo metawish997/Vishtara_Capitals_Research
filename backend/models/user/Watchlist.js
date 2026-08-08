@@ -21,6 +21,9 @@ const WatchlistSchema = new mongoose.Schema({
   },
 });
 
+WatchlistSchema.index({ user: 1 });
+
+
 WatchlistSchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   next();
