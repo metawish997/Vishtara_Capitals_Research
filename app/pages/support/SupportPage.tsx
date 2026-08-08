@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Image } from 'expo-image';
 import {
   View,
   Text,
@@ -9,7 +10,6 @@ import {
   StatusBar,
   Platform,
   Alert,
-  Image,
   Linking,
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -434,9 +434,9 @@ export default function SupportPage() {
                 </View>
             </TouchableOpacity>
         ) : (
-            <View style={[styles.attachmentPreview, { borderColor: theme.border }]}>
-                <Image source={{ uri: attachment }} style={styles.previewImage} resizeMode="cover" />
-                <TouchableOpacity style={styles.removeAttachBtn} onPress={removeAttachment}>
+             <View style={[styles.attachmentPreview, { borderColor: theme.border }]}>
+                 <Image source={{ uri: attachment }} style={styles.previewImage} contentFit="cover" transition={200} />
+                 <TouchableOpacity style={styles.removeAttachBtn} onPress={removeAttachment}>
                     <Feather name="x" size={16} color="#fff" />
                 </TouchableOpacity>
                 <Text style={styles.attachedLabel}>Screenshot attached</Text>
@@ -592,10 +592,12 @@ export default function SupportPage() {
                         activeOpacity={0.9} 
                         onPress={() => Linking.openURL(selectedTicket.attachment!.startsWith('http') ? selectedTicket.attachment! : `${IMAGE_BASE_URL}${selectedTicket.attachment}`)}
                      >
-                         <Image 
-                            source={{ uri: selectedTicket.attachment!.startsWith('http') ? selectedTicket.attachment! : `${IMAGE_BASE_URL}${selectedTicket.attachment}` }} 
-                            style={{ width: '100%', height: 160, borderRadius: 12, resizeMode: 'cover', borderWidth: 1, borderColor: theme.border }} 
-                         />
+                          <Image 
+                             source={{ uri: selectedTicket.attachment!.startsWith('http') ? selectedTicket.attachment! : `${IMAGE_BASE_URL}${selectedTicket.attachment}` }} 
+                             style={{ width: '100%', height: 160, borderRadius: 12, borderWidth: 1, borderColor: theme.border }} 
+                             contentFit="cover"
+                             transition={200}
+                          />
                      </TouchableOpacity>
                   </View>
                 ) : null}

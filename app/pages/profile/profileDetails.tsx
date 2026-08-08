@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { Image } from 'expo-image';
 import {
   View,
   Text,
@@ -7,7 +8,6 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
-  Image,
   Alert,
   Platform,
   KeyboardAvoidingView,
@@ -281,10 +281,12 @@ export default function ProfileDetails() {
 
             <View style={styles.avatarSection}>
               <TouchableOpacity onPress={pickImage} activeOpacity={0.8} style={styles.avatarWrapper}>
-                <Image
-                  source={profileImage ? { uri: profileImage } : { uri: 'https://cdn-icons-png.flaticon.com/512/149/149071.png' }}
-                  style={[styles.avatar, { borderColor: theme.card }]}
-                />
+                 <Image
+                   source={profileImage ? { uri: profileImage } : { uri: 'https://cdn-icons-png.flaticon.com/512/149/149071.png' }}
+                   style={[styles.avatar, { borderColor: theme.card }]}
+                   contentFit="cover"
+                   transition={200}
+                 />
                 <View style={[styles.cameraButton, { backgroundColor: theme.primary, borderColor: theme.card }]}>
                   <Ionicons name="camera" size={18} color="#000000" />
                 </View>

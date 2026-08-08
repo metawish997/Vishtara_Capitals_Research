@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { FlashList } from '@shopify/flash-list';
 import {
   StyleSheet,
-  FlatList,
   ScrollView,
   View,
   Text,
@@ -861,7 +861,7 @@ export default function WatchlistsScreen() {
           <Text style={[s.loadingText, { color: theme.sub }]}>Loading stocks...</Text>
         </View>
       ) : (
-        <FlatList
+        <FlashList
           key={`list-${selectedId}`}
           data={sortedScripts}
           keyExtractor={(i) => i._id}

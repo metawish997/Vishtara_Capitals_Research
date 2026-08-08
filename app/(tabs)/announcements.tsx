@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { FlashList } from '@shopify/flash-list';
 import {
   View,
   Text,
@@ -8,7 +9,6 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  FlatList,
   Dimensions,
   ListRenderItem,
   ActivityIndicator,
@@ -162,7 +162,7 @@ export default function Announcements() {
     );
   };
 
-  const renderCard: ListRenderItem<AnnouncementItem> = ({ item }) => {
+  const renderCard = ({ item }: { item: AnnouncementItem }) => {
     return (
       <TouchableOpacity 
         activeOpacity={0.9} 
@@ -266,7 +266,7 @@ export default function Announcements() {
                 <ActivityIndicator size="large" color={theme.accent} />
               </View>
             ) : (
-              <FlatList
+              <FlashList
                   data={filteredData}
                   keyExtractor={(i) => i.id}
                   renderItem={renderCard}

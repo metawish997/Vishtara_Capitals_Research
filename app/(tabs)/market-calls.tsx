@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
+import { FlashList } from '@shopify/flash-list';
 import {
   View,
   Text,
@@ -7,10 +8,10 @@ import {
   Dimensions,
   StatusBar,
   ActivityIndicator,
-  FlatList,
   RefreshControl,
   TextInput,
-  ScrollView
+  ScrollView,
+  FlatList
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -846,7 +847,7 @@ const MarketCalls = () => {
         </View>
 
         {/* --- MAIN SCROLLABLE FEED --- */}
-        <FlatList
+        <FlashList
           data={filteredCalls}
           keyExtractor={(item) => `call-${item.id}`}
           renderItem={({ item }) => (

@@ -3,6 +3,7 @@
     "name": "Vishtara Capital Research",
     "slug": "vishtara-app",
     "version": "1.0.4",
+    "jsEngine": "hermes",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "vishtaraapp",
