@@ -1,0 +1,78 @@
+@use '../../utils' as *;
+
+/*----------------------------------------*/
+/*  7.6 video css
+/*----------------------------------------*/
+
+.tp-fa-process{
+    &-item{
+        &:hover{
+            & .tp-fa-process-item-icon{
+                & span{
+                    color: var(--tp-finance-secondary);
+                    background-color: var(--tp-common-white);
+                    &::before{
+                        opacity: 1;
+                        visibility: visible;
+                    }
+                }
+            }
+        }
+        &-icon{
+            display: inline-block;
+            & span{
+                position: relative;
+                width: 100px;
+                height: 100px;
+                border-radius: 50%;
+                display: inline-grid;
+                place-content: center;
+                @include tp-transition();
+                color: var(--tp-advisory-orange);
+                border: 2px solid rgba(255, 255, 255, 0.10);
+                &::before{
+                    content: "";
+                    top: -10px;
+                    left: -10px;
+                    width: 120%;
+                    height: 120%;
+                    opacity: 0;
+                    z-index: -1;
+                    visibility: hidden;
+                    position: absolute;
+                    border-radius: 50%;
+                    @include tp-transition();
+                    border: 1px dashed rgba(255, 255, 255, 0.5);
+                }
+            }
+            & i{
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
+                font-weight: 400;
+                font-style: normal;
+                border-radius: 50%;
+                display: inline-grid;
+                place-content: center;
+                color: var(--tp-advisory-primary);
+                background-color: var(--tp-common-white);
+                border: 6px solid var(--tp-advisory-primary);
+            }
+        }
+        &-title{
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            color: var(--tp-common-white);
+        }
+        &-content{
+            & p{
+                color: #88A5AD;
+                margin-bottom: 0;
+            }
+        }
+    }
+}

@@ -1,0 +1,200 @@
+@use '../../utils' as *;
+
+/*----------------------------------------*/
+/*  8.3 partner css
+/*----------------------------------------*/
+
+.tp-fi-partner{
+    &-heading{
+        margin-bottom: 40px;
+        padding-bottom: 180px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        @media #{$xxl} {
+            padding-bottom: 120px;
+        }
+        @media #{$xl} {
+            padding-bottom: 50px;
+        }
+        @media #{$lg,$md} {
+            padding-bottom: 30px;
+            margin-bottom: 30px;
+        }
+        @media #{$xs} {
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        & .tp-section-title{
+            @media #{$xxl,$xl} {
+                & br{
+                    display: none;
+                }
+            }
+        }
+    }
+    &-wrap{
+        & p{
+            margin-bottom: 45px;
+            color: var(--tp-common-white);
+            @media #{$xl,$lg,$md,$xs} {
+                & br{
+                    display: none;
+                }
+            }
+            @media #{$lg,$md,$xs} {
+                margin-bottom: 30px;
+            }
+        }
+    }
+    &-btn-wrap{
+        gap: 25px;
+        display: flex;
+        @media #{$lg,$md,$xs} {
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        & .tp-fi-hero-contact{
+            & a{
+                color: var(--tp-common-white);
+                & span{
+                    color: var(--tp-finance-primary);
+                    background: rgba(255, 255, 255, 0.20);
+                }
+            }
+        }
+    }
+    &-thumb-wrap{
+        & .main-thumb{
+            & img{
+                filter: grayscale(100%);
+                @media #{$md,$xs} {
+                    width: 100%;
+                }
+            }
+        }
+        & .shape-1{
+            position: absolute;
+            bottom: 30px;
+            left: 22%;
+            z-index: 1;
+            @media #{$xxl} {
+                left: 14%;
+            }
+            @media #{$xl} {
+                left: 5%;
+            }
+            @media #{$lg,$md,$xs} {
+                display: none;
+            }
+        }
+        & .tp-fi-hero-shape{
+            bottom: 0;
+            right: 0;
+            @media #{$xxl} {
+                right: -16%;
+                bottom: -9%;
+            }
+            @media #{$xl,$lg} {
+                right: -24%;
+                bottom: -15%;
+            }
+            @media #{$xs} {
+                display: none;
+            }
+        }
+    }
+}
+
+
+.tp-fa-control{
+    &-heading,
+    &-right{
+        @media #{$md,$xs} {
+            margin-bottom: 30px;
+        }
+    }
+    &-item{
+        gap: 30px;
+        display: flex;
+        align-items: start;
+        @media #{$lg,$md} {
+            gap: 20px;
+        }
+        @media #{$xs} {
+            gap: 15px;
+        }
+        &:hover{
+            & .tp-fa-control-item{
+                &-icon{
+                    & span{
+                        & svg{
+                            animation: icon-bounce 0.8s 1;
+                        }
+                    }
+                }
+            }
+        }
+        &-icon{
+            & span{
+                width: 60px;
+                height: 60px;
+                text-align: center;
+                border-radius: 6px;
+                display: inline-grid;
+                place-content: center;
+                border: 1px solid rgba(27, 57, 66, 0.10);
+            }
+        }
+        &-title{
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: var(--tp-advisory-primary);
+        }
+        &-content{
+            & p{
+                color: var(--tp-advisory-secondary);
+                & br{
+                    @media #{$xl,$lg,$md,$xs} {
+                        display: none;
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+.tp-cc-control{
+    &-style{
+        & .tp-fi-hero-contact{
+            &  a {
+                &:hover{
+                    & span{
+                        background-color: var(--tp-corporate-primary);
+                    }
+                }
+                & span{
+                    background-color: var(--tp-corporate-sulu);
+                }
+            }
+        }
+        & .tp-fa-control-item-title{
+            color: var(--tp-corporate-primary);
+        }
+    }
+}
+
+.tp-at-control{
+    &-bottom{
+        & .tp-fa-control-item{
+            &-title{
+                color: var(--tp-accounting-brown);
+            }
+            &-content{
+                & p{
+                    color: var(--tp-accounting-wood);
+                }
+            }
+        }
+    }
+}

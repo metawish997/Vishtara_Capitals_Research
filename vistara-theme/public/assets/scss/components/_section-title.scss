@@ -1,0 +1,87 @@
+@use '../utils' as *;
+
+/*----------------------------------------*/
+/*  2.8 Section Title
+/*----------------------------------------*/
+
+
+.tp-section{
+    &-sub{
+        z-index: 1;
+        font-size: 16px;
+        font-weight: 500;
+        position: relative;
+        margin-bottom: 5px;
+        display: inline-block;
+        color: var(--tp-theme-secondary);
+        &::before{
+            position: absolute;
+            content: '';
+            left: 0;
+            bottom: 6px;
+            height: 5px;
+            width: 100%;
+            z-index: -1;
+            background: #CEF79E;
+        }
+        &.primary-color{
+            color: var(--tp-theme-primary);
+            &::before{
+                background: #476769;
+            }
+        }
+    }
+    &-title{
+        font-size: 48px;
+        font-weight: 400;
+        line-height: 1.15;
+        letter-spacing: -0.48px;
+        color: var(--tp-theme-secondary);
+        &.white-color{
+            color: var(--tp-common-white);
+        }
+        &.advisory-color{
+            color: var(--tp-advisory-primary);
+        }
+        &.corporate-color{
+            color: var(--tp-corporate-primary);
+        }
+        &.accounting-color{
+            color: var(--tp-accounting-brown);
+        }
+        @media #{$xl} {
+            font-size: 45px;
+            & br{
+                display: none;
+            }
+        }
+        @media #{$lg,$md,$xs} {
+            font-size: 40px;
+            & br{
+                display: none;
+            }
+        }
+        &.fs{
+            &-32{
+                font-size: 32px;
+            }
+            &-36{
+                font-size: 36px;
+            }
+        }
+    }
+    &-cn-sub{
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 10px;
+        display: inline-block;
+        color: var(--tp-consulting-secondary);
+    }
+    &-at-subtitle{
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 10px;
+        display: inline-block;
+        color: var(--tp-accounting-3);
+    }
+}

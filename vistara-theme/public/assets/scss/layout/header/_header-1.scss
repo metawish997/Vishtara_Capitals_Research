@@ -1,0 +1,293 @@
+@use '../../utils' as *;
+/*----------------------------------------*/
+/*  3.1 Header Style 1
+/*----------------------------------------*/
+
+.header-transparent{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9;
+    width: 100%;
+}
+
+.header-sticky {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	opacity: 1;
+	z-index: 9;
+	width: 100%;
+	visibility: visible;
+	background: var(--tp-common-white);
+	box-shadow: 0px 1px 3px 0px rgba(18, 20, 32, 0.14);
+	-webkit-animation: 0.95s ease 0s normal forwards 1 running headerSlideDown;
+	animation: 0.95s ease 0s normal forwards 1 running headerSlideDown;
+}
+
+.tp-header{
+    &-left{
+        &-side{
+            gap: 90px;
+            display: flex;
+            align-items: center;
+            @media #{$xl,$lg} {
+                gap: 45px;
+            }
+            @media #{$lg,$md,$xs} {
+                padding: 19px 0;
+            }
+        }
+    }
+    &-lan{
+        position: relative;
+        &::before{
+            position: absolute;
+            content: '';
+            top: 0;
+            left: -40px;
+            width: 1px;
+            height: 100%;
+            background-color: var(--tp-theme-primary);
+            @media #{$xl,$lg} {
+                left: -20px;
+            }
+        }
+        &:hover{
+            & .tp-header-lan-content{
+                top: 35px;
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+        & a{
+            position: relative;
+            & span{
+                font-size: 16px;
+                font-weight: 500;
+                display: inline-block;
+                color: var(--tp-finance-secondary);
+                & svg{
+                    @extend %svg-2;
+                    margin-inline-end: 4px;
+                }
+            }
+        }
+        &-content{
+            position: absolute;
+            top: 50px;
+            left: 0;
+            opacity: 0;
+            z-index: 2;
+            visibility: hidden;
+            @include tp-transition();
+            & ul{
+                padding: 10px;
+                width: 150px;
+                border-radius: 6px;
+                display: inline-block;
+                background: rgba(248, 248, 251, 0.9);
+                box-shadow: 0 20px 30px -8px rgba(19, 19, 22, 0.1);
+                & li{
+                    list-style: none;
+                    color: var(--tp-common-black);
+                    & a{
+                        display: block;
+                        padding: 4px 10px;
+                        &:hover{
+                            background-color: #F2F2F2;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    &-search{
+        & span{
+            color: var(--tp-finance-secondary);
+        }
+    }
+    &-bar{
+        & span{
+            &:hover{
+                & svg{
+                    & path{
+                        animation: bar_anim 0.8s cubic-bezier(0.44, 1.1, 0.53, 0.99) 1 forwards;
+                        &:nth-child(2) {
+                            animation-delay: 0.1s;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    &-bottom{
+        padding: 12px 0;
+    }
+    &-info{
+        gap: 40px;
+        display: flex;
+        & a{
+            font-size: 16px;
+            font-weight: 400;
+            letter-spacing: 0.16px;
+            color: var(--tp-finance-secondary);
+            & span{
+                margin-right: 5px;
+                display: inline-block;
+                transform: translateY(-2px);
+            }
+        }   
+    }
+    &-social{
+        & span{
+            font-size: 16px;
+            font-weight: 400;
+            margin-right: 25px;
+            display: inline-block;
+            letter-spacing: 0.16px;
+            color: var(--tp-finance-secondary);
+        }
+        & a{
+            color: var(--tp-finance-secondary);
+            &:not(:last-of-type){
+                margin-right: 15px;
+            }
+        }
+    }
+}
+
+
+.tp{
+    &-cn{
+        &-header-style{
+            &.bdrb{
+                border-bottom: 1px solid rgba(1, 55, 61, 0.15);
+            }
+            & .tp-header-lan {
+                & a{
+                    & span{
+                        color: var(--tp-consulting-secondary);
+                    }
+                }
+            }
+            & .tp-header-info {
+                & a{
+                    color: var(--tp-consulting-secondary);
+                }
+            }
+            & .tp-header-social{
+                & span,
+                & a{
+                    color: var(--tp-consulting-secondary);
+                }
+            }
+        }
+    }
+    &-fa{
+        &-header-style{
+            & .tp-header-lan {
+                &::before{
+                    background-color: rgba(27, 57, 66, 0.15);
+                }
+            }
+            & .tp-header-menu {
+                & > nav{
+                    & > ul{
+                        & > li{
+                            & > a{
+                                color: var(--tp-advisory-primary);
+                            }
+                        }
+                    }
+                }
+            }
+            & .tp-header-action{
+                & .tp-btn{
+                    color: var(--tp-advisory-primary);
+                    border-color: var(--tp-advisory-primary);
+                    & i{
+                        &::after{
+                            background-color: var(--tp-advisory-primary);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    &-cc{
+        &-header-style{
+            & .tp-header-lan {
+                &::before{
+                    background-color: var(--tp-corporate-primary);
+                }
+                & a{
+                    & span{
+                        color: var(--tp-corporate-primary);
+                    }
+                }
+            }
+            & .tp-header-menu {
+                & > nav{
+                    & > ul{
+                        & > li{
+                            & > a{
+                                color: var(--tp-corporate-primary);
+                            }
+                        }
+                    }
+                }
+            }
+            & .tp-header-action{
+                & .tp-btn{
+                    color: var(--tp-corporate-primary);
+                    border-color: var(--tp-corporate-primary);
+                    & i{
+                        &::after{
+                            background-color: var(--tp-corporate-primary);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    &-at{
+        &-header{
+            &-style{
+                & .tp-header-lan{
+                    &::before{
+                        background: rgba(58, 21, 16, 0.15);
+                    }
+                    & a{
+                        & span{
+                            color: var(--tp-accounting-brown);
+                        }
+                    }
+                }
+                & .tp-header-menu {
+                    & > nav{
+                        & > ul{
+                            & > li{
+                                & > a{
+                                    color: var(--tp-accounting-brown);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            &-contact{
+                & a{
+                    gap: 10px;
+                    display: flex;
+                    color: var(--tp-accounting-brown);
+                    & span{
+                        color: var(--tp-accounting-3);
+                    }
+                }
+            }
+        }
+    }
+}

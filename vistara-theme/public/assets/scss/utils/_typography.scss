@@ -1,0 +1,60 @@
+// 1. Google Font
+$font-url: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap';
+
+// 2. Local Font (WOFF format)
+// Name-er spelling ebong space thik vabe rakha hoyeche
+@font-face {
+  font-family: 'TT Hoves Pro Trial';
+  src: url('../fonts/TT Hoves Pro Trial Light.woff') format('woff');
+  font-weight: 300;
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'TT Hoves Pro Trial';
+  src: url('../fonts/TT Hoves Pro Trial Regular.woff') format('woff');
+  font-weight: 400;
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'TT Hoves Pro Trial';
+  src: url('../fonts/TT Hoves Pro Trial Medium.woff') format('woff');
+  font-weight: 500;
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'TT Hoves Pro Trial';
+  src: url('../fonts/TT Hoves Pro Trial DemiBold.woff') format('woff');
+  font-weight: 600;
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'TT Hoves Pro Trial';
+  src: url('../fonts/TT Hoves Pro Trial Bold.woff') format('woff');
+  font-weight: 700;
+  font-display: swap;
+  font-style: normal;
+}
+
+// 3. Variables
+$font-family: (
+    'ff': (
+        'body': "'TT Hoves Pro Trial', sans-serif",
+        'heading': "'TT Hoves Pro Trial', sans-serif",
+        'tt-pro': "'TT Hoves Pro Trial', sans-serif",
+    )
+);
+
+$font-size: (
+    'fz': (
+        'body': 14px,
+        'p': 16px,
+    )
+);

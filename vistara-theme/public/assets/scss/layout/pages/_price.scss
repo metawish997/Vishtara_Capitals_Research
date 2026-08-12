@@ -1,0 +1,158 @@
+@use '../../utils' as *;
+
+/*----------------------------------------*/
+/*  7.8 price css
+/*----------------------------------------*/
+
+.tp-at-pricing{
+    &-card {
+        padding: 50px;
+        display: flex;
+        min-height: 665px;
+        border-radius: 6px;
+        flex-direction: column;
+        justify-content: space-between;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        @media #{$xl,$md} {
+            padding: 40px;
+        }
+        @media #{$lg,$xs} {
+            padding: 30px;
+        }
+        @media #{$xs} {
+            min-height: 610px;
+        }
+    }
+    &-divider {
+        height: 1px;
+        margin: 34px 0;
+        position: relative;
+        background: rgba(255, 255, 255, 0.20);
+    }
+    &-features {
+        li {
+            display: flex;
+            font-size: 16px;
+            font-weight: 500;
+            align-items: center;
+            margin-bottom: 12px;
+            color: var(--tp-common-white);
+            svg {
+                width: 25px;
+                margin-right: 15px;
+            }
+        }
+    }
+    &-sub-section {
+        margin-top: 30px;
+        margin-bottom: 50px;
+    }
+    &-header {
+        margin-bottom: 30px;
+    }
+    &-title {
+        font-size: 20px;
+        font-weight: 500;
+        margin-bottom: 15px;
+        color: var(--tp-common-white);
+    }
+    &-sub-features {
+        li {
+            display: flex;
+            font-size: 16px;
+            margin-bottom: 8px;
+            align-items: center;
+            letter-spacing: -0.16px;
+            color: var(--tp-common-white);
+            svg {
+                color: var(--tp-common-white);
+                font-size: 14px;
+                margin-right: 12px;
+            }
+        }
+    }
+    &-sub-title {
+        font-size: 16px;
+        margin-bottom: 15px;
+        color: rgba(255, 255, 255, 0.70);
+    }
+    &-desc {
+        font-size: 16px;
+        line-height: 1.5;
+        color: rgba(255, 255, 255, 0.70);
+    }
+    &-value {
+        display: flex;
+        margin-bottom: 30px;
+        align-items: baseline;
+    }
+    &-amount {
+        font-size: 48px;
+        font-weight: 500; 
+        margin: 0 4px;
+        letter-spacing: -0.96px;
+        color: var(--tp-common-white);
+        @media #{$lg,$md,$xs} {
+            font-size: 42px;
+        }
+    }
+    &-interval {
+        font-size: 24px;
+        letter-spacing: -0.48px;
+        color: var(--tp-common-white);
+    }
+    &-btn {
+        padding: 16px 30px;
+        &.price-color{
+            color: var(--tp-accounting-brown);
+            background-color: var(--tp-common-white);
+        }
+        &:hover {
+            transform: translateY(-2px);
+        }
+    }
+}
+
+
+.tp-pricing{
+    &-style{
+        & .tp-at-pricing{
+            &-card{
+                border-color: rgba(34, 47, 48, 0.10);
+            }
+            &-title{
+                color: var(--tp-finance-secondary);
+            }
+            &-desc{
+                color: rgba(34, 47, 48, 0.70);
+            }
+            &-amount,
+            &-interval{
+                color: var(--tp-finance-secondary);
+            }
+            &-divider{
+                background: rgba(34, 47, 48, 0.10);
+            }
+            &-features{
+                li{
+                    color: var(--tp-finance-secondary);
+                }
+            }
+            &-sub-title{
+                color: rgba(34, 47, 48, 0.70);
+            }
+            &-sub-features{
+                li{
+                    color: var(--tp-finance-secondary);
+                }
+            }
+            &-btn{
+                &.price-btn-inner{
+                    background: #E7E8E1;
+                    color: var(--tp-finance-secondary);
+                }
+            }
+        }
+    }
+}

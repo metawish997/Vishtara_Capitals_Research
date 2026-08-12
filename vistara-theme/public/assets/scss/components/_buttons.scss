@@ -1,0 +1,341 @@
+@use '../utils' as *;
+
+/*----------------------------------------*/
+/*  2.2 Buttons
+/*----------------------------------------*/
+
+.tp-btn {
+	font-size: 16px;
+	font-weight: 500;
+	line-height: 1;
+	transition: .3s;
+	border-radius: 6px;
+	position: relative;
+	display: inline-block;
+	overflow: hidden;
+	padding: 17px 58px 17px 23px;
+	color: var(--tp-common-white);
+	background-color: var(--tp-theme-secondary);
+
+	& i {
+		&::after {
+			position: absolute;
+			content: '';
+			width: 7px;
+			height: 7px;
+			right: -36px;
+			top: 50%;
+			border-radius: 2px;
+			transform: translateY(-50%);
+			background-color: var(--tp-common-white);
+			transition: opacity .4s .25s, transform .6s .25s;
+
+			@media #{$xs} {
+				right: -30px;
+			}
+		}
+	}
+
+	@media #{$xs} {
+		padding: 17px 50px 17px 22px;
+	}
+
+	&:hover {
+		color: var(--tp-common-white);
+	}
+
+	&.theme-bg-color {
+		color: var(--tp-theme-secondary);
+		background-color: var(--tp-theme-primary);
+
+		& i {
+			&::after {
+				background-color: var(--tp-theme-secondary);
+			}
+		}
+	}
+
+	&-border {
+		background-color: transparent;
+		color: var(--tp-theme-secondary);
+		border: 1px solid rgba(34, 47, 48, 0.10);
+
+		& i {
+			&::after {
+				background-color: var(--tp-theme-secondary);
+			}
+		}
+
+		&:hover {
+			color: var(--tp-theme-secondary);
+		}
+	}
+
+	&-advisory {
+		&-style {
+			color: var(--tp-advisory-primary);
+			border-color: var(--tp-advisory-primary);
+
+			&:hover {
+				color: var(--tp-advisory-primary);
+			}
+
+			& i {
+				&::after {
+					background-color: var(--tp-advisory-primary);
+				}
+			}
+		}
+	}
+
+	&-corporate {
+		&-style {
+			background-color: var(--tp-corporate-primary);
+		}
+
+		&-sulu {
+			color: var(--tp-corporate-primary);
+			background-color: var(--tp-corporate-sulu);
+
+			&:hover {
+				color: var(--tp-corporate-primary);
+			}
+
+			& i {
+				&::after {
+					background-color: var(--tp-corporate-primary);
+				}
+			}
+		}
+	}
+
+	&-accounting {
+		&-style {
+			background-color: var(--tp-accounting-3);
+		}
+	}
+
+	&-switch {
+		&-animation {
+			-webkit-transition: all .3s ease-in-out;
+			transition: all .3s ease-in-out;
+
+			& .btn-text {
+				position: relative;
+				z-index: 3;
+				transition: transform .6s 0s cubic-bezier(.1, .75, .25, 1);
+			}
+
+			& .btn-icon {
+				position: relative;
+				transition: opacity .4s .25s, transform .6s .25s;
+				transition-timing-function: cubic-bezier(.1, .75, .25, 1);
+				line-height: 0;
+				z-index: 3;
+			}
+
+			& .btn-icon+.btn-icon {
+				order: -2;
+				opacity: 0;
+				margin-left: 0;
+				transform: translateX(-15px);
+				transition: opacity .4s 0s, transform .6s 0s;
+
+				&::after {
+					right: 40px;
+					transition: right .4s;
+				}
+			}
+
+			&:hover {
+				& .btn-text {
+					transition-delay: 125ms;
+					transform: translateX(25px);
+				}
+
+				& .btn-icon {
+					transition-delay: 0s;
+					transform: translateX(10px);
+					opacity: 0;
+				}
+
+				& .btn-icon+.btn-icon {
+					opacity: 1;
+					transform: translateX(10px);
+					transition-delay: 225ms;
+
+					&::after {
+						right: 0;
+					}
+				}
+			}
+		}
+	}
+
+	&-underline {
+		display: inline-flex;
+		align-items: center;
+		position: relative;
+		overflow: hidden;
+
+		&::before,
+		&::after {
+			content: "";
+			position: absolute;
+			display: block;
+			bottom: .2em;
+			width: 100%;
+			height: 1px;
+			background-color: currentColor;
+			transition: transform .5s cubic-bezier(.59, .23, .22, .96);
+		}
+
+		&::before {
+			left: 0;
+		}
+
+		&::after {
+			left: calc(-1 * 1rem);
+			transform: translateX(-100%);
+		}
+
+		&:hover {
+			color: var(--tp-common-black);
+
+			&::after {
+				transform: translateX(1rem);
+			}
+
+			&::before {
+				transform: translateX(calc(100% + 1rem));
+			}
+		}
+	}
+
+	&-event {
+		gap: 12px;
+		border-radius: 6px;
+		align-items: center;
+		display: inline-flex;
+		padding: 6px 6px 6px 25px;
+		color: var(--tp-common-white);
+		transition: background-color 0.3s ease;
+		background-color: var(--tp-theme-secondary);
+		&:hover,
+		&:focus {
+			color: var(--tp-common-white);
+		}
+		& .button {
+			&-text {
+				font-size: 16px;
+				font-weight: 500;
+				font-style: normal;
+				letter-spacing: 0.16px;
+			}
+			&-image {
+				position: relative;
+				z-index: 2;
+				width: 16px;
+				height: 16px;
+				display: block;
+				transform-style: preserve-3d;
+			}
+			&-icon-wrapper {
+				position: relative;
+				width: 32px;
+				height: 32px;
+				display: flex;
+				overflow: hidden;
+				border-radius: 2px;
+				align-items: center;
+				justify-content: center;
+				transform-style: preserve-3d;
+			}
+
+			&-dot {
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				z-index: 1;
+				top: 0;
+				left: 0;
+				border-radius: 2px;
+				transform: scale(0.25);
+				transform-origin: center;
+				background-color: var(--tp-common-white);
+			}
+		}
+		&.theme-bg-color {
+			color: var(--tp-theme-secondary);
+			background-color: var(--tp-theme-primary);
+			& .button{
+				&-dot{
+					background-color: var(--tp-theme-secondary);
+				}
+				&-image{
+					filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(180deg) brightness(200%) contrast(200%);
+				}
+			}
+		}
+		&.tp-btn{
+			&-border {
+				background-color: transparent;
+				color: var(--tp-finance-secondary);
+				border: 1px solid rgba(34, 47, 48, 0.10);
+				
+				& .button{
+					&-dot{
+						background-color: var(--tp-finance-secondary);
+					}
+					&-image{
+						filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(180deg) brightness(200%) contrast(200%);
+					}
+				}
+			}
+
+			&-advisory {
+				&-style {
+					color: var(--tp-advisory-primary);
+					border-color: var(--tp-advisory-primary);
+
+					&:hover {
+						color: var(--tp-advisory-primary);
+					}
+
+					& i {
+						&::after {
+							background-color: var(--tp-advisory-primary);
+						}
+					}
+				}
+			}
+
+			&-corporate {
+				&-style {
+					background-color: var(--tp-corporate-primary);
+				}
+
+				&-sulu {
+					color: var(--tp-corporate-primary);
+					background-color: var(--tp-corporate-sulu);
+
+					&:hover {
+						color: var(--tp-corporate-primary);
+					}
+
+					& i {
+						&::after {
+							background-color: var(--tp-corporate-primary);
+						}
+					}
+				}
+			}
+
+			&-accounting {
+				&-style {
+					background-color: var(--tp-accounting-3);
+				}
+			}
+		}
+	}
+}

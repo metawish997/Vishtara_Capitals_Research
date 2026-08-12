@@ -1,0 +1,42 @@
+2026-06-10T08:29:59.556Z
+MongoServerError: E11000 duplicate key error collection: test.employees index: email_1 dup key: { email: "priya@domain.com" }
+    at C:\Stock_Market\backend\node_modules\mongodb\lib\operations\insert.js:50:33
+    at C:\Stock_Market\backend\node_modules\mongodb\lib\operations\command.js:84:64
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+2026-06-10T08:29:59.562Z
+MongoServerError: E11000 duplicate key error collection: test.employees index: email_1 dup key: { email: "priya@domain.com" }
+    at C:\Stock_Market\backend\node_modules\mongodb\lib\operations\insert.js:50:33
+    at C:\Stock_Market\backend\node_modules\mongodb\lib\operations\command.js:84:64
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+2026-06-10T08:29:59.567Z
+MongoServerError: E11000 duplicate key error collection: test.employees index: email_1 dup key: { email: "priya@domain.com" }
+    at C:\Stock_Market\backend\node_modules\mongodb\lib\operations\insert.js:50:33
+    at C:\Stock_Market\backend\node_modules\mongodb\lib\operations\command.js:84:64
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+2026-06-10T08:29:59.574Z
+MongoServerError: E11000 duplicate key error collection: test.employees index: email_1 dup key: { email: "priya@domain.com" }
+    at C:\Stock_Market\backend\node_modules\mongodb\lib\operations\insert.js:50:33
+    at C:\Stock_Market\backend\node_modules\mongodb\lib\operations\command.js:84:64
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+2026-06-10T08:29:59.577Z
+MongoServerError: E11000 duplicate key error collection: test.employees index: email_1 dup key: { email: "priya@domain.com" }
+    at C:\Stock_Market\backend\node_modules\mongodb\lib\operations\insert.js:50:33
+    at C:\Stock_Market\backend\node_modules\mongodb\lib\operations\command.js:84:64
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+2026-06-10T08:30:01.357Z
+MongoServerError: E11000 duplicate key error collection: test.employees index: email_1 dup key: { email: "priya@domain.com" }
+    at C:\Stock_Market\backend\node_modules\mongodb\lib\operations\insert.js:50:33
+    at C:\Stock_Market\backend\node_modules\mongodb\lib\operations\command.js:84:64
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+2026-06-10T09:01:20.486Z
+MongoServerError: E11000 duplicate key error collection: test.employees index: email_1 dup key: { email: "priya@domain.com" }
+    at C:\Stock_Market\backend\node_modules\mongodb\lib\operations\insert.js:50:33
+    at C:\Stock_Market\backend\node_modules\mongodb\lib\operations\command.js:84:64
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+

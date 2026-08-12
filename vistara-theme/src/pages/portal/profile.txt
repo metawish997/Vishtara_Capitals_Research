@@ -1,0 +1,67 @@
+# COMPREHENSIVE BUSINESS LOGIC: E-SIGN & AGREEMENT WORKFLOW
+
+Yeh document Vistara Capital Research ke system ke E-Sign aur Agreement generation process ke flow ko vistaar (detail) se explain karta hai taaki koi bhi naya developer is poore codebase ko aasaani se samajh sake.
+
+Is business logic ka main maksad un users ke liye purchase process ko smooth banana hai jinki KYC complete nahi hai, aur unhe baad mein seamlessly apna pending e-sign pura karne ki suvidha dena hai.
+
+---
+
+## PART 1: THE TWO AGREEMENT GENERATION CONDITIONS
+
+Hamara agreement process do alag-alag conditions par depend karta hai:
+
+### Condition 1: When KYC is ALREADY COMPLETE
+Yeh normal aur standard flow hai.
+- **Process Sequence:** 
+  1. User ek Plan khareedta hai (Subscription generated).
+  2. Us purchase ki raseed banti hai (Invoice generated).
+  3. Kyunki user ka KYC (Aadhaar/PAN details) pehle se verified aur system mein maujood hai, backend turant ek "Agreement" generate kar deta hai.
+  4. Iske turant baad, user ko E-Sign process (Digio integration ke through) par bhej diya jata hai.
+- **Result:** Data DB mein store hota hai with a completed and e-signed PDF path.
+
+### Condition 2: When KYC is SKIPPED / INCOMPLETE (The Current Focus)
+Hamare business logic ko fast aur user-friendly banane ke liye, hum purchase ke time par incomplete KYC ko block nahi karte. Hum usko "skip" kar dete hain.
+- **Process Sequence:** 
+  1. User bina KYC ke ek Plan khareedta hai (Subscription generated).
+  2. Us purchase ki raseed banti hai (Invoice generated).
+  3. System ek "Agreement" ka basic record generate kar leta hai bina E-sign process trigger kiye. Kyunki KYC data hi nahi hai, hum E-sign nahi karwa sakte, isliye E-sign process puri tarah se SKIPPED hota hai.
+
+**🚨 IMPORTANT NOTE:** E-sign tab hi hoga jab KYC poori tarah complete hogi, kyunki e-sign process ke time par agreement mein Aadhaar, PAN aur dusri KYC details lagti hain. Bina in details ke e-sign ka legal document nahi ban sakta.
+
+- **Result:** Database mein Subscription, Invoice aur ek incomplete Agreement (jisme `pdf_path` nahi hota ya pending hota hai) store ho jata hai.
+
+---
+
+## PART 2: THE "CATCH-UP" / POST-KYC E-SIGN FUNCTIONALITY
+
+Yeh section system ke us core logic ko samjhata hai jab ek user jiske paas "Condition 2" wale pending agreements hain, wo finally apna KYC complete kar leta hai.
+
+**Scenario:** 
+Maan lijiye, ek user ne bina KYC ke 2 alag-alag plans (2 purchases) le rakhe hain. Database mein uske 2 subscriptions, 2 invoices, aur 2 agreements bina e-sign ke stored hain. Jab wo finally KYC complete karega, toh usko unn 2 purane agreements ko e-sign karna lazmi hoga. 
+
+Usko handle karne ka **Detailed Flow** neeche diya gaya hai:
+
+### 1. Identify & Fetch Data on Profile Page
+- Data (Subscription, Invoice, Agreement) pehle se hi Database (DB) mein stored hai.
+- Backend (`getAccountServices` API) check karega ki us user ke paas kitne agreements hain jinka e-sign abhi tak nahi hua hai.
+- Yeh pending agreements frontend par `Profile.jsx` page mein show kiye jayenge.
+- In pending agreements ke aage ek "Complete E-Sign" ka button display hoga.
+
+### 2. Reusing the Existing Modal (No Code Duplication)
+- Jab user Profile page par kisi purane agreement ke "Complete E-Sign" button par click karega, hum koi naya process ya modal nahi banayenge.
+- **Key Architecture Choice:** Hum theek wahi **"Agreement Modal"** launch karenge jo normally naye plan khareedte waqt `Plans.jsx` par launch hota hai.
+- Hum already stored DB data (plan name, amount, duration, features) us modal ko automatically feed kar denge, taaki user ko lage ki wo wahi standard process follow kar raha hai.
+
+### 3. Completing the E-Sign Process
+- Wo same modal backend API (`storeDraftAgreement`) ko hit karega us data ke sath.
+- Backend user ka abhi-abhi complete hua KYC details uthayega, invoice details DB se lega aur finally ek PDF generate karke Digio ko E-Sign ke liye bhej dega.
+- User e-sign complete kar lega.
+
+### 4. Updating the EXACT Same Location in Database
+- **Most Important Rule:** E-Sign complete hone ke baad jab signed agreement (PDF) Digio se download hoga, toh hum DB mein **koi naya row ya duplicate agreement record generate nahi karenge.**
+- Backend exactly usi purane Agreement record ko dhoondhega jo pending tha.
+- Wo download hue e-signed PDF ko save karke uski path (`pdf_path`) ko usi old DB record mein **update (replace/fill)** kar dega.
+
+---
+**Summary for Developers:** 
+Our business logic treats E-Sign as a modular attachment. Generate the business entities (Sub, Inv, Agr) unconditionally. If KYC is missing, skip E-Sign. Later, from the Profile page, reuse the `Plans.jsx` modal to inject the missing E-Sign into the pre-existing DB records without creating duplicates. This allows our business to capture sales immediately and resolve compliance (KYC/E-sign) asynchronously.

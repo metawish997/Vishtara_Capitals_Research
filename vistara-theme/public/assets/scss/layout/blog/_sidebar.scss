@@ -1,0 +1,117 @@
+@use '../../utils' as *;
+/*----------------------------------------*/
+/*  5.3 Sidebar css
+/*----------------------------------------*/
+
+.tp-sidebar{
+    &-widget{
+        &-title{
+            font-size: 24px;
+            margin-bottom: 25px;
+            color: var(--tp-finance-secondary);
+        }
+        &-author{
+            &-item{
+                padding: 40px;
+                border-radius: 6px;
+                background-color: var(--tp-finance-primary);
+                @media #{$lg} {
+                    padding: 32px;
+                }
+            }
+            &-thumb{
+                & img{
+                    border-radius: 50%;
+                }
+            }
+            &-name{
+                font-size: 20px;
+                font-weight: 500;
+                letter-spacing: -0.4px;
+                color: var(--tp-finance-secondary);
+            }
+            &-content{
+                & p{
+                    color: var(--tp-finance-secondary);
+                }
+            }
+        }
+        &-bg{
+            padding: 40px 40px;
+            border-radius: 6px;
+            background: var(--tp-finance-white);
+            border: 1px solid rgba(34, 47, 48, 0.10);
+            @media #{$xl} {
+                padding: 35px 30px;
+            }
+            @media #{$lg,$xs} {
+                padding: 30px 15px;
+            }
+        }
+        &-category{
+            &-list{
+                & li{
+                    list-style: none;
+                    border-radius: 6px;
+                    padding: 8px 8px 8px 25px;
+                    border: 1px solid rgba(34, 47, 48, 0.10);
+                    &:not(:last-child){
+                        margin-bottom: 15px;
+                    }
+                    @media #{$xs} {
+                        padding: 6px 6px 6px 20px;
+                    }
+                    & a{
+                        gap: 5px;
+                        display: flex;
+                        font-size: 20px;
+                        font-weight: 400;
+                        align-items: center;
+                        letter-spacing: -0.4px;
+                        justify-content: space-between;
+                        color: var(--tp-finance-secondary);
+                        &:hover{
+                            & span{
+                                color: var(--tp-common-white);
+                                background-color: var(--tp-finance-secondary);
+                            }
+                        }
+                        & span{
+                            font-size: 15px;
+                            font-weight: 500;
+                            width: 45px;
+                            height: 45px;
+                            border-radius: 4px;
+                            display: inline-grid;
+                            place-content: center;
+                            @include tp-transition();
+                            color: var(--tp-finance-secondary);
+                            background: var(--tp-common-white);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    &-search{
+        &-input{
+            position: relative;
+            & input{
+                border: none;
+                padding-left: 0;
+                padding-right: 40px;
+                color: var(--tp-finance-secondary);
+                border-bottom: 1px solid rgba(34, 47, 48, 0.10);
+                &::placeholder{
+                    font-size: 16px;
+                    color: var(--tp-finance-secondary);
+                }
+            }
+            & button{
+                right: 0;
+                top: 10px;
+                position: absolute;
+            }
+        }
+    }
+}

@@ -1,0 +1,147 @@
+@use '../../utils' as *;
+
+/*----------------------------------------*/
+/*  5.1 Postbox css
+/*----------------------------------------*/
+
+.postbox-details{
+    &-title{
+        font-size: 36px;
+        font-weight: 400;
+        margin-bottom: 22px;
+        letter-spacing: -0.36px;
+        color: var(--tp-finance-secondary);
+        @media #{$xs} {
+            font-size: 30px;
+        }
+        & br{
+            @media #{$xl,$lg,$md,$xs} {
+                display: none;
+            }
+        }
+    }
+    &-text{
+        & p{
+            color: var(--tp-finance-secondary);
+        }
+    }
+    &-quote{
+        padding: 30px;
+        border-radius: 6px;
+        @media #{$xs} {
+            flex-wrap: wrap;
+        }
+        &-thumb{
+            flex: 0 0 auto;
+            position: relative;
+            & img{
+                border-radius: 50%;
+            }
+            & span{
+                left: 36px;
+                bottom: 15px;
+                position: absolute;
+            }
+        }
+        &-content{
+            & p{
+                color: var(--tp-finance-secondary);
+            }
+        }
+    }
+    &-comment{
+        &-box{
+            margin-bottom: 40px;
+            padding-bottom: 47px;
+            border-bottom: 1px solid #E5E5E5;
+        }
+        &-title{
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 35px;
+            color: var(--tp-finance-secondary);
+        }
+        & ul{
+            & li{
+                list-style: none;
+            }
+        }
+        &-name{
+            gap: 15px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            @media #{$xs} {
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+            & h3{
+                font-size: 18px;
+                font-weight: 500;
+                margin-bottom: 0;
+                color: var(--tp-finance-secondary);
+            }
+            & span{
+                font-size: 14px;
+                font-weight: 500;
+                color: var(--tp-finance-secondary);
+            }
+        }
+        &-reply{
+            & a{
+                font-size: 14px;
+                font-weight: 500;
+                padding: 5px 17px;
+                border-radius: 100px;
+                border: 1px solid #F0F0F0;
+                color: var(--tp-finance-secondary);
+                & svg{
+                    margin-right: 5px;
+                    display: inline-block;
+                    transform: translateY(-2px);
+                }
+                &:hover{
+                    color: var(--tp-common-white);
+                    background-color: var(--tp-finance-secondary);
+                    border: 1px solid var(--tp-finance-secondary);
+                }
+            }
+        }
+        &-text{
+            & p{
+                margin-bottom: 25px;
+                color: var(--tp-finance-secondary);
+                & br{
+                    @media #{$xl,$lg,$md,$xs} {
+                        display: none; 
+                    }
+                }
+            }
+        }
+        &-avater{
+            & img{
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+            }
+        }
+        &-info{
+            flex: 0 0 auto;
+        }
+        &-from{
+            @media #{$md,$sm,$xs} {
+                margin-bottom: 30px;
+            }
+            & .tp-postbox-comment{
+                &-title{
+                    margin-bottom: 5px;
+                }
+                &-p{
+                    font-size: 16px;
+                    font-weight: 300;
+                    margin-bottom: 40px;
+                }
+            }
+        }
+    }
+}

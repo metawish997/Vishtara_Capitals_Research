@@ -1,0 +1,66 @@
+@use '../../utils' as *;
+
+/*----------------------------------------*/
+/*  4.2 Mobile Menu
+/*----------------------------------------*/
+
+
+.tp-offcanvas-menu {
+    margin-bottom: 50px;
+    & ul{
+        list-style: none;
+        & li {
+            position: relative;
+            & > a{
+                font-size: 18px;
+                padding: 10px 0;
+                display: block;
+                font-weight: 500;
+            }
+            &.active{
+                & > a{
+                    color: var(--tp-common-black);
+                }
+                & > .tp-menu-close{
+                    &::before{
+                        transform: translateY(-50%) rotate(-90deg);
+                    }
+                }
+            }
+            & .submenu {
+                display: none;
+                & .submenu{
+                    margin-left: 30px;
+                }
+            }
+        }
+    }
+    & .tp-submenu > li > a{
+        font-size: 17px;
+        padding: 8px 20px;
+        &:hover{
+            padding-left: 26px;
+            color: var(--tp-common-black);
+        }
+    }
+}
+.tp-menu-close {
+    top: 24px;
+    right: 14px;
+    position: absolute;
+    transition: all 0.15s ease-in-out;
+    &::before{
+        position: absolute;
+        content: "";
+        height: 15px;
+        width: 15px;
+        transform-origin: center;
+        background-size: contain;
+        transform: translateY(-50%);
+        background-repeat: no-repeat;
+        transition: all 0.15s ease-in-out;
+        color: var(--tp-finance-secondary);
+        -webkit-transition: all 0.15s ease-in-out;
+        background-image: url("data:image/svg+xml,%3Csvg width='15' height='16' viewBox='0 0 15 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7.08333 0.0644531L7.08333 15.0645M14.1667 7.98112L0 7.98112' stroke='currentcolor' stroke-width='1.5'%3E%3C/path%3E%3C/svg%3E");
+    }
+}
