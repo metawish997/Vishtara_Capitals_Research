@@ -123,6 +123,9 @@ const TipSchema = new mongoose.Schema({
   },
 });
 
+TipSchema.index({ trade_status: 1, createdAt: -1 });
+
+
 TipSchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   next();

@@ -47,6 +47,9 @@ const WatchlistScriptSchema = new mongoose.Schema({
   },
 });
 
+WatchlistScriptSchema.index({ watchlist: 1 });
+
+
 WatchlistScriptSchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   next();

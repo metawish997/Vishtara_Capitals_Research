@@ -7,9 +7,19 @@ const AngelOneService = require('../../services/angel/AngelOneService');
 const MasterNotification = require('../../models/notification/MasterNotification');
 
 // --- Tip Category Controllers ---
+// Simple in-memory cache for static categories (expires in 5 minutes)
+let categoriesCache = null;
+let categoriesCacheExpiry = 0;
+
 exports.getTipCategories = async (req, res, next) => {
   try {
+    const now = Date.now();
+    if (categoriesCache && now < categoriesCacheExpiry) {
+      return res.status(200).json({ success: true, count: categoriesCache.length, data: categoriesCache });
+    }
     const categories = await TipCategory.find();
+    categoriesCache = categories;
+    categoriesCacheExpiry = now + 5 * 60 * 1000; // 5 minutes TTL
     res.status(200).json({ success: true, count: categories.length, data: categories });
   } catch (error) { next(error); }
 };
@@ -18,6 +28,7 @@ exports.createTipCategory = async (req, res, next) => {
   try {
     console.log('[TipController] Creating Category:', req.body);
     const category = await TipCategory.create(req.body);
+    categoriesCache = null; // Invalidate cache
     res.status(201).json({ success: true, data: category });
   } catch (error) { next(error); }
 };
@@ -30,6 +41,7 @@ exports.updateTipCategory = async (req, res, next) => {
       runValidators: true
     });
     if (!category) return res.status(404).json({ success: false, message: 'Category not found' });
+    categoriesCache = null; // Invalidate cache
     res.status(200).json({ success: true, data: category });
   } catch (error) { next(error); }
 };
@@ -39,6 +51,7 @@ exports.deleteTipCategory = async (req, res, next) => {
     const category = await TipCategory.findById(req.params.id);
     if (!category) return res.status(404).json({ success: false, message: 'Category not found' });
     await category.deleteOne();
+    categoriesCache = null; // Invalidate cache
     res.status(200).json({ success: true, data: {} });
   } catch (error) { next(error); }
 };
