@@ -6,7 +6,13 @@ const ManualPaymentModal = ({ isOpen, onClose, finalPrice, selectedPlan, selecte
     const [screenshot, setScreenshot] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [paidAmount, setPaidAmount] = useState(finalPrice?.replace(/[^0-9.]/g, '') || '');
+    const [paidAmount, setPaidAmount] = useState('');
+
+    React.useEffect(() => {
+        if (isOpen && finalPrice) {
+            setPaidAmount(finalPrice.toString().replace(/[^0-9.]/g, ''));
+        }
+    }, [isOpen, finalPrice]);
 
     const actualPrice = Number(finalPrice?.toString().replace(/[^0-9.]/g, '') || 0);
     const isFree = actualPrice === 0;
@@ -56,11 +62,10 @@ const ManualPaymentModal = ({ isOpen, onClose, finalPrice, selectedPlan, selecte
         }
     };
 
-    const upiLink = `upi://pay?pa=The Rapid Investorsresearch@upi&pn=BSMR&am=${paidAmount}&cu=INR`;
-    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiLink)}`;
+    const qrCodeUrl = "/assets/img/qr_image/image.png";
 
     return (
-        <div style={{ position: "fixed", inset: 0, zIndex: 120, backgroundColor: "rgba(15, 23, 42, 0.9)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
+        <div style={{ position: "fixed", inset: 0, zIndex: 9999, backgroundColor: "rgba(15, 23, 42, 0.9)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
             <div style={{ width: "100%", maxWidth: "768px", backgroundColor: "#ffffff", borderRadius: "24px", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)", overflow: "hidden", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column" }}>
 
                 {/* HEADER */}
@@ -69,7 +74,7 @@ const ManualPaymentModal = ({ isOpen, onClose, finalPrice, selectedPlan, selecte
                         <div style={{ backgroundColor: "rgba(255,255,255,0.1)", padding: "8px", borderRadius: "8px" }}>
                             <svg style={{ width: "16px", height: "16px", color: "#e0f2fe" }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
                         </div>
-                        <h3 style={{ fontSize: "12px", fontWeight: "900", textTransform: "uppercase", letterSpacing: "1px", margin: 0 }}>Manual Payment Gateway</h3>
+                        <h3 style={{ fontSize: "12px", fontWeight: "900", textTransform: "uppercase", letterSpacing: "1px", margin: 0, color: "#ffffff" }}>Manual Payment Gateway</h3>
                     </div>
                     <button onClick={onClose} style={{ width: "32px", height: "32px", borderRadius: "50%", background: "transparent", border: "none", color: "rgba(255,255,255,0.7)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px" }}>
                         ✕
@@ -86,8 +91,8 @@ const ManualPaymentModal = ({ isOpen, onClose, finalPrice, selectedPlan, selecte
                                     <h4 style={{ fontSize: "12px", fontWeight: "900", color: "#011D52", textTransform: "uppercase", margin: 0 }}>Institutional UPI QR</h4>
                                 </div>
 
-                                <div style={{ backgroundColor: "#ffffff", padding: "20px", borderRadius: "24px", border: "1px solid #e2e8f0", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)", display: "inline-block", marginBottom: "24px" }}>
-                                    <img src={qrCodeUrl} style={{ width: "160px", height: "160px", objectFit: "contain" }} alt="Payment QR" />
+                                <div style={{ backgroundColor: "#ffffff", padding: "12px", borderRadius: "24px", border: "1px solid #e2e8f0", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)", display: "inline-block", marginBottom: "24px" }}>
+                                    <img src={qrCodeUrl} style={{ width: "100%", maxWidth: "260px", height: "auto", objectFit: "contain", borderRadius: "12px" }} alt="Payment QR" />
                                 </div>
 
                                 <div>
@@ -140,10 +145,8 @@ const ManualPaymentModal = ({ isOpen, onClose, finalPrice, selectedPlan, selecte
                                         <input
                                             type="number"
                                             value={paidAmount}
-                                            onChange={(e) => setPaidAmount(e.target.value)}
-                                            style={{ width: "100%", padding: "12px 16px 12px 32px", backgroundColor: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "12px", fontWeight: "900", color: "#011D52", fontSize: "12px", outline: "none", transition: "all 0.2s" }}
-                                            onFocus={(e) => { e.target.style.borderColor = "#011D52"; e.target.style.backgroundColor = "#ffffff"; }}
-                                            onBlur={(e) => { e.target.style.borderColor = "#e2e8f0"; e.target.style.backgroundColor = "#f8fafc"; }}
+                                            readOnly
+                                            style={{ width: "100%", padding: "12px 16px 12px 32px", backgroundColor: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: "12px", fontWeight: "900", color: "#64748b", fontSize: "12px", outline: "none", cursor: "not-allowed" }}
                                             required
                                         />
                                     </div>
