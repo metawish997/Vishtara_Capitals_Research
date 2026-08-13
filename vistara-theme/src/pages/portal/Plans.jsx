@@ -273,7 +273,7 @@ const Plans = () => {
                     key: res.key,
                     amount: res.order.amount,
                     currency: res.order.currency,
-                    name: "The Rapid Investors",
+                    name: "Vishtara Capital Research",
                     description: `${selectedPlan.name} - ${selectedDuration.duration}`,
                     order_id: res.order.id,
                     handler: async (response) => {
