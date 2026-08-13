@@ -274,10 +274,10 @@ class AngelOneService {
   async quote(symbols, mode = 'FULL', exchange = 'NSE') {
     try {
       const marketDataCache = require('./MarketDataCache');
-      
+
       const cachedFetched = [];
       const missingSymbols = [];
-      
+
       symbols.forEach(token => {
         const cached = marketDataCache.get(token);
         if (cached && cached.ltp !== undefined && cached.close !== undefined) {
@@ -344,7 +344,7 @@ class AngelOneService {
       const marketDataCache = require('./MarketDataCache');
       const cachedFetched = [];
       const missingTokensMap = {};
-      
+
       let totalMissing = 0;
 
       for (const [exchange, tokens] of Object.entries(exchangeTokens)) {
@@ -391,7 +391,7 @@ class AngelOneService {
         await this.login();
         return this.getMultiQuotes(exchangeTokens, mode);
       }
-      
+
       if (data.status && data.data && Array.isArray(data.data.fetched)) {
         data.data.fetched.forEach(item => {
           if (item.symbolToken) marketDataCache.set(item.symbolToken, item);
@@ -421,7 +421,7 @@ class AngelOneService {
       const marketDataCache = require('./MarketDataCache');
       const cacheKey = `${datatype}_${exchange}_${expirytype}`;
       const cached = marketDataCache.getMover(cacheKey);
-      
+
       if (cached && cached.length > 0) {
         return {
           status: true,
@@ -468,9 +468,11 @@ class AngelOneService {
     switch (exch) {
 
       case 'NSE':
+      case 'NFO':
         return ['NFO', 'NSE'];
 
       case 'BSE':
+      case 'BFO':
         return ['BFO', 'BSE'];
 
       case 'MCX':
@@ -726,7 +728,7 @@ class AngelOneService {
             const yearStr = d.getFullYear();
             formattedExpiry = `${day}${monthStr}${yearStr}`;
           }
-        } catch (e) {}
+        } catch (e) { }
       }
     }
 
@@ -805,7 +807,7 @@ class AngelOneService {
 
     try {
       const cachedData = [];
-      
+
       allTokens.forEach(token => {
         const data = marketDataCache.get(token);
         if (data && data.ltp) {
