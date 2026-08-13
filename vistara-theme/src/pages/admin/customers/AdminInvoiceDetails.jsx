@@ -178,8 +178,7 @@ export default function AdminInvoiceDetails() {
                 </div>
             </div>
             
-            <style>
-                {\`
+            <style dangerouslySetInnerHTML={{ __html: `
                 @media print {
                     body * {
                         visibility: hidden;
@@ -196,8 +195,7 @@ export default function AdminInvoiceDetails() {
                         border: none;
                     }
                 }
-                \`}
-            </style>
+            ` }} />
         </div>
     );
 }
