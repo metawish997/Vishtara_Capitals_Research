@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import RefundModal from './components/RefundModal';
 import ManualAllocationModal from './components/ManualAllocationSection';
 import SubscriptionDetailsModal from './components/SubscriptionDetailsModal';
+import AdminInvoiceModal from './components/AdminInvoiceModal';
 
 const CustomerDetails = () => {
     const { id } = useParams();
@@ -13,6 +14,7 @@ const CustomerDetails = () => {
     const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
     const [isAllocationModalOpen, setIsAllocationModalOpen] = useState(false);
     const [selectedSubscription, setSelectedSubscription] = useState(null);
+    const [selectedInvoice, setSelectedInvoice] = useState(null);
 
     const fetchDetails = async () => {
         try {
@@ -146,7 +148,11 @@ const CustomerDetails = () => {
                                             <p className="text-[7px] font-bold uppercase tracking-widest text-slate-400">{new Date(agr.createdAt).toLocaleDateString()}</p>
                                         </div>
                                     </div>
-                                    <a href={getFullUrl(agr.pdf_path)} target="_blank" rel="noreferrer" className="block text-center py-1.5 rounded text-[8px] font-bold uppercase tracking-widest transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">Verify Document</a>
+                                    {agr.pdf_path ? (
+                                        <a href={getFullUrl(agr.pdf_path)} target="_blank" rel="noreferrer" className="block text-center py-1.5 rounded text-[8px] font-bold uppercase tracking-widest transition bg-[#011D52] border border-[#011D52] text-white hover:bg-[#02143a]">View Document</a>
+                                    ) : (
+                                        <div className="block text-center py-1.5 rounded text-[8px] font-bold uppercase tracking-widest bg-slate-100 border border-slate-200 text-slate-400">Pending E-Sign</div>
+                                    )}
                                 </div>
                             )) : (
                                 <p className="text-[8px] font-bold uppercase italic text-slate-400 text-center py-2">No documents found</p>
@@ -289,8 +295,7 @@ const CustomerDetails = () => {
                                     <div className="text-right">
                                         <p className="text-[11px] font-black text-slate-800">₹{inv.amount?.toLocaleString('en-IN')}</p>
                                         <div className="flex gap-2 justify-end mt-1">
-                                            <button className="text-[7px] font-bold uppercase tracking-widest hover:underline text-[#011D52]">Resend</button>
-                                            <button className="text-[7px] font-bold uppercase tracking-widest hover:underline text-slate-500">Download</button>
+                                            <button onClick={() => setSelectedInvoice(inv)} className="text-[7px] font-bold uppercase tracking-widest hover:underline text-[#011D52]">View Invoice</button>
                                         </div>
                                     </div>
                                 </div>
@@ -305,6 +310,7 @@ const CustomerDetails = () => {
             <RefundModal isOpen={isRefundModalOpen} onClose={() => setIsRefundModalOpen(false)} userId={user._id} subscriptionId={subscriptions[0]?._id} />
             <ManualAllocationModal isOpen={isAllocationModalOpen} onClose={() => setIsAllocationModalOpen(false)} userId={user._id} onAllocationSuccess={fetchDetails} />
             <SubscriptionDetailsModal isOpen={!!selectedSubscription} onClose={() => setSelectedSubscription(null)} subscription={selectedSubscription} />
+            <AdminInvoiceModal isOpen={!!selectedInvoice} onClose={() => setSelectedInvoice(null)} invoice={selectedInvoice} customer={user} />
         </div>
     );
 };

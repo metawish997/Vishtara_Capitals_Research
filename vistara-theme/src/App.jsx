@@ -45,6 +45,9 @@ import PortalChat from "./pages/portal/PortalChat";
 
 import KycVerification from "./pages/portal/KycVerification";
 import Plans from "./pages/portal/Plans";
+import Invoices from "./pages/portal/Invoices";
+import Agreements from "./pages/portal/Agreements";
+import InvoiceDetails from "./pages/portal/InvoiceDetails";
 import PageMetaTracker from "./components/PageMetaTracker";
 
 function App() {
@@ -96,6 +99,9 @@ function App() {
                 <Route path="chat" element={<PortalChat />} />
                 <Route path="profile" element={<Profile />} />
                 <Route path="plans" element={<Plans />} />
+                <Route path="invoices" element={<Invoices />} />
+                <Route path="agreements" element={<Agreements />} />
+                <Route path="invoices/:id" element={<InvoiceDetails />} />
               </Route>
 
               {AdminRoutes}

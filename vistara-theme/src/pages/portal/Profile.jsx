@@ -214,7 +214,7 @@ export default function Profile() {
         try {
             toast.loading("Verifying document status...", { id: 'verifyPdf' });
             const res = await agreementService.checkUserAgreementEsignStatusStrict(agr.digio_document_id);
-            
+
             if (res.status === 'signed' && res.pdf_path) {
                 toast.dismiss('verifyPdf');
                 const pdfUrl = res.pdf_path.startsWith('http') ? res.pdf_path : `http://localhost:5001${res.pdf_path}`;
@@ -656,10 +656,20 @@ export default function Profile() {
 
                     {/* Payment History / Invoices (Moved here) */}
                     <div style={{ padding: "24px", borderRadius: "12px", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", boxShadow: "0 4px 12px rgba(0,0,0,0.02)", marginTop: "24px" }}>
-                        <h3 style={{ fontSize: "18px", color: "#011D52", fontWeight: "800", marginBottom: "20px", display: "flex", alignItems: "center", gap: "8px" }}>
-                            <span style={{ width: "4px", height: "16px", backgroundColor: "#2B4365", borderRadius: "2px" }}></span>
-                            Payment History
-                        </h3>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                            <h3 style={{ fontSize: "18px", color: "#011D52", fontWeight: "800", margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
+                                <span style={{ width: "4px", height: "16px", backgroundColor: "#2B4365", borderRadius: "2px" }}></span>
+                                Payment History
+                            </h3>
+                            {accountData.invoices && accountData.invoices.length > 0 && (
+                                <button
+                                    onClick={() => navigate('/portal/invoices')}
+                                    style={{ padding: "6px 12px", backgroundColor: "#f1f5f9", color: "#011D52", border: "1px solid #cbd5e1", borderRadius: "6px", fontSize: "11px", fontWeight: "700", cursor: "pointer", textTransform: "uppercase" }}
+                                >
+                                    View All
+                                </button>
+                            )}
+                        </div>
                         {fetchingData ? (
                             <div style={{ textAlign: "center", padding: "20px" }}>Loading account details...</div>
                         ) : accountData.invoices && accountData.invoices.length > 0 ? (
@@ -671,15 +681,24 @@ export default function Profile() {
                                             <th style={{ padding: "8px", borderBottom: "1px solid #cbd5e1" }}>Amount</th>
                                             <th style={{ padding: "8px", borderBottom: "1px solid #cbd5e1" }}>Date</th>
                                             <th style={{ padding: "8px", borderBottom: "1px solid #cbd5e1" }}>Status</th>
+                                            <th style={{ padding: "8px", borderBottom: "1px solid #cbd5e1", textAlign: "right" }}>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {accountData.invoices.map((inv, idx) => (
+                                        {accountData.invoices.slice(0, 3).map((inv, idx) => (
                                             <tr key={idx} style={{ borderBottom: "1px solid #f1f5f9" }}>
                                                 <td style={{ padding: "8px", color: "#0f172a" }}>{inv.invoice_number || '-'}</td>
                                                 <td style={{ padding: "8px", fontWeight: "700", color: "#011D52" }}>₹{inv.amount}</td>
                                                 <td style={{ padding: "8px", color: "#64748b" }}>{new Date(inv.createdAt).toLocaleDateString()}</td>
                                                 <td style={{ padding: "8px", color: (inv.status === 'paid' || !inv.status) ? "#16a34a" : "#dc2626", fontWeight: "800" }}>{inv.status ? inv.status.toUpperCase() : 'PAID'}</td>
+                                                <td style={{ padding: "8px", textAlign: "right" }}>
+                                                    <button 
+                                                        onClick={() => navigate(`/portal/invoices/${inv._id}`, { state: { invoice: inv } })}
+                                                        style={{ padding: "4px 8px", backgroundColor: "#011D52", color: "#fff", border: "none", borderRadius: "4px", fontSize: "10px", fontWeight: "700", cursor: "pointer" }}
+                                                    >
+                                                        View
+                                                    </button>
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -695,10 +714,20 @@ export default function Profile() {
                     {/* Client Agreements */}
                     {isKycComplete && (
                         <div style={{ padding: "24px", borderRadius: "12px", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", boxShadow: "0 4px 12px rgba(0,0,0,0.02)", marginTop: "24px" }}>
-                            <h3 style={{ fontSize: "18px", color: "#011D52", fontWeight: "800", marginBottom: "20px", display: "flex", alignItems: "center", gap: "8px" }}>
-                                <span style={{ width: "4px", height: "16px", backgroundColor: "#2B4365", borderRadius: "2px" }}></span>
-                                Client Agreements
-                            </h3>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                                <h3 style={{ fontSize: "18px", color: "#011D52", fontWeight: "800", margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
+                                    <span style={{ width: "4px", height: "16px", backgroundColor: "#2B4365", borderRadius: "2px" }}></span>
+                                    Client Agreements
+                                </h3>
+                                {accountData.agreements && accountData.agreements.length > 0 && (
+                                    <button
+                                        onClick={() => navigate('/portal/agreements')}
+                                        style={{ padding: "6px 12px", backgroundColor: "#f1f5f9", color: "#011D52", border: "1px solid #cbd5e1", borderRadius: "6px", fontSize: "11px", fontWeight: "700", cursor: "pointer" }}
+                                    >
+                                        View All
+                                    </button>
+                                )}
+                            </div>
 
                             {!isKycComplete && accountData.agreements?.some(a =>
                                 (a.needs_esign) || (a.is_draft && (a.status === 'esign_pending' || a.status === 'kyc_pending'))
@@ -728,7 +757,7 @@ export default function Profile() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {accountData.agreements.map((agr, idx) => {
+                                            {accountData.agreements.slice(0, 3).map((agr, idx) => {
                                                 const badge = getAgreementStatusBadge(agr);
                                                 // needsEsign:
                                                 // - UserAgreement: needs_esign flag = true (payment done, no PDF)

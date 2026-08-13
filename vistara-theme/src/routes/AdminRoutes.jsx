@@ -58,6 +58,7 @@ const DesignationList = lazy(() => import('../pages/admin/designations/Designati
 const TicketDashboard = lazy(() => import('../pages/admin/tickets/TicketDashboard'));
 const CustomerList = lazy(() => import('../pages/admin/customers/CustomerList'));
 const CustomerDetails = lazy(() => import('../pages/admin/customers/CustomerDetails'));
+const AdminInvoiceDetails = lazy(() => import('../pages/admin/customers/AdminInvoiceDetails'));
 const LeadList = lazy(() => import('../pages/admin/leads/LeadList'));
 const LeadDetails = lazy(() => import('../pages/admin/leads/LeadDetails'));
 const LeadPullUploads = lazy(() => import('../pages/admin/leads/LeadPullUploads'));
