@@ -65,8 +65,8 @@ export default function InvoiceDetails() {
                         <div>
                             <h1 style={{ margin: 0, color: "#011D52", fontSize: "24px", fontWeight: "800" }}>Vishtara Capital Research</h1>
                             <p style={{ margin: "5px 0 0 0", fontSize: "12px", color: "#64748b", maxWidth: "250px" }}>
-                                123, Financial District, Corporate Block,<br/>
-                                City Center, Bharat - 110001<br/>
+                                C-20/1 Mahananda Nagar<br/>
+                                Ujjain 456010<br/>
                                 support@vishtaracapital.com
                             </p>
                         </div>
