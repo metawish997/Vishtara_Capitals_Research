@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import newsService from '../../../services/newsService';
 import toast from 'react-hot-toast';
+import { useAuth } from '../../../context/AuthContext';
+import { canAccess, hasPermission } from '../../../utils/rbac';
 
 const NewsCategories = () => {
+    const { user } = useAuth();
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -93,9 +96,10 @@ const NewsCategories = () => {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
                 {/* Left: Create Form */}
                 <div className="lg:col-span-4">
-                    <div className="bg-white border border-slate-200 rounded-xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] p-4 sticky top-6">
-                        <h3 className="font-bold text-[10px] text-slate-800 mb-3 uppercase tracking-wider">Create New Category</h3>
-                        <form onSubmit={handleCreate}>
+                    {(canAccess(user, 'admin') || hasPermission(user, 'create_news')) && (
+                        <div className="bg-white border border-slate-200 rounded-xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] p-4 sticky top-6">
+                            <h3 className="font-bold text-[10px] text-slate-800 mb-3 uppercase tracking-wider">Create New Category</h3>
+                            <form onSubmit={handleCreate}>
                             <div className="space-y-3">
                                 <div>
                                     <label className="block text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Category Name</label>
@@ -122,8 +126,9 @@ const NewsCategories = () => {
                                     Save Category
                                 </button>
                             </div>
-                        </form>
-                    </div>
+                            </form>
+                        </div>
+                    )}
                 </div>
 
                 {/* Right: Table */}
@@ -157,13 +162,17 @@ const NewsCategories = () => {
                                             </button>
                                         </td>
                                         <td className="px-4 py-2.5 text-right flex justify-end gap-1.5">
-                                            <button onClick={() => handleEdit(category)}
-                                                className="p-1.5 text-[#011d52] hover:bg-blue-50 rounded-md transition-colors" title="Edit">
-                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                            </button>
-                                            <button onClick={() => handleDelete(category._id)} className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-md transition-colors" title="Delete">
-                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                            </button>
+                                            {(canAccess(user, 'admin') || hasPermission(user, 'update_news')) && (
+                                                <button onClick={() => handleEdit(category)}
+                                                    className="p-1.5 text-[#011d52] hover:bg-blue-50 rounded-md transition-colors" title="Edit">
+                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                                </button>
+                                            )}
+                                            {(canAccess(user, 'admin') || hasPermission(user, 'delete_news')) && (
+                                                <button onClick={() => handleDelete(category._id)} className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-md transition-colors" title="Delete">
+                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                </button>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}

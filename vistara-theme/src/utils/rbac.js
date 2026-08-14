@@ -63,3 +63,26 @@ export const canAccess = (user, requiredLevel = 'admin') => {
     // Default deny (agar koi aur koshish kare admin page dekhne ki, toh rok dega)
     return false;
 };
+
+/**
+ * Checks if a user has a specific permission by slug
+ * @param {object} user - The user object
+ * @param {string} permissionSlug - The permission slug to check
+ * @returns {boolean}
+ */
+export const hasPermission = (user, permissionSlug) => {
+    if (!user) return false;
+    
+    // Admins and Super Admins bypass permission checks
+    if (isAdminUser(user)) {
+        return true;
+    }
+
+    // Check if user has populated permissions array in roleData
+    const permissions = user.roleData?.permissions || (typeof user.role === 'object' ? user.role?.permissions : null);
+    if (permissions && Array.isArray(permissions)) {
+        return permissions.some(p => p.slug === permissionSlug);
+    }
+    
+    return false;
+};

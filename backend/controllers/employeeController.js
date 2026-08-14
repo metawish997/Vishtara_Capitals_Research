@@ -1,14 +1,32 @@
-const Employee = require('../models/Employee');
-const Designation = require('../models/Designation');
+const User = require('../models/User');
 const Role = require('../models/Role');
 const { processMedia, deleteMedia } = require('../utils/fileHandler');
+
+const mapUserToEmployee = (user) => {
+  const e = user.toObject ? user.toObject() : user;
+  e.roleId = e.role;
+  if (e.status) {
+      if (e.status.toLowerCase() === 'active') e.status = 'Active';
+      else if (e.status.toLowerCase() === 'inactive') e.status = 'Inactive';
+      else if (e.status.toLowerCase() === 'resigned') e.status = 'Resigned';
+      else e.status = e.status.charAt(0).toUpperCase() + e.status.slice(1);
+  } else {
+      e.status = 'Active';
+  }
+  return e;
+};
 
 // @desc    Get all employees
 // @route   GET /api/employees
 // @access  Private
 exports.getEmployees = async (req, res, next) => {
   try {
+    const customerRole = await Role.findOne({ slug: 'customer' });
     let query = { isDeleted: { $ne: true }, email: { $ne: 'admin@example.com' } };
+    
+    if (customerRole) {
+      query.role = { $ne: customerRole._id };
+    }
 
     // Search filter
     if (req.query.search) {
@@ -18,23 +36,19 @@ exports.getEmployees = async (req, res, next) => {
         { firstName: searchRegex },
         { lastName: searchRegex },
         { email: searchRegex },
-        { phone: searchRegex }
+        { phone: searchRegex },
+        { name: searchRegex }
       ];
     }
 
     // Status filter
     if (req.query.status && req.query.status !== 'All') {
-      query.status = req.query.status;
-    }
-
-    // Designation filter
-    if (req.query.designationId && req.query.designationId !== 'All') {
-      query.designationId = req.query.designationId;
+      query.status = req.query.status.toLowerCase();
     }
 
     // Role filter
     if (req.query.roleId && req.query.roleId !== 'All') {
-      query.roleId = req.query.roleId;
+      query.role = req.query.roleId;
     }
 
     // Pagination
@@ -47,29 +61,26 @@ exports.getEmployees = async (req, res, next) => {
     const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
     const sort = { [sortBy]: sortOrder };
 
-    const total = await Employee.countDocuments(query);
+    const total = await User.countDocuments(query);
 
-    const employees = await Employee.find(query)
-      .populate('designationId')
-      .populate('roleId')
-      .populate({
-        path: 'reportingTo',
-        populate: { path: 'designationId' }
-      })
+    const employees = await User.find(query)
+      .populate('role')
       .sort(sort)
       .skip(startIndex)
       .limit(limit);
 
+    const mappedEmployees = employees.map(mapUserToEmployee);
+
     res.status(200).json({
       success: true,
-      count: employees.length,
+      count: mappedEmployees.length,
       pagination: {
         total,
         page,
         pages: Math.ceil(total / limit),
         limit
       },
-      data: employees,
+      data: mappedEmployees,
     });
   } catch (error) {
     next(error);
@@ -81,13 +92,8 @@ exports.getEmployees = async (req, res, next) => {
 // @access  Private
 exports.getEmployee = async (req, res, next) => {
   try {
-    const employee = await Employee.findOne({ _id: req.params.id, isDeleted: { $ne: true } })
-      .populate('designationId')
-      .populate('roleId')
-      .populate({
-        path: 'reportingTo',
-        populate: { path: 'designationId' }
-      });
+    const employee = await User.findOne({ _id: req.params.id, isDeleted: { $ne: true } })
+      .populate('role');
 
     if (!employee) {
       return res.status(404).json({ success: false, message: 'Employee not found' });
@@ -95,7 +101,7 @@ exports.getEmployee = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      data: employee
+      data: mapUserToEmployee(employee)
     });
   } catch (error) {
     next(error);
@@ -107,10 +113,10 @@ exports.getEmployee = async (req, res, next) => {
 // @access  Private/Admin
 exports.createEmployee = async (req, res, next) => {
   try {
-    const { firstName, lastName, email, phone, password, designationId, reportingTo, joiningDate, status } = req.body;
+    const { firstName, lastName, email, phone, password, joiningDate, status } = req.body;
 
     // Auto-generate employeeCode: EMP00001 format
-    const lastEmployee = await Employee.findOne().sort({ employeeCode: -1 });
+    const lastEmployee = await User.findOne({ employeeCode: { $exists: true } }).sort({ employeeCode: -1 });
     let nextNum = 1;
     if (lastEmployee && lastEmployee.employeeCode) {
       const match = lastEmployee.employeeCode.match(/EMP(\d+)/);
@@ -140,24 +146,24 @@ exports.createEmployee = async (req, res, next) => {
       profilePhoto = processed.url;
     }
 
-    const employee = await Employee.create({
+    const employee = await User.create({
       employeeCode,
+      name: `${firstName || ''} ${lastName || ''}`.trim(),
       firstName,
       lastName,
       email,
       phone,
       password,
-      designationId: null,
-      roleId: employeeRole._id,
-      reportingTo: null,
+      role: employeeRole._id,
       joiningDate,
       profilePhoto,
-      status: status || 'Active'
+      image: profilePhoto,
+      status: status ? status.toLowerCase() : 'active'
     });
 
     res.status(201).json({
       success: true,
-      data: employee
+      data: mapUserToEmployee(employee)
     });
   } catch (error) {
     console.error("CREATE EMPLOYEE ERROR:", error);
@@ -170,8 +176,8 @@ exports.createEmployee = async (req, res, next) => {
 // @access  Private/Admin
 exports.updateEmployee = async (req, res, next) => {
   try {
-    const { firstName, lastName, email, phone, designationId, reportingTo, joiningDate, status, roleId } = req.body;
-    let employee = await Employee.findById(req.params.id);
+    const { firstName, lastName, email, phone, joiningDate, status, roleId } = req.body;
+    let employee = await User.findById(req.params.id);
     if (!employee || employee.isDeleted) {
       return res.status(404).json({ success: false, message: 'Employee not found.' });
     }
@@ -190,40 +196,37 @@ exports.updateEmployee = async (req, res, next) => {
     }
 
     // Process Profile Photo
-    let profilePhoto = employee.profilePhoto;
+    let profilePhoto = employee.profilePhoto || employee.image;
     if (req.file) {
       // Delete old photo if it exists
-      if (employee.profilePhoto) {
-        await deleteMedia(employee.profilePhoto);
+      if (profilePhoto) {
+        await deleteMedia(profilePhoto);
       }
       const processed = await processMedia(req.file, 'employees');
       profilePhoto = processed.url;
     }
 
     const updatedData = {
+      name: firstName || lastName ? `${firstName || employee.firstName || ''} ${lastName || employee.lastName || ''}`.trim() : employee.name,
       firstName: firstName || employee.firstName,
       lastName: lastName || employee.lastName,
       email: email || employee.email,
       phone: phone || employee.phone,
-      designationId: null,
-      roleId: roleId || employee.roleId || employeeRole._id,
-      reportingTo: null,
+      role: roleId || employee.role || employeeRole._id,
       joiningDate: joiningDate || employee.joiningDate,
       profilePhoto,
-      status: status || employee.status
+      image: profilePhoto,
+      status: status ? status.toLowerCase() : employee.status
     };
 
-    const updatedEmployee = await Employee.findByIdAndUpdate(req.params.id, updatedData, {
+    const updatedEmployee = await User.findByIdAndUpdate(req.params.id, updatedData, {
       new: true,
       runValidators: true
-    }).populate('designationId').populate('roleId').populate({
-      path: 'reportingTo',
-      populate: { path: 'designationId' }
-    });
+    }).populate('role');
 
     res.status(200).json({
       success: true,
-      data: updatedEmployee
+      data: mapUserToEmployee(updatedEmployee)
     });
   } catch (error) {
     console.error("UPDATE EMPLOYEE ERROR:", error);
@@ -236,12 +239,14 @@ exports.updateEmployee = async (req, res, next) => {
 // @access  Private/Admin
 exports.changeStatus = async (req, res, next) => {
   try {
-    const { status } = req.body;
-    if (!['Active', 'Inactive', 'Resigned'].includes(status)) {
+    let { status } = req.body;
+    if (status) status = status.toLowerCase();
+    
+    if (!['active', 'inactive', 'resigned', 'blocked', 'deleted'].includes(status)) {
       return res.status(400).json({ success: false, message: 'Invalid status value.' });
     }
 
-    const employee = await Employee.findById(req.params.id);
+    const employee = await User.findById(req.params.id);
     if (!employee || employee.isDeleted) {
       return res.status(404).json({ success: false, message: 'Employee not found.' });
     }
@@ -251,7 +256,7 @@ exports.changeStatus = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      data: employee
+      data: mapUserToEmployee(employee)
     });
   } catch (error) {
     next(error);
@@ -263,13 +268,14 @@ exports.changeStatus = async (req, res, next) => {
 // @access  Private/Admin
 exports.deleteEmployee = async (req, res, next) => {
   try {
-    const employee = await Employee.findById(req.params.id);
+    const employee = await User.findById(req.params.id);
     if (!employee || employee.isDeleted) {
       return res.status(404).json({ success: false, message: 'Employee not found.' });
     }
 
     employee.isDeleted = true;
     employee.deletedAt = Date.now();
+    employee.status = 'deleted';
     await employee.save();
 
     res.status(200).json({

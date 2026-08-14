@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
+import { canAccess, hasPermission } from '../../../utils/rbac';
 import tipService from '../../../services/tipService';
 
 const TipCategories = () => {
+    const { user } = useAuth();
     const [openModal, setOpenModal] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [categoryName, setCategoryName] = useState('');
@@ -92,13 +95,15 @@ const TipCategories = () => {
                     </div>
                 </div>
 
-                <button 
-                    onClick={initCreate}
-                    className="inline-flex items-center justify-center px-4 py-2 text-[10px] font-black text-white bg-sky-500 hover:bg-sky-600 rounded-[4px] transition-all shadow-sm"
-                >
-                    <i className="fa-solid fa-plus mr-1.5 stroke-[3]"></i>
-                    Add New Category
-                </button>
+                {(canAccess(user, 'admin') || hasPermission(user, 'create_tips')) && (
+                    <button 
+                        onClick={initCreate}
+                        className="inline-flex items-center justify-center px-4 py-2 text-[10px] font-black text-white bg-sky-500 hover:bg-sky-600 rounded-[4px] transition-all shadow-sm"
+                    >
+                        <i className="fa-solid fa-plus mr-1.5 stroke-[3]"></i>
+                        Add New Category
+                    </button>
+                )}
             </div>
 
             {/* Table Section */}
@@ -142,18 +147,22 @@ const TipCategories = () => {
                                         )}
                                     </td>
                                     <td className="px-4 py-3 text-right space-x-1.5">
-                                        <button 
-                                            onClick={() => initEdit(category)}
-                                            className="inline-flex items-center px-3 py-1.5 text-[9px] font-black text-sky-600 hover:bg-sky-50 rounded-[4px] border border-sky-100 transition-all duration-200 uppercase tracking-widest"
-                                        >
-                                            Edit
-                                        </button>
-                                        <button 
-                                            onClick={() => handleDelete(category._id)}
-                                            className="inline-flex items-center px-3 py-1.5 text-[9px] font-black text-rose-500 hover:bg-rose-50 rounded-[4px] border border-rose-100 transition-all duration-200 uppercase tracking-widest"
-                                        >
-                                            Delete
-                                        </button>
+                                        {(canAccess(user, 'admin') || hasPermission(user, 'update_tips')) && (
+                                            <button 
+                                                onClick={() => initEdit(category)}
+                                                className="inline-flex items-center px-3 py-1.5 text-[9px] font-black text-sky-600 hover:bg-sky-50 rounded-[4px] border border-sky-100 transition-all duration-200 uppercase tracking-widest"
+                                            >
+                                                Edit
+                                            </button>
+                                        )}
+                                        {(canAccess(user, 'admin') || hasPermission(user, 'delete_tips')) && (
+                                            <button 
+                                                onClick={() => handleDelete(category._id)}
+                                                className="inline-flex items-center px-3 py-1.5 text-[9px] font-black text-rose-500 hover:bg-rose-50 rounded-[4px] border border-rose-100 transition-all duration-200 uppercase tracking-widest"
+                                            >
+                                                Delete
+                                            </button>
+                                        )}
                                     </td>
                                 </tr>
                             ))}

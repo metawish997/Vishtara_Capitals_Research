@@ -1,9 +1,9 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
-import { canAccess } from '../../utils/rbac';
+import { canAccess, hasPermission } from '../../utils/rbac';
 
-const ProtectedRoute = ({ allowedRoles, requiredLevel }) => {
+const ProtectedRoute = ({ allowedRoles, requiredLevel, requiredPermission }) => {
     const { user, loading } = useAuth();
 
     if (loading) {
@@ -20,6 +20,13 @@ const ProtectedRoute = ({ allowedRoles, requiredLevel }) => {
 
     if (requiredLevel) {
         if (!canAccess(user, requiredLevel)) {
+            return <Navigate to="/" replace />;
+        }
+        return <Outlet />;
+    }
+
+    if (requiredPermission) {
+        if (!hasPermission(user, requiredPermission)) {
             return <Navigate to="/" replace />;
         }
         return <Outlet />;

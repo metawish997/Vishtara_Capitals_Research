@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../../context/AuthContext';
+import { canAccess, hasPermission } from '../../../utils/rbac';
 import { Link } from 'react-router-dom';
 import roleService from '../../../services/roleService';
 import toast from 'react-hot-toast';
@@ -33,6 +35,7 @@ const PermissionModal = ({ isOpen, onClose, roleName, permissions }) => {
 };
 
 const RoleList = () => {
+    const { user } = useAuth();
     const [roles, setRoles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [modalData, setModalData] = useState({ isOpen: false, roleName: '', permissions: [] });
@@ -85,10 +88,12 @@ const RoleList = () => {
                         <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Total Roles</p>
                         <p className="text-[14px] font-bold text-slate-800">{roles.length}</p>
                     </div>
-                    <Link to="/admin/roles/create"
+                    {(canAccess(user, 'admin') || hasPermission(user, 'create_roles')) && (
+<Link to="/admin/roles/create"
                         className="px-3 py-1.5 bg-[#011d52] text-white rounded-md font-bold text-[10px] hover:bg-[#02143a] transition">
                         + New Role
                     </Link>
+)}
                 </div>
             </div>
 
@@ -132,17 +137,19 @@ const RoleList = () => {
                                     </div>
                                 </div>
                                 <div className="flex gap-1.5">
-                                    {!isSuperAdmin && (
+                                    {!isSuperAdmin && (canAccess(user, 'admin') || hasPermission(user, 'update_roles')) && (
                                         <Link to={`/admin/roles/edit/${role._id}`}
                                             className="w-7 h-7 rounded-lg bg-slate-50 border border-slate-200 text-slate-500 hover:text-amber-600 hover:bg-amber-50 hover:border-amber-200 transition-all flex items-center justify-center text-[11px]">
                                             ✏️
                                         </Link>
                                     )}
-                                    <button onClick={() => handleDelete(role)}
+                                    {(canAccess(user, 'admin') || hasPermission(user, 'delete_roles')) && (
+<button onClick={() => handleDelete(role)}
                                         disabled={!canDelete}
                                         className={`w-7 h-7 rounded-lg bg-slate-50 border border-slate-200 transition-all flex items-center justify-center text-[11px] ${!canDelete ? 'opacity-30 cursor-not-allowed' : 'text-slate-500 hover:text-red-500 hover:bg-red-50 hover:border-red-200'}`}>
                                         🗑️
                                     </button>
+)}
                                 </div>
                             </div>
 
@@ -169,7 +176,7 @@ const RoleList = () => {
                             {/* Footer */}
                             <div className="pt-2 border-t border-slate-100 flex items-center justify-between mt-auto">
                                 <span className="text-[8px] font-bold uppercase tracking-widest text-slate-300">ID-{role._id?.slice(-6)}</span>
-                                {!isSuperAdmin && (
+                                {!isSuperAdmin && (canAccess(user, 'admin') || hasPermission(user, 'update_roles')) && (
                                     <Link to={`/admin/roles/edit/${role._id}`}
                                         className="text-[9px] font-bold uppercase tracking-widest text-[#011d52] hover:underline">
                                         Edit Role →

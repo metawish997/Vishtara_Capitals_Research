@@ -11,6 +11,23 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please add a name'],
   },
+  firstName: {
+    type: String,
+  },
+  lastName: {
+    type: String,
+  },
+  employeeCode: {
+    type: String,
+    unique: true,
+    sparse: true,
+  },
+  joiningDate: {
+    type: Date,
+  },
+  profilePhoto: {
+    type: String,
+  },
   father_name: {
     type: String,
   },
@@ -25,7 +42,7 @@ const UserSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['active', 'inactive', 'deleted', 'blocked'],
+    enum: ['active', 'inactive', 'deleted', 'blocked', 'resigned'],
     default: 'active',
   },
   annual_income: {

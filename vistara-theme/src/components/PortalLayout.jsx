@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import useAuth from '../hooks/useAuth';
+import { canAccess } from '../utils/rbac';
 import { BASE_URL } from '../services/api';
 import toast from 'react-hot-toast';
 import notificationService from '../services/notificationService';
@@ -230,6 +231,30 @@ export default function PortalLayout() {
           </button>
 
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "20px" }}>
+            {canAccess(user, 'all') && (
+                <Link 
+                    to="/admin" 
+                    style={{
+                        padding: "6px 14px",
+                        backgroundColor: "#1e293b",
+                        color: "#ffffff",
+                        borderRadius: "6px",
+                        fontSize: "12px",
+                        fontWeight: "700",
+                        textDecoration: "none",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        transition: "background-color 0.2s",
+                        boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)"
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#0f172a"}
+                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#1e293b"}
+                >
+                    <span style={{ fontSize: "14px" }}>🛡️</span> Admin Panel
+                </Link>
+            )}
+
             <span style={{ fontSize: "13px", color: "#64748b", background: "#f1f5f9", padding: "6px 12px", borderRadius: "20px", fontWeight: "500", display: "flex", alignItems: "center", gap: "5px" }}>
               📅 Session Date: <strong style={{ color: "#1e293b" }}>{new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</strong>
             </span>

@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import blogService from '../../../services/blogService';
 import toast from 'react-hot-toast';
+import { useAuth } from '../../../context/AuthContext';
+import { canAccess, hasPermission } from '../../../utils/rbac';
 
 const BlogCategories = () => {
+    const { user } = useAuth();
     const [openModal, setOpenModal] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [categoryName, setCategoryName] = useState('');
@@ -101,10 +104,12 @@ const BlogCategories = () => {
                     <p className="text-xs text-slate-500 mt-1">Manage and organize your blog topics.</p>
                 </div>
 
-                <button onClick={initCreate}
-                    className="inline-flex items-center px-4 py-2 bg-[[#011d52]] border border-transparent rounded-md font-bold text-xs text-[#020210] uppercase tracking-widest hover:opacity-90 shadow-md transition">
-                    + Add New Category
-                </button>
+                {(canAccess(user, 'admin') || hasPermission(user, 'create_blogs')) && (
+                    <button onClick={initCreate}
+                        className="inline-flex items-center px-4 py-2 bg-[[#011d52]] border border-transparent rounded-md font-bold text-xs text-[#020210] uppercase tracking-widest hover:opacity-90 shadow-md transition">
+                        + Add New Category
+                    </button>
+                )}
             </div>
 
             <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
@@ -140,14 +145,18 @@ const BlogCategories = () => {
                                         </button>
                                     </td>
                                     <td className="px-6 py-4 text-right space-x-3">
-                                        <button onClick={() => initEdit(category)}
-                                            className="inline-flex items-center text-xs font-medium text-slate-500 hover:text-[[#011d52]] transition-colors">
-                                            Edit
-                                        </button>
-                                        <button onClick={() => handleDelete(category._id)}
-                                            className="inline-flex items-center text-xs font-medium text-rose-500 hover:text-rose-600 transition-colors">
-                                            Delete
-                                        </button>
+                                        {(canAccess(user, 'admin') || hasPermission(user, 'update_blogs')) && (
+                                            <button onClick={() => initEdit(category)}
+                                                className="inline-flex items-center text-xs font-medium text-slate-500 hover:text-[[#011d52]] transition-colors">
+                                                Edit
+                                            </button>
+                                        )}
+                                        {(canAccess(user, 'admin') || hasPermission(user, 'delete_blogs')) && (
+                                            <button onClick={() => handleDelete(category._id)}
+                                                className="inline-flex items-center text-xs font-medium text-rose-500 hover:text-rose-600 transition-colors">
+                                                Delete
+                                            </button>
+                                        )}
                                     </td>
                                 </tr>
                             ))}

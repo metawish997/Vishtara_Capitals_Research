@@ -641,7 +641,7 @@ const LeadList = () => {
                 </div>
 
                 <div className="pl-4 pr-4 sm:pr-6 py-2 shrink-0 border-l border-[slate-200]/40 self-stretch flex items-center gap-2 bg-[white] z-10 shadow-[-4px_0_10px_-4px_rgba(0,0,0,0.1)]">
-                    {isAdmin && selectedLeads.length > 0 && (
+                    {(canAccess(user, 'admin') || hasPermission(user, 'delete_leads')) && selectedLeads.length > 0 && (
                         <button
                             onClick={handleBulkDelete}
                             className="inline-flex items-center gap-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 px-3 py-1.5 rounded-[4px] font-black text-[9px] uppercase tracking-widest transition-all active:scale-95 shadow-sm"
@@ -650,11 +650,13 @@ const LeadList = () => {
                             <Trash2 className="w-3.5 h-3.5" /> Delete
                         </button>
                     )}
-                    <button
-                        onClick={() => setShowAddModal(true)}
-                        className="inline-flex items-center gap-1 bg-[[#011d52]] hover:opacity-90 text-[#020210] px-3 py-1.5 rounded-[4px] font-black text-[9px] uppercase tracking-widest transition-all active:scale-95 shadow-sm">
-                        + Add Lead
-                    </button>
+                    {(canAccess(user, 'admin') || hasPermission(user, 'create_leads')) && (
+                        <button
+                            onClick={() => setShowAddModal(true)}
+                            className="inline-flex items-center gap-1 bg-[[#011d52]] hover:opacity-90 text-[#020210] px-3 py-1.5 rounded-[4px] font-black text-[9px] uppercase tracking-widest transition-all active:scale-95 shadow-sm">
+                            + Add Lead
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -677,7 +679,7 @@ const LeadList = () => {
                     </div>
 
                     {/* Inline Bulk Actions Panel */}
-                    {isAdmin && selectedLeads.length > 0 && (
+                    {(canAccess(user, 'admin') || hasPermission(user, 'update_leads')) && selectedLeads.length > 0 && (
                         <div className="flex-1 w-full flex flex-wrap items-center gap-2 animate-in fade-in slide-in-from-left-2">
                             <span className="text-[10px] font-black text-[[#011d52]] uppercase tracking-wider bg-[[#011d52]]/10 px-2 py-1 rounded shrink-0">
                                 {selectedLeads.length} selected

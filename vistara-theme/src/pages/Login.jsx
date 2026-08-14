@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 import api from "../services/api";
+import { isAdminUser, hasPermission } from "../utils/rbac";
 
 export default function Login() {
    const navigate = useNavigate();
@@ -23,7 +24,7 @@ export default function Login() {
       identifier: "", // for forgot password
       type: "email" // for forgot password
    });
-   
+
    const [errors, setErrors] = useState({});
 
    const handleChange = (e) => {
@@ -44,8 +45,12 @@ export default function Login() {
          const response = await login({ email: formData.email, password: formData.password });
          toast.success("Logged in successfully!");
 
-         if (response?.user?.role === 'admin' || response?.user?.role === 'superadmin' || response?.user?.role === 'super admin') {
-            navigate("/admin/dashboard");
+         if (response?.user?.role !== 'customer' && response?.user?.role !== 'user') {
+            if (isAdminUser(response.user) || hasPermission(response.user, 'view_admin_dashboard')) {
+               navigate("/admin/dashboard");
+            } else {
+               navigate("/portal");
+            }
          } else {
             navigate("/portal");
          }
@@ -58,23 +63,23 @@ export default function Login() {
 
    const handleSendRegisterOtp = async (e) => {
       e.preventDefault();
-      
+
       const newErrors = {};
       const emailRegex = /^\S+@\S+\.\S+$/;
       if (!emailRegex.test(formData.email)) {
-          newErrors.email = "Enter your email in the format name@example.com.";
+         newErrors.email = "Enter your email in the format name@example.com.";
       }
-      
+
       const phoneRegex = /^\d{10}$/;
       if (!phoneRegex.test(formData.phone)) {
-          newErrors.phone = "Enter your 10-digit mobile number.";
+         newErrors.phone = "Enter your 10-digit mobile number.";
       }
 
       if (Object.keys(newErrors).length > 0) {
-          setErrors(newErrors);
-          return;
+         setErrors(newErrors);
+         return;
       }
-      
+
       if (!formData.agree) {
          toast.error("Please agree to the Terms & Privacy Policy");
          return;
@@ -118,8 +123,12 @@ export default function Login() {
 
             // Auto login logic: check if user is returned and redirect
             if (res.user) {
-               if (res.user.role === 'admin' || res.user.role === 'superadmin' || res.user.role === 'super admin') {
-                  navigate("/admin/dashboard");
+               if (res.user.role !== 'customer' && res.user.role !== 'user') {
+                  if (isAdminUser(res.user) || hasPermission(res.user, 'view_admin_dashboard')) {
+                     navigate("/admin/dashboard");
+                  } else {
+                     navigate("/portal");
+                  }
                } else {
                   navigate("/portal");
                }
@@ -268,14 +277,14 @@ export default function Login() {
                               </div>
                               <div style={{ marginBottom: "20px" }}>
                                  <label style={labelStyle} htmlFor="reg_email">Email Address</label>
-                                 <input id="reg_email" type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="name@example.com" style={inputStyle} 
-                                        aria-invalid={!!errors.email} aria-describedby={errors.email ? "email_error" : undefined} />
+                                 <input id="reg_email" type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="name@example.com" style={inputStyle}
+                                    aria-invalid={!!errors.email} aria-describedby={errors.email ? "email_error" : undefined} />
                                  {errors.email && <span id="email_error" className="text-danger mt-1 d-block" style={{ fontSize: '13px' }}>{errors.email}</span>}
                               </div>
                               <div style={{ marginBottom: "20px" }}>
                                  <label style={labelStyle} htmlFor="reg_phone">Phone Number</label>
-                                 <input id="reg_phone" type="text" name="phone" value={formData.phone} onChange={handleChange} required placeholder="Enter phone number" style={inputStyle} 
-                                        aria-invalid={!!errors.phone} aria-describedby={errors.phone ? "phone_error" : undefined} />
+                                 <input id="reg_phone" type="text" name="phone" value={formData.phone} onChange={handleChange} required placeholder="Enter phone number" style={inputStyle}
+                                    aria-invalid={!!errors.phone} aria-describedby={errors.phone ? "phone_error" : undefined} />
                                  {errors.phone && <span id="phone_error" className="text-danger mt-1 d-block" style={{ fontSize: '13px' }}>{errors.phone}</span>}
                               </div>
                               <div style={{ marginBottom: "20px" }}>

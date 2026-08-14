@@ -7,7 +7,11 @@ import { Download, Settings as SettingsIcon, Plus, SlidersHorizontal, RotateCcw,
 import CreateEquityTip from './CreateEquityTip';
 import CreateFOTip from './CreateFOTip';
 
+import { useAuth } from '../../../context/AuthContext';
+import { canAccess, hasPermission } from '../../../utils/rbac';
+
 const TipsDashboard = () => {
+    const { user } = useAuth();
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [drawerType, setDrawerType] = useState(null); // 'equity' or 'fo'
     const [filterType, setFilterType] = useState('all');
@@ -642,20 +646,24 @@ const TipsDashboard = () => {
 
                 {/* Right: Add Action Buttons */}
                 <div className="pl-3 pr-3 py-2 shrink-0 border-l border-slate-200 bg-slate-50 flex items-center gap-2 self-stretch shadow-[-4px_0_10px_-4px_rgba(0,0,0,0.1)] z-10">
-                    <button
-                        onClick={() => { setDrawerType('equity'); setDrawerOpen(true); }}
-                        className="px-4 h-[28px] rounded-[4px] text-[9px] font-black transition shadow-sm tracking-widest hover:opacity-90 flex items-center justify-center bg-[#011d52] text-white uppercase"
-                        title="Create New Equity Tip"
-                    >
-                        <Plus className="w-3 h-3 mr-1.5" /> EQUITY
-                    </button>
-                    <button
-                        onClick={() => { setDrawerType('fo'); setDrawerOpen(true); }}
-                        className="px-4 h-[28px] rounded-[4px] text-[9px] font-black transition shadow-sm tracking-widest border hover:bg-white flex items-center justify-center border-[#011d52] text-[#011d52] uppercase"
-                        title="Create New F&O Tip"
-                    >
-                        <Plus className="w-3 h-3 mr-1.5" /> F&O
-                    </button>
+                    {(canAccess(user, 'admin') || hasPermission(user, 'create_tips')) && (
+                        <>
+                            <button
+                                onClick={() => { setDrawerType('equity'); setDrawerOpen(true); }}
+                                className="px-4 h-[28px] rounded-[4px] text-[9px] font-black transition shadow-sm tracking-widest hover:opacity-90 flex items-center justify-center bg-[#011d52] text-white uppercase"
+                                title="Create New Equity Tip"
+                            >
+                                <Plus className="w-3 h-3 mr-1.5" /> EQUITY
+                            </button>
+                            <button
+                                onClick={() => { setDrawerType('fo'); setDrawerOpen(true); }}
+                                className="px-4 h-[28px] rounded-[4px] text-[9px] font-black transition shadow-sm tracking-widest border hover:bg-white flex items-center justify-center border-[#011d52] text-[#011d52] uppercase"
+                                title="Create New F&O Tip"
+                            >
+                                <Plus className="w-3 h-3 mr-1.5" /> F&O
+                            </button>
+                        </>
+                    )}
                 </div>
             </div>
 
@@ -794,7 +802,7 @@ const TipsDashboard = () => {
                                     </td>
                                     <td className="px-2 py-1.5 text-right">
                                         <div className="flex items-center justify-end gap-1.5">
-                                            {tip.trade_status !== 'Closed' && (
+                                            {tip.trade_status !== 'Closed' && (canAccess(user, 'admin') || hasPermission(user, 'update_tips')) && (
                                                 <>
                                                     <button onClick={() => openUpdateStatus(tip)}
                                                         className="group relative text-purple-500 hover:text-purple-700 hover:bg-purple-50 rounded-[4px] transition-all p-1">
@@ -818,16 +826,20 @@ const TipsDashboard = () => {
                                                 <Eye className="w-3.5 h-3.5" />
                                                 <span className="absolute -top-7 right-0 px-2 py-1 bg-[#020210] text-white text-[9px] rounded-[4px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-[60] shadow-md font-black tracking-widest">View Details</span>
                                             </Link>
-                                            <Link to={`/admin/tips/${tip._id}/edit`}
-                                                className="group relative text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 rounded-[4px] transition-all p-1">
-                                                <Edit2 className="w-3.5 h-3.5" />
-                                                <span className="absolute -top-7 right-0 px-2 py-1 bg-[#020210] text-white text-[9px] rounded-[4px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-[60] shadow-md font-black tracking-widest">Edit Tip</span>
-                                            </Link>
-                                            <button onClick={() => handleDelete(tip._id)}
-                                                className="group relative text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-[4px] transition-all p-1">
-                                                <Trash2 className="w-3.5 h-3.5" />
-                                                <span className="absolute -top-7 right-0 px-2 py-1 bg-[#020210] text-white text-[9px] rounded-[4px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-[60] shadow-md font-black tracking-widest">Delete Tip</span>
-                                            </button>
+                                            {(canAccess(user, 'admin') || hasPermission(user, 'update_tips')) && (
+                                                <Link to={`/admin/tips/${tip._id}/edit`}
+                                                    className="group relative text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 rounded-[4px] transition-all p-1">
+                                                    <Edit2 className="w-3.5 h-3.5" />
+                                                    <span className="absolute -top-7 right-0 px-2 py-1 bg-[#020210] text-white text-[9px] rounded-[4px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-[60] shadow-md font-black tracking-widest">Edit Tip</span>
+                                                </Link>
+                                            )}
+                                            {(canAccess(user, 'admin') || hasPermission(user, 'delete_tips')) && (
+                                                <button onClick={() => handleDelete(tip._id)}
+                                                    className="group relative text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-[4px] transition-all p-1">
+                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                    <span className="absolute -top-7 right-0 px-2 py-1 bg-[#020210] text-white text-[9px] rounded-[4px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-[60] shadow-md font-black tracking-widest">Delete Tip</span>
+                                                </button>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>

@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../../context/AuthContext';
+import { canAccess, hasPermission } from '../../../utils/rbac';
 import { Link } from 'react-router-dom';
 import blogService from '../../../services/blogService';
 import { BASE_URL } from '../../../services/api';
 import toast from 'react-hot-toast';
 
 const BlogList = () => {
+    const { user } = useAuth();
     const [showFilters, setShowFilters] = useState(false);
     const [search, setSearch] = useState('');
     const [status, setStatus] = useState('');
@@ -164,10 +167,12 @@ const BlogList = () => {
                             className="text-[10px] font-semibold bg-white border border-slate-200 px-2.5 py-1 rounded-md text-slate-600 hover:bg-slate-50 transition-colors">
                             Categories
                         </Link>
-                        <Link to="/admin/blogs/create"
+                        {(canAccess(user, 'admin') || hasPermission(user, 'create_blogs')) && (
+<Link to="/admin/blogs/create"
                             className="text-[10px] font-semibold bg-[#011d52] text-white border border-[#011d52] px-2.5 py-1 rounded-md hover:bg-[#03173d] transition-colors flex items-center gap-1">
                             + Add Blog
                         </Link>
+)}
                     </div>
                 </div>
 
@@ -233,12 +238,16 @@ const BlogList = () => {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                    <Link to={`/admin/blogs/edit/${blog._id}`} className="p-1.5 text-[#011d52] hover:bg-blue-50 rounded-md transition-colors" title="Edit Article">
+                                    {(canAccess(user, 'admin') || hasPermission(user, 'update_blogs')) && (
+<Link to={`/admin/blogs/edit/${blog._id}`} className="p-1.5 text-[#011d52] hover:bg-blue-50 rounded-md transition-colors" title="Edit Article">
                                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                     </Link>
-                                    <button onClick={() => handleDelete(blog._id)} className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-md transition-colors" title="Delete">
+)}
+                                    {(canAccess(user, 'admin') || hasPermission(user, 'delete_blogs')) && (
+<button onClick={() => handleDelete(blog._id)} className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-md transition-colors" title="Delete">
                                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                     </button>
+)}
                                 </div>
                             </div>
                         </div>
@@ -252,7 +261,9 @@ const BlogList = () => {
                     </div>
                     <h3 className="text-[11px] font-bold text-slate-800">No Articles Found</h3>
                     <p className="text-[9px] text-slate-400 mb-4 text-center mt-1">We couldn't find any blogs matching your current filters.</p>
-                    <Link to="/admin/blogs/create" className="px-4 py-1.5 bg-[#011d52] text-white font-bold text-[10px] rounded-md shadow-sm hover:bg-[#03173d] transition">Create Your First Blog</Link>
+                    {(canAccess(user, 'admin') || hasPermission(user, 'create_blogs')) && (
+<Link to="/admin/blogs/create" className="px-4 py-1.5 bg-[#011d52] text-white font-bold text-[10px] rounded-md shadow-sm hover:bg-[#03173d] transition">Create Your First Blog</Link>
+)}
                 </div>
             )}
                 </div>

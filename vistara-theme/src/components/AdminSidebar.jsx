@@ -46,7 +46,7 @@ import {
     User
 } from 'lucide-react';
 import useAuth from '../hooks/useAuth';
-import { canAccess } from '../utils/rbac';
+import { canAccess, hasPermission } from '../utils/rbac';
 import { BASE_URL } from '../services/api';
 
 // ─── Nav Item (single link) ────────────────────────────────────────────────
@@ -246,12 +246,12 @@ const AdminSidebar = () => {
 
     // Submenu definitions
     const tradingSignalsLinks = [
-        { to: '/admin/tips', label: 'Dashboard' },
-        { to: '/admin/tips/create-equity', label: 'Create Equity Tip' },
-        { to: '/admin/tips/create-fo', label: 'Create F&O Tip' },
-        { to: '/admin/tips/analysis', label: 'Signals Analysis' },
-        { to: '/admin/tips/categories', label: 'Tip Categories' },
-    ];
+        { to: '/admin/tips', label: 'Dashboard', show: canAccess(user, 'admin') || hasPermission(user, 'view_tips') },
+        { to: '/admin/tips/create-equity', label: 'Create Equity Tip', show: canAccess(user, 'admin') || hasPermission(user, 'create_tips') },
+        { to: '/admin/tips/create-fo', label: 'Create F&O Tip', show: canAccess(user, 'admin') || hasPermission(user, 'create_tips') },
+        { to: '/admin/tips/analysis', label: 'Signals Analysis', show: canAccess(user, 'admin') || hasPermission(user, 'view_tips') },
+        { to: '/admin/tips/categories', label: 'Tip Categories', show: canAccess(user, 'admin') || hasPermission(user, 'view_tips') },
+    ].filter(link => link.show);
 
     const notificationLinks = [
         { to: '/admin/notifications', label: 'All Alerts' },
@@ -322,116 +322,145 @@ const AdminSidebar = () => {
             {/* ── Navigation ────────────────────────────────────────── */}
             <nav className={`flex-1 overflow-y-auto overflow-x-hidden py-3 space-y-0.5 scrollbar-hide ${isCollapsed ? 'px-2' : 'px-3'}`}>
 
-                {/* ADMIN CORE */}
-                {canAccess(user, 'admin') && (
-                    <>
-                        <NavItem to="/admin/dashboard" emoji="📊" label="Dashboard" isCollapsed={isCollapsed} />
-                        <NavItem to="/admin/customers" emoji="👥" label="Customers" isCollapsed={isCollapsed} />
-                    </>
+                {/* DASHBOARD - Requires Admin Level OR specific view_admin_dashboard permission */}
+                {(canAccess(user, 'admin') || hasPermission(user, 'view_admin_dashboard')) && (
+                    <NavItem to="/admin/dashboard" emoji="📊" label="Dashboard" isCollapsed={isCollapsed} />
                 )}
 
-                {/* CRM — visible to all employees */}
-                {/* <SectionLabel label="CRM" isCollapsed={isCollapsed} />
-                <DropdownSection
-                    id="crm"
-                    emoji="🎯"
-                    label="CRM"
-                    links={crmLinks}
-                    isCollapsed={isCollapsed}
-                    openDropdown={openDropdown}
-                    onToggle={toggleDropdown}
-                /> */}
+                {/* ADMIN CORE */}
+                {(canAccess(user, 'admin') || hasPermission(user, 'view_customers')) && (
+                    <NavItem to="/admin/customers" emoji="👥" label="Customers" isCollapsed={isCollapsed} />
+                )}
 
-                {/* ADMIN ONLY SECTIONS */}
-                {canAccess(user, 'admin') && (
+                {/* FINANCE */}
+                {(canAccess(user, 'admin') || hasPermission(user, 'manage_settings')) && (
                     <>
                         <SectionLabel label="Finance" isCollapsed={isCollapsed} />
                         <NavItem to="/admin/manual-payments" emoji="💳" label="Manual Payments" isCollapsed={isCollapsed} />
                         <NavItem to="/admin/refunds" emoji="💵" label="Refund Ledger" isCollapsed={isCollapsed} />
+                    </>
+                )}
 
-                        <SectionLabel label="Signals" isCollapsed={isCollapsed} />
-                        <DropdownSection
-                            id="trading-signals"
-                            emoji="📈"
-                            label="Trading Signals"
-                            links={tradingSignalsLinks}
-                            isCollapsed={isCollapsed}
-                            openDropdown={openDropdown}
-                            onToggle={toggleDropdown}
-                        />
+                {/* CRM */}
+                {(canAccess(user, 'admin') || hasPermission(user, 'view_leads')) && (
+                    <DropdownSection
+                        id="crm"
+                        emoji="👥"
+                        label="CRM"
+                        links={crmLinks}
+                        isCollapsed={isCollapsed}
+                        openDropdown={openDropdown}
+                        onToggle={toggleDropdown}
+                    />
+                )}
 
-                        <SectionLabel label="Engagement" isCollapsed={isCollapsed} />
-                        <DropdownSection
-                            id="notifications"
-                            emoji="🔔"
-                            label="Notification Center"
-                            links={notificationLinks}
-                            isCollapsed={isCollapsed}
-                            openDropdown={openDropdown}
-                            onToggle={toggleDropdown}
-                        />
-                        <NavItem to="/admin/campaigns" emoji="🚀" label="Campaigns" isCollapsed={isCollapsed} />
-                        <NavItem to="/admin/marquees" emoji="📢" label="Marquees" isCollapsed={isCollapsed} />
-                        <NavItem to="/admin/popups" emoji="🗂️" label="Popups" isCollapsed={isCollapsed} />
+                {/* INTELLIGENCE & CAMPAIGNS */}
+                <SectionLabel label="Signals & Intel" isCollapsed={isCollapsed} />
+                {(canAccess(user, 'admin') || tradingSignalsLinks.length > 0) && (
+                    <DropdownSection
+                        id="tips"
+                        emoji="📈"
+                        label="Trading Signals"
+                        links={tradingSignalsLinks}
+                        isCollapsed={isCollapsed}
+                        openDropdown={openDropdown}
+                        onToggle={toggleDropdown}
+                    />
+                )}
 
-                        <SectionLabel label="Catalog" isCollapsed={isCollapsed} />
-                        <NavItem to="/admin/services" emoji="🧾" label="Service Plans" isCollapsed={isCollapsed} />
-                        <NavItem to="/admin/coupons" emoji="🎟️" label="Coupons" isCollapsed={isCollapsed} />
-                        <NavItem to="/admin/blogs" emoji="📝" label="Blogs" isCollapsed={isCollapsed} />
-                        <NavItem to="/admin/news" emoji="📰" label="News" isCollapsed={isCollapsed} />
+                {/* CATALOG */}
+                <SectionLabel label="Catalog" isCollapsed={isCollapsed} />
+                {(canAccess(user, 'admin') || hasPermission(user, 'view_services')) && (
+                    <NavItem to="/admin/services" emoji="🧾" label="Service Plans" isCollapsed={isCollapsed} />
+                )}
+                {(canAccess(user, 'admin') || hasPermission(user, 'manage_settings')) && (
+                    <NavItem to="/admin/coupons" emoji="🎟️" label="Coupons" isCollapsed={isCollapsed} />
+                )}
+                {(canAccess(user, 'admin') || hasPermission(user, 'view_blogs')) && (
+                    <NavItem to="/admin/blogs" emoji="📝" label="Blogs" isCollapsed={isCollapsed} />
+                )}
+                {(canAccess(user, 'admin') || hasPermission(user, 'view_news')) && (
+                    <NavItem to="/admin/news" emoji="📰" label="News" isCollapsed={isCollapsed} />
+                )}
+                {(canAccess(user, 'admin') || hasPermission(user, 'manage_settings')) && (
+                    <>
                         <NavItem to="/admin/offer-banners" emoji="🖼️" label="Offer Banners" isCollapsed={isCollapsed} />
                         <NavItem to="/admin/certificates" emoji="🏆" label="Certificates" isCollapsed={isCollapsed} />
-
-                        <SectionLabel label="Support" isCollapsed={isCollapsed} />
-                        <NavItem to="/admin/complaints" emoji="⚠️" label="Complaints" isCollapsed={isCollapsed} />
-                        {/* <NavItem to="/admin/complaint-data" emoji="📉" label="Complaint Data" isCollapsed={isCollapsed} /> */}
-                        <NavItem to="/admin/inquiries" emoji="📩" label="Inquiries" isCollapsed={isCollapsed} />
-                        <NavItem to="/admin/reviews" emoji="⭐" label="Reviews" isCollapsed={isCollapsed} />
-
-                        <SectionLabel label="Compliance" isCollapsed={isCollapsed} />
-                        {/* <NavItem to="/admin/policies" emoji="🛡️" label="Policy Master" isCollapsed={isCollapsed} /> */}
-                        <NavItem to="/admin/faq" emoji="❓" label="Website FAQs" isCollapsed={isCollapsed} />
-                        <NavItem to="/admin/company-bank-details" emoji="🏦" label="Bank Details" isCollapsed={isCollapsed} />
-
-                        <SectionLabel label="Website" isCollapsed={isCollapsed} />
-                        {/* <NavItem to="/admin/header" emoji="⬆️" label="Header Builder" isCollapsed={isCollapsed} /> */}
-                        {/* <NavItem to="/admin/footer" emoji="⬇️" label="Footer Builder" isCollapsed={isCollapsed} /> */}
-                        <NavItem to="/admin/contact-details" emoji="📞" label="Contact Details" isCollapsed={isCollapsed} />
-                        {/* <DropdownSection
-                            id="home-settings"
-                            emoji="🏠"
-                            label="Home Settings"
-                            links={homeSettingsLinks}
-                            isCollapsed={isCollapsed}
-                            openDropdown={openDropdown}
-                            onToggle={toggleDropdown}
-                        />
-                        <DropdownSection
-                            id="about"
-                            emoji="ℹ️"
-                            label="About Us"
-                            links={aboutUsLinks}
-                            isCollapsed={isCollapsed}
-                            openDropdown={openDropdown}
-                            onToggle={toggleDropdown}
-                        /> */}
-
-                        <SectionLabel label="Administration" isCollapsed={isCollapsed} />
-                        {checkPermission() && (
-                            <DropdownSection
-                                id="management"
-                                emoji="⚙️"
-                                label="Management"
-                                links={managementLinks}
-                                isCollapsed={isCollapsed}
-                                openDropdown={openDropdown}
-                                onToggle={toggleDropdown}
-                            />
-                        )}
-                        <NavItem to="/admin/roles" emoji="🔒" label="Roles" isCollapsed={isCollapsed} />
-                        <NavItem to="/admin/credentials" emoji="🔑" label="API Credentials" isCollapsed={isCollapsed} />
-                        <NavItem to="/admin/system-health" emoji="🖥️" label="System Health" isCollapsed={isCollapsed} />
                     </>
+                )}
+
+                {/* ENGAGEMENT & SUPPORT */}
+                <SectionLabel label="Engagement & Support" isCollapsed={isCollapsed} />
+                {(canAccess(user, 'admin') || hasPermission(user, 'view_notifications')) && (
+                    <DropdownSection
+                        id="notifications"
+                        emoji="🔔"
+                        label="Notification Center"
+                        links={notificationLinks}
+                        isCollapsed={isCollapsed}
+                        openDropdown={openDropdown}
+                        onToggle={toggleDropdown}
+                    />
+                )}
+                {(canAccess(user, 'admin') || hasPermission(user, 'manage_settings')) && (
+                    <NavItem to="/admin/campaigns" emoji="🚀" label="Campaigns" isCollapsed={isCollapsed} />
+                )}
+                {(canAccess(user, 'admin') || hasPermission(user, 'manage_settings')) && (
+                    <NavItem to="/admin/complaints" emoji="⚠️" label="Complaints" isCollapsed={isCollapsed} />
+                )}
+                {(canAccess(user, 'admin') || hasPermission(user, 'manage_settings')) && (
+                    <NavItem to="/admin/inquiries" emoji="📩" label="Inquiries" isCollapsed={isCollapsed} />
+                )}
+
+                {/* COMPLIANCE & WEBSITE */}
+                <SectionLabel label="Compliance & Settings" isCollapsed={isCollapsed} />
+                {(canAccess(user, 'admin') || hasPermission(user, 'view_faqs')) && (
+                    <NavItem to="/admin/faq" emoji="❓" label="Website FAQs" isCollapsed={isCollapsed} />
+                )}
+                {(canAccess(user, 'admin') || hasPermission(user, 'manage_settings')) && (
+                    <NavItem to="/admin/company-bank-details" emoji="🏦" label="Bank Details" isCollapsed={isCollapsed} />
+                )}
+                {(canAccess(user, 'admin') || hasPermission(user, 'manage_settings')) && (
+                    <DropdownSection
+                        id="home"
+                        emoji="🏠"
+                        label="Home Page Config"
+                        links={homeSettingsLinks}
+                        isCollapsed={isCollapsed}
+                        openDropdown={openDropdown}
+                        onToggle={toggleDropdown}
+                    />
+                )}
+                {(canAccess(user, 'admin') || hasPermission(user, 'manage_settings')) && (
+                    <DropdownSection
+                        id="about"
+                        emoji="ℹ️"
+                        label="About Us Config"
+                        links={aboutUsLinks}
+                        isCollapsed={isCollapsed}
+                        openDropdown={openDropdown}
+                        onToggle={toggleDropdown}
+                    />
+                )}
+                
+                {/* ADMINISTRATION */}
+                <SectionLabel label="Administration" isCollapsed={isCollapsed} />
+                {checkPermission() && (
+                    <DropdownSection
+                        id="management"
+                        emoji="⚙️"
+                        label="Management"
+                        links={managementLinks}
+                        isCollapsed={isCollapsed}
+                        openDropdown={openDropdown}
+                        onToggle={toggleDropdown}
+                    />
+                )}
+                {(canAccess(user, 'admin') || hasPermission(user, 'view_roles')) && (
+                    <NavItem to="/admin/roles" emoji="🔒" label="Roles" isCollapsed={isCollapsed} />
+                )}
+                {(canAccess(user, 'admin') || hasPermission(user, 'manage_settings')) && (
+                    <NavItem to="/admin/credentials" emoji="🔑" label="API Credentials" isCollapsed={isCollapsed} />
                 )}
             </nav>
 

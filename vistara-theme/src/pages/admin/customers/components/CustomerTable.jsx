@@ -1,7 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../../../context/AuthContext';
+import { canAccess, hasPermission } from '../../../../utils/rbac';
 
 const CustomerTable = ({ users, onRefund, onDelete, onShowPanel, showDeletedUserAlert }) => {
+    const { user: currentUser } = useAuth();
     return (
         <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]">
             <div className="overflow-x-auto">
@@ -86,7 +89,7 @@ const CustomerTable = ({ users, onRefund, onDelete, onShowPanel, showDeletedUser
                                                 </button>
                                             )}
 
-                                            {user.role?.slug !== 'super-admin' && (
+                                            {user.role?.slug !== 'super-admin' && (canAccess(currentUser, 'admin') || hasPermission(currentUser, 'delete_customers')) && (
                                                 <button
                                                     onClick={() => onDelete(user._id)}
                                                     className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all"

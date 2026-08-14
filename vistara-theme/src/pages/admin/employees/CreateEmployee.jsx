@@ -1,14 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import employeeService from '../../../services/employeeService';
-import designationService from '../../../services/designationService';
 import toast from 'react-hot-toast';
 
 const CreateEmployee = () => {
     const navigate = useNavigate();
-    const [designations, setDesignations] = useState([]);
-    const [allEmployees, setAllEmployees] = useState([]);
-    const [loadingMasters, setLoadingMasters] = useState(true);
 
     // Form Wizard State
     const [formStep, setFormStep] = useState(1);
@@ -25,10 +21,6 @@ const CreateEmployee = () => {
         status: 'Active'
     });
 
-    useEffect(() => {
-        // fetchMasters no longer needed for designations/reporting managers, but keeping it to avoid errors if needed elsewhere.
-    }, []);
-
     const handlePhotoChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -42,7 +34,7 @@ const CreateEmployee = () => {
 
     const handleNextStep = () => {
         if (formStep === 1) {
-            if (!form.firstName.trim() || !form.lastName.trim() || !form.email.trim() || !form.phone.trim()) {
+            if (!form.firstName.trim() || !form.email.trim() || !form.phone.trim()) {
                 toast.error('Please fill in all required basic information fields.');
                 return;
             }
@@ -72,8 +64,6 @@ const CreateEmployee = () => {
     const handlePrevStep = () => {
         setFormStep(formStep - 1);
     };
-
-    // Hierarchy validation removed since designation is removed
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -105,8 +95,6 @@ const CreateEmployee = () => {
             toast.error(error.response?.data?.message || 'Failed to create employee');
         }
     };
-
-    // filtered managers logic removed
 
     return (
         <main className="min-h-full p-4 flex flex-col gap-4 font-sans">
@@ -159,13 +147,12 @@ const CreateEmployee = () => {
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Last Name *</label>
+                                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Last Name</label>
                                             <input
                                                 value={form.lastName}
                                                 onChange={(e) => setForm({ ...form, lastName: e.target.value })}
                                                 className="w-full bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-[10px] font-bold text-slate-800 outline-none focus:border-[#011d52] transition-colors"
                                                 placeholder="Das"
-                                                required
                                             />
                                         </div>
                                     </div>

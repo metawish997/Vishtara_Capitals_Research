@@ -6,8 +6,11 @@ import RefundModal from './components/RefundModal';
 import ManualAllocationModal from './components/ManualAllocationSection';
 import SubscriptionDetailsModal from './components/SubscriptionDetailsModal';
 import AdminInvoiceModal from './components/AdminInvoiceModal';
+import { useAuth } from '../../../context/AuthContext';
+import { canAccess, hasPermission } from '../../../utils/rbac';
 
 const CustomerDetails = () => {
+    const { user: currentUser } = useAuth();
     const { id } = useParams();
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState(null);
@@ -96,12 +99,16 @@ const CustomerDetails = () => {
                 </div>
 
                 <div className="flex gap-2">
-                    <button onClick={() => setIsAllocationModalOpen(true)} className="px-3 py-1.5 rounded-md text-[9px] font-bold uppercase tracking-widest transition shadow-sm bg-[#10b981] text-white hover:bg-[#059669]">
-                        Assign Service
-                    </button>
-                    <button onClick={() => setIsRefundModalOpen(true)} className="px-3 py-1.5 rounded-md text-[9px] font-bold uppercase tracking-widest transition shadow-sm bg-[#011D52] text-white hover:bg-[#02143a]">
-                        Initiate Refund
-                    </button>
+                    {(canAccess(currentUser, 'admin') || hasPermission(currentUser, 'update_customers')) && (
+                        <button onClick={() => setIsAllocationModalOpen(true)} className="px-3 py-1.5 rounded-md text-[9px] font-bold uppercase tracking-widest transition shadow-sm bg-[#10b981] text-white hover:bg-[#059669]">
+                            Assign Service
+                        </button>
+                    )}
+                    {(canAccess(currentUser, 'admin') || hasPermission(currentUser, 'create_refunds')) && (
+                        <button onClick={() => setIsRefundModalOpen(true)} className="px-3 py-1.5 rounded-md text-[9px] font-bold uppercase tracking-widest transition shadow-sm bg-[#011D52] text-white hover:bg-[#02143a]">
+                            Initiate Refund
+                        </button>
+                    )}
                     <Link to="/admin/customers" className="px-3 py-1.5 rounded-md text-[9px] font-bold uppercase tracking-widest transition bg-white text-slate-600 border border-slate-200 hover:bg-slate-50">
                         Exit View
                     </Link>

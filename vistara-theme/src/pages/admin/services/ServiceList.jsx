@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../../context/AuthContext';
+import { canAccess, hasPermission } from '../../../utils/rbac';
 import { Link } from 'react-router-dom';
 import serviceService from '../../../services/serviceService';
 import toast from 'react-hot-toast';
 
 const ServiceList = () => {
+    const { user } = useAuth();
     const [showFilters, setShowFilters] = useState(false);
     const [selectedPlans, setSelectedPlans] = useState([]);
     const [plans, setPlans] = useState([]);
@@ -97,9 +100,11 @@ const ServiceList = () => {
                         {showFilters ? 'Hide Filters' : 'Filters'}
                     </button>
 
-                    <Link to="/admin/services/create" className="px-3 py-1.5 bg-[#011d52] text-white rounded-md font-bold text-[10px] hover:bg-[#03173d] transition">
+                    {(canAccess(user, 'admin') || hasPermission(user, 'create_services')) && (
+<Link to="/admin/services/create" className="px-3 py-1.5 bg-[#011d52] text-white rounded-md font-bold text-[10px] hover:bg-[#03173d] transition">
                         + Add New Plan
                     </Link>
+)}
                 </div>
             </div>
 
@@ -151,9 +156,11 @@ const ServiceList = () => {
             ) : (
                 <div className="text-center py-12 bg-slate-50 rounded-xl border border-dashed border-slate-200">
                     <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">No Service Plans Found</p>
-                    <Link to="/admin/services/create" className="mt-3 inline-block px-3 py-1.5 bg-[#011d52] text-white font-bold rounded-md text-[10px]">
+                    {(canAccess(user, 'admin') || hasPermission(user, 'create_services')) && (
+<Link to="/admin/services/create" className="mt-3 inline-block px-3 py-1.5 bg-[#011d52] text-white font-bold rounded-md text-[10px]">
                         + Add New Plan
                     </Link>
+)}
                 </div>
             )}
         </div>
@@ -174,9 +181,11 @@ const PlanCard = ({ plan, isSelected, onToggleSelect, onDelete }) => {
             />
 
             <div className="absolute top-4 right-4 flex gap-1">
-                <Link to={`/admin/services/edit/${plan._id}`} className="p-1 text-slate-400 hover:text-amber-500 hover:bg-amber-50 rounded transition">
+                {(canAccess(user, 'admin') || hasPermission(user, 'update_services')) && (
+<Link to={`/admin/services/edit/${plan._id}`} className="p-1 text-slate-400 hover:text-amber-500 hover:bg-amber-50 rounded transition">
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                 </Link>
+)}
                 <button type="button" onClick={onDelete} className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition">
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                 </button>
@@ -236,9 +245,11 @@ const PlanCard = ({ plan, isSelected, onToggleSelect, onDelete }) => {
                     </ul>
                 </div>
 
-                <Link to={`/admin/services/edit/${plan._id}`} className="mt-4 w-full block text-center py-1.5 bg-slate-50 text-slate-700 border border-slate-200 rounded-md text-[10px] font-bold hover:bg-slate-100 transition">
+                {(canAccess(user, 'admin') || hasPermission(user, 'update_services')) && (
+<Link to={`/admin/services/edit/${plan._id}`} className="mt-4 w-full block text-center py-1.5 bg-slate-50 text-slate-700 border border-slate-200 rounded-md text-[10px] font-bold hover:bg-slate-100 transition">
                     Edit Plan Details
                 </Link>
+)}
             </div>
         </div>
     );

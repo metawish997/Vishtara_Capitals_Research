@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../../context/AuthContext';
+import { canAccess, hasPermission } from '../../../utils/rbac';
 import api from '../../../services/api';
 import toast from 'react-hot-toast';
 import CustomerTable from './components/CustomerTable';
@@ -6,6 +8,7 @@ import RefundModal from './components/RefundModal';
 import CustomerSidePanel from './components/CustomerSidePanel';
 
 const CustomerList = () => {
+    const { user } = useAuth();
     const [activeTab, setActiveTab] = useState('active');
     const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(true);

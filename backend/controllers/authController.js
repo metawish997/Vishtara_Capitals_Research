@@ -208,7 +208,10 @@ exports.login = async (req, res, next) => {
         { email: email },
         { phone: email }
       ]
-    }).sort({ createdAt: -1 }).select('+password').populate('role');
+    }).sort({ createdAt: -1 }).select('+password').populate({
+      path: 'role',
+      populate: { path: 'permissions' }
+    });
 
     if (!user) {
       user = await Employee.findOne({
@@ -216,7 +219,10 @@ exports.login = async (req, res, next) => {
           { email: email },
           { phone: email }
         ]
-      }).select('+password').populate('roleId').populate('designationId');
+      }).select('+password').populate({
+        path: 'roleId',
+        populate: { path: 'permissions' }
+      }).populate('designationId');
       isEmployee = true;
     }
 
@@ -266,6 +272,24 @@ exports.login = async (req, res, next) => {
     const credential = await DigioCredential.findOne({ isActive: true });
     const kyc_status = credential ? (user.kyc_status || 'approved') : 'approved';
 
+    // Automatically assign Customer role if none is present
+    if (!isEmployee && !user.role) {
+      let customerRole = await Role.findOne({ slug: 'customer' });
+      if (!customerRole) {
+        customerRole = await Role.findOne({ name: /customer/i });
+      }
+      if (!customerRole) {
+        customerRole = await Role.create({
+          name: 'Customer',
+          slug: 'customer',
+          permissions: []
+        });
+      }
+      user.role = customerRole._id;
+      await user.save();
+      await user.populate('role');
+    }
+
     let roleName = 'user';
     if (isEmployee) {
       roleName = user.roleId ? user.roleId.name.toLowerCase() : 'employee';
@@ -283,6 +307,7 @@ exports.login = async (req, res, next) => {
         kyc_status,
         id: user._id,
         role: roleName,
+        roleData: isEmployee ? user.roleId : user.role,
         isEmployee,
       },
     });
@@ -317,6 +342,27 @@ exports.getMe = async (req, res, next) => {
     const credential = await DigioCredential.findOne({ isActive: true });
     const kyc_status = credential ? (user.kyc_status || 'approved') : 'approved';
 
+    // Automatically assign Customer role if none is present
+    if (!isEmployee && !user.role) {
+      let customerRole = await Role.findOne({ slug: 'customer' });
+      if (!customerRole) {
+        customerRole = await Role.findOne({ name: /customer/i });
+      }
+      if (!customerRole) {
+        customerRole = await Role.create({
+          name: 'Customer',
+          slug: 'customer',
+          permissions: []
+        });
+      }
+      user.role = customerRole._id;
+      await user.save();
+      await user.populate({
+        path: 'role',
+        populate: { path: 'permissions' }
+      });
+    }
+
     let roleName = 'user';
     if (isEmployee) {
       roleName = user.roleId ? user.roleId.name.toLowerCase() : 'employee';
@@ -332,6 +378,7 @@ exports.getMe = async (req, res, next) => {
         kyc_status,
         id: user._id,
         role: roleName,
+        roleData: isEmployee ? user.roleId : user.role,
         isEmployee,
       },
     });

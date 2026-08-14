@@ -11,7 +11,10 @@ const { processMedia, deleteMedia } = require('../../utils/fileHandler');
 // @access  Private
 exports.getProfile = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id).populate('role');
+    const user = await User.findById(req.user.id).populate({
+      path: 'role',
+      populate: { path: 'permissions' }
+    });
 
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
@@ -45,7 +48,9 @@ exports.getProfile = async (req, res, next) => {
         ...user.toObject(),
         kyc_status,
         id: user._id,
-        role: user.role.name.toLowerCase(),
+        role: user.role ? user.role.name.toLowerCase() : 'user',
+        roleData: user.role,
+        isEmployee: user.role && user.role.slug === 'employee',
         subscriptions,
         invoices,
         agreements,
@@ -81,14 +86,19 @@ exports.updateProfile = async (req, res, next) => {
     const user = await User.findByIdAndUpdate(req.user.id, updateData, {
       new: true,
       runValidators: true,
-    }).populate('role');
+    }).populate({
+      path: 'role',
+      populate: { path: 'permissions' }
+    });
 
     res.status(200).json({
       success: true,
       data: {
         ...user.toObject(),
         id: user._id,
-        role: user.role.name.toLowerCase()
+        role: user.role ? user.role.name.toLowerCase() : 'user',
+        roleData: user.role,
+        isEmployee: user.role && user.role.slug === 'employee'
       }
     });
   } catch (error) {

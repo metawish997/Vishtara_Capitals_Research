@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useAuth } from '../../../context/AuthContext';
+import { canAccess, hasPermission } from '../../../utils/rbac';
 import { useNavigate } from 'react-router-dom';
 import employeeService from '../../../services/employeeService';
 import designationService from '../../../services/designationService';
@@ -7,6 +9,7 @@ import { BASE_URL } from '../../../services/api';
 import toast from 'react-hot-toast';
 
 const HierarchyNode = ({ node, getPhotoUrl }) => {
+    const { user } = useAuth();
     const [expanded, setExpanded] = useState(true);
     const hasChildren = node.children && node.children.length > 0;
 
@@ -152,8 +155,6 @@ const EmployeeList = () => {
         phone: '',
         profilePhoto: null,
         profilePhotoPreview: null,
-        designationId: '',
-        reportingTo: '',
         joiningDate: '',
         status: 'Active'
     });
@@ -176,12 +177,8 @@ const EmployeeList = () => {
             if (rolesRes && rolesRes.data) {
                 setRoles(rolesRes.data);
             }
-            const desRes = await designationService.getDesignations();
-            if (desRes && desRes.success) {
-                setDesignations(desRes.data);
-            }
         } catch (error) {
-            console.error('Failed to load designations master registry', error);
+            console.error('Failed to load roles master registry', error);
         }
 
         try {
@@ -253,9 +250,8 @@ const EmployeeList = () => {
             email: emp.email,
             phone: emp.phone,
             profilePhoto: null,
-            profilePhotoPreview: getPhotoUrl(emp.profilePhoto),
-            roleId: emp.roleId?._id || '',
-            reportingTo: emp.reportingTo?._id || '',
+            profilePhotoPreview: getPhotoUrl(emp.profilePhoto || emp.image),
+            roleId: emp.roleId?._id || emp.role?._id || '',
             joiningDate: emp.joiningDate ? emp.joiningDate.split('T')[0] : '',
             status: emp.status
         });
@@ -303,49 +299,7 @@ const EmployeeList = () => {
         }
     };
 
-    // Designation Level Checker for reportingTo validations
-    const validateHierarchy = (empDesignationId, managerId) => {
-        if (!managerId) return true;
-
-        const empDesignation = designations.find(d => d._id === empDesignationId);
-        const managerEmp = allEmployees.find(e => e._id === managerId);
-
-        if (!empDesignation || !managerEmp || !managerEmp.designationId) return true;
-
-        let managerDesignation = managerEmp.designationId;
-        if (typeof managerDesignation === 'string') {
-            managerDesignation = designations.find(d => d._id === managerDesignation);
-        }
-        if (!managerDesignation) return true;
-
-        const isSalesHead = empDesignation.name?.trim().toLowerCase() === 'sales head';
-        const isManagerAdmin = managerDesignation.name?.trim().toLowerCase() === 'admin';
-
-        if (isSalesHead) {
-            // Sales Head reports ONLY to Admin
-            if (!isManagerAdmin) {
-                toast.error('Hierarchy Warning: A Sales Head must report only to an Admin.');
-                return false;
-            }
-            return true;
-        }
-
-        // Other designations cannot report directly to Admin
-        if (isManagerAdmin) {
-            toast.error('Hierarchy Warning: Only Sales Head can report directly to an Admin.');
-            return false;
-        }
-
-        const managerLevel = managerDesignation.level;
-        const employeeLevel = empDesignation.level;
-
-        // Remember: level 1 is highest
-        if (managerLevel >= employeeLevel) {
-            toast.error(`Hierarchy Warning: A ${empDesignation.name} cannot report to a ${managerDesignation.name || 'subordinate'}. Manager must be higher in hierarchy.`);
-            return false;
-        }
-        return true;
-    };
+    // Hierarchy validations removed
 
     const handleUpdateEmployeeSubmit = async (e) => {
         e.preventDefault();
@@ -380,39 +334,7 @@ const EmployeeList = () => {
         }
     };
 
-    const selectedDesig = designations.find(d => d._id === form.designationId);
-
-    const getFilteredManagers = (selectedDesigId, currentEmployeeId = null) => {
-        if (!selectedDesigId) return [];
-        const selD = designations.find(d => d._id === selectedDesigId);
-        if (!selD) return [];
-
-        const isSh = selD.name?.trim().toLowerCase() === 'sales head';
-        const isAdmin = selD.name?.trim().toLowerCase() === 'admin';
-
-        if (isAdmin) return [];
-
-        return allEmployees.filter(emp => {
-            if (currentEmployeeId && emp._id === currentEmployeeId) return false;
-
-            let empDesig = emp.designationId;
-            if (!empDesig) return false;
-
-            if (typeof empDesig === 'string') {
-                empDesig = designations.find(d => d._id === empDesig);
-            }
-            if (!empDesig) return false;
-
-            const isEmpAdmin = empDesig.name?.trim().toLowerCase() === 'admin';
-
-            if (isSh) {
-                return isEmpAdmin;
-            } else {
-                if (isEmpAdmin) return false;
-                return empDesig.level < selD.level;
-            }
-        });
-    };
+    // filtered managers logic removed
 
     return (
         <main className="min-h-full p-4 flex flex-col gap-4 font-sans text-[10px]">
@@ -609,9 +531,11 @@ const EmployeeList = () => {
                                                             )}
 
                                                             <div className="h-[1px] bg-[#e2e8f0]/30 my-1"></div>
-                                                            <button onClick={() => handleDelete(emp._id)} className="w-full px-3 py-1.5 hover:bg-rose-500/10 text-rose-500 text-[9px] font-black uppercase transition-all text-left flex items-center gap-2">
+                                                            {(canAccess(user, 'admin') || hasPermission(user, 'delete_users')) && (
+<button onClick={() => handleDelete(emp._id)} className="w-full px-3 py-1.5 hover:bg-rose-500/10 text-rose-500 text-[9px] font-black uppercase transition-all text-left flex items-center gap-2">
                                                                 🗑️ Delete Employee
                                                             </button>
+)}
                                                         </div>
                                                     )}
                                                 </td>

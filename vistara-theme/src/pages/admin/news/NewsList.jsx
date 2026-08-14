@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../../context/AuthContext';
+import { canAccess, hasPermission } from '../../../utils/rbac';
 import { Link } from 'react-router-dom';
 import newsService from '../../../services/newsService';
 import { BASE_URL } from '../../../services/api';
 import toast from 'react-hot-toast';
 
 const NewsList = () => {
+    const { user } = useAuth();
     const [newsItems, setNewsItems] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -166,10 +169,12 @@ const NewsList = () => {
                             className="text-[10px] font-semibold bg-white border border-slate-200 px-2.5 py-1 rounded-md text-slate-600 hover:bg-slate-50 transition-colors">
                             Categories
                         </Link>
-                        <Link to="/admin/news/create"
+                        {(canAccess(user, 'admin') || hasPermission(user, 'create_news')) && (
+<Link to="/admin/news/create"
                             className="text-[10px] font-semibold bg-[#011d52] text-white border border-[#011d52] px-2.5 py-1 rounded-md hover:bg-[#03173d] transition-colors flex items-center gap-1">
                             + Add News
                         </Link>
+)}
                     </div>
                 </div>
 
@@ -226,12 +231,16 @@ const NewsList = () => {
                             </p>
 
                             <div className="pt-3 border-t border-slate-100 flex justify-end items-center gap-1.5 -mx-3 -mb-3 px-3 py-2 bg-slate-50/50">
-                                <Link to={`/admin/news/edit/${news._id}`} className="p-1.5 text-[#011d52] hover:bg-blue-50 rounded-md transition-colors" title="Edit Article">
+                                {(canAccess(user, 'admin') || hasPermission(user, 'update_news')) && (
+<Link to={`/admin/news/edit/${news._id}`} className="p-1.5 text-[#011d52] hover:bg-blue-50 rounded-md transition-colors" title="Edit Article">
                                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                 </Link>
-                                <button onClick={() => handleDelete(news._id)} className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-md transition-colors" title="Delete">
+)}
+                                {(canAccess(user, 'admin') || hasPermission(user, 'delete_news')) && (
+<button onClick={() => handleDelete(news._id)} className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-md transition-colors" title="Delete">
                                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                 </button>
+)}
                             </div>
                         </div>
                     </div>
@@ -241,7 +250,9 @@ const NewsList = () => {
             {newsItems.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-16 bg-slate-50 rounded-xl border border-dashed border-slate-200 mt-4">
                     <p className="text-slate-400 font-bold text-[10px] uppercase tracking-widest">No news articles found.</p>
-                    <Link to="/admin/news/create" className="mt-3 text-[10px] inline-block text-[#011d52] font-bold hover:underline">Create your first story</Link>
+                    {(canAccess(user, 'admin') || hasPermission(user, 'create_news')) && (
+<Link to="/admin/news/create" className="mt-3 text-[10px] inline-block text-[#011d52] font-bold hover:underline">Create your first story</Link>
+)}
                 </div>
             )}
                 </div>

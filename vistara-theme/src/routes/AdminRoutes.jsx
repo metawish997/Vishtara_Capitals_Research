@@ -98,109 +98,149 @@ const CredentialManager = lazy(() => import('../pages/admin/credentials/Credenti
 const AdminRoutes = (
     <Route element={<ProtectedRoute requiredLevel="all" />}>
         <Route path="admin" element={<AdminLayout />}>
-            <Route path="dashboard" element={<AdminDashboard />} />
             
+            {/* Dashboard (Needs specific permission) */}
+            <Route element={<ProtectedRoute requiredPermission="view_admin_dashboard" />}>
+                <Route path="dashboard" element={<AdminDashboard />} />
+            </Route>
+
             {/* Core Management */}
-            <Route element={<ProtectedRoute requiredLevel="admin" />}>
-                <Route path="services">
-                <Route index element={<ServiceList />} />
-                <Route path="create" element={<CreateService />} />
-                <Route path="edit/:id" element={<EditService />} />
+            <Route path="services">
+                <Route element={<ProtectedRoute requiredPermission="view_services" />}>
+                    <Route index element={<ServiceList />} />
+                </Route>
+                <Route element={<ProtectedRoute requiredPermission="create_services" />}>
+                    <Route path="create" element={<CreateService />} />
+                </Route>
+                <Route element={<ProtectedRoute requiredPermission="update_services" />}>
+                    <Route path="edit/:id" element={<EditService />} />
+                </Route>
             </Route>
 
             <Route path="blogs">
-                <Route index element={<BlogList />} />
-                <Route path="categories" element={<BlogCategories />} />
-                <Route path="create" element={<BlogCreate />} />
-                <Route path="edit/:id" element={<BlogCreate />} />
-                <Route path="show/:id" element={<BlogDetails />} />
+                <Route element={<ProtectedRoute requiredPermission="view_blogs" />}>
+                    <Route index element={<BlogList />} />
+                    <Route path="categories" element={<BlogCategories />} />
+                    <Route path="show/:id" element={<BlogDetails />} />
+                </Route>
+                <Route element={<ProtectedRoute requiredPermission="create_blogs" />}>
+                    <Route path="create" element={<BlogCreate />} />
+                </Route>
+                <Route element={<ProtectedRoute requiredPermission="update_blogs" />}>
+                    <Route path="edit/:id" element={<BlogCreate />} />
+                </Route>
             </Route>
 
             <Route path="news">
-                <Route index element={<NewsList />} />
-                <Route path="categories" element={<NewsCategories />} />
-                <Route path="create" element={<NewsCreate />} />
-                <Route path="edit/:id" element={<NewsCreate />} />
-                <Route path="show/:id" element={<NewsDetails />} />
+                <Route element={<ProtectedRoute requiredPermission="view_news" />}>
+                    <Route index element={<NewsList />} />
+                    <Route path="categories" element={<NewsCategories />} />
+                    <Route path="show/:id" element={<NewsDetails />} />
+                </Route>
+                <Route element={<ProtectedRoute requiredPermission="create_news" />}>
+                    <Route path="create" element={<NewsCreate />} />
+                </Route>
+                <Route element={<ProtectedRoute requiredPermission="update_news" />}>
+                    <Route path="edit/:id" element={<NewsCreate />} />
+                </Route>
             </Route>
 
-            <Route path="offer-banners">
-                <Route index element={<OfferBannerList />} />
-                <Route path="create" element={<OfferBannerCreate />} />
-                <Route path="edit/:id" element={<OfferBannerEdit />} />
+            <Route element={<ProtectedRoute requiredPermission="manage_settings" />}>
+                <Route path="offer-banners">
+                    <Route index element={<OfferBannerList />} />
+                    <Route path="create" element={<OfferBannerCreate />} />
+                    <Route path="edit/:id" element={<OfferBannerEdit />} />
+                </Route>
+
+                <Route path="announcements">
+                    <Route index element={<AnnouncementList />} />
+                    <Route path="create" element={<AnnouncementCreate />} />
+                    <Route path="edit/:id" element={<AnnouncementEdit />} />
+                </Route>
             </Route>
 
-            <Route path="announcements">
-                <Route index element={<AnnouncementList />} />
-                <Route path="create" element={<AnnouncementCreate />} />
-                <Route path="edit/:id" element={<AnnouncementEdit />} />
+            {/* Compliance & Settings */}
+            <Route element={<ProtectedRoute requiredPermission="manage_settings" />}>
+                <Route path="certificates" element={<Certificates />} />
+                <Route path="company-bank-details">
+                    <Route index element={<BankDetailList />} />
+                    <Route path="create" element={<BankDetailCreate />} />
+                    <Route path="edit/:id" element={<BankDetailEdit />} />
+                </Route>
+                <Route path="complaint-data">
+                    <Route index element={<ComplaintDataDashboard />} />
+                    <Route path="create/:type" element={<ComplaintDataCreate />} />
+                    <Route path="edit/:type" element={<ComplaintDataEdit />} />
+                </Route>
+                <Route path="complaints">
+                    <Route index element={<ComplaintList />} />
+                    <Route path="create" element={<ComplaintCreate />} />
+                    <Route path="edit/:id" element={<ComplaintCreate />} />
+                </Route>
+                <Route path="refunds">
+                    <Route index element={<RefundList />} />
+                    <Route path=":id" element={<RefundDetails />} />
+                </Route>
+                <Route path="tickets" element={<TicketDashboard />} />
+                <Route path="support-chat" element={<SupportChat />} />
+                <Route path="manual-payments" element={<ManualPayments />} />
+                <Route path="demo-subscriptions" element={<SubscriptionList />} />
+                <Route path="coupons" element={<Coupons />} />
+                <Route path="inquiries" element={<InquiryList />} />
+                <Route path="reviews" element={<ReviewList />} />
+                <Route path="designations" element={<DesignationList />} />
+                <Route path="contact-details" element={<ContactDetails />} />
             </Route>
 
-            {/* Legal & Finance */}
-            <Route path="certificates" element={<Certificates />} />
-            <Route path="company-bank-details">
-                <Route index element={<BankDetailList />} />
-                <Route path="create" element={<BankDetailCreate />} />
-                <Route path="edit/:id" element={<BankDetailEdit />} />
-            </Route>
-
-            {/* Support & Compliance */}
-            <Route path="complaint-data">
-                <Route index element={<ComplaintDataDashboard />} />
-                <Route path="create/:type" element={<ComplaintDataCreate />} />
-                <Route path="edit/:type" element={<ComplaintDataEdit />} />
-            </Route>
-            <Route path="complaints">
-                <Route index element={<ComplaintList />} />
-                <Route path="create" element={<ComplaintCreate />} />
-                <Route path="edit/:id" element={<ComplaintCreate />} />
-            </Route>
-            <Route path="refunds">
-                <Route index element={<RefundList />} />
-                <Route path=":id" element={<RefundDetails />} />
-            </Route>
-            <Route path="tickets" element={<TicketDashboard />} />
-            <Route path="support-chat" element={<SupportChat />} />
-
-            {/* Admin CRM routes that are NOT for employees */}
-            <Route path="manual-payments" element={<ManualPayments />} />
-            <Route path="demo-subscriptions" element={<SubscriptionList />} />
-            <Route path="coupons" element={<Coupons />} />
             <Route path="roles">
-                <Route index element={<RoleList />} />
-                <Route path="create" element={<RoleEdit />} />
-                <Route path="edit/:id" element={<RoleEdit />} />
-            </Route>
-            <Route path="inquiries" element={<InquiryList />} />
-            <Route path="reviews" element={<ReviewList />} />
-            <Route path="employees" element={<EmployeeList />} />
-            <Route path="employees/create" element={<CreateEmployee />} />
-            <Route path="designations" element={<DesignationList />} />
-            <Route path="contact-details" element={<ContactDetails />} />
+                <Route element={<ProtectedRoute requiredPermission="view_roles" />}>
+                    <Route index element={<RoleList />} />
+                </Route>
+                <Route element={<ProtectedRoute requiredPermission="create_roles" />}>
+                    <Route path="create" element={<RoleEdit />} />
+                </Route>
+                <Route element={<ProtectedRoute requiredPermission="update_roles" />}>
+                    <Route path="edit/:id" element={<RoleEdit />} />
+                </Route>
             </Route>
 
-            {/* CRM & Masters (Accessible to ALL employees) */}
-            <Route path="customers">
-                <Route index element={<CustomerList />} />
-                <Route path=":id" element={<CustomerDetails />} />
-                <Route path="show/:id" element={<CustomerDetails />} />
+            <Route path="employees">
+                <Route element={<ProtectedRoute requiredPermission="view_users" />}>
+                    <Route index element={<EmployeeList />} />
+                </Route>
+                <Route element={<ProtectedRoute requiredPermission="create_users" />}>
+                    <Route path="create" element={<CreateEmployee />} />
+                </Route>
             </Route>
-            <Route path="leads">
-                <Route index element={<LeadList />} />
-                <Route path=":id" element={<LeadDetails />} />
+
+            {/* CRM & Masters (Accessible based on specific permissions) */}
+            <Route element={<ProtectedRoute requiredPermission="view_customers" />}>
+                <Route path="customers">
+                    <Route index element={<CustomerList />} />
+                    <Route path=":id" element={<CustomerDetails />} />
+                    <Route path="show/:id" element={<CustomerDetails />} />
+                </Route>
             </Route>
-            <Route path="lead-pull-uploads" element={<LeadPullUploads />} />
+
+            <Route element={<ProtectedRoute requiredPermission="view_leads" />}>
+                <Route path="leads">
+                    <Route index element={<LeadList />} />
+                    <Route path=":id" element={<LeadDetails />} />
+                </Route>
+                <Route path="lead-pull-uploads" element={<LeadPullUploads />} />
+            </Route>
 
             {/* Website Builder (Admin Only) */}
             <Route element={<ProtectedRoute requiredLevel="admin" />}>
-            <Route path="faq" element={<FaqManager />} />
-            <Route path="footer" element={<FooterBuilder />} />
-            <Route path="header" element={<HeaderBuilder />} />
-            <Route path="marquees" element={<MarqueeManager />} />
-            <Route path="popups">
-                <Route index element={<PopupList />} />
-                <Route path="create" element={<PopupEdit />} />
-                <Route path="edit/:id" element={<PopupEdit />} />
+                <Route path="faq" element={<FaqManager />} />
+                <Route path="footer" element={<FooterBuilder />} />
+                <Route path="header" element={<HeaderBuilder />} />
+                <Route path="marquees" element={<MarqueeManager />} />
+                <Route path="popups">
+                    <Route index element={<PopupList />} />
+                    <Route path="create" element={<PopupEdit />} />
+                    <Route path="edit/:id" element={<PopupEdit />} />
+                </Route>
             </Route>
             <Route path="policies">
                 <Route index element={<PolicyList />} />
@@ -209,21 +249,35 @@ const AdminRoutes = (
             </Route>
 
             {/* Intelligence & Campaigns */}
-            <Route path="tips">
-                <Route index element={<TipsDashboard />} />
-                <Route path="create-equity" element={<CreateEquityTip />} />
-                <Route path="create-fo" element={<CreateFOTip />} />
-                <Route path="risk-reward" element={<RiskRewardMaster />} />
-                <Route path="categories" element={<TipCategories />} />
-                <Route path="analysis" element={<TipsAnalysis />} />
-                <Route path="show/:id" element={<TipDetails />} />
+            <Route element={<ProtectedRoute requiredPermission="view_tips" />}>
+                <Route path="tips">
+                    <Route index element={<TipsDashboard />} />
+                    <Route element={<ProtectedRoute requiredPermission="create_tips" />}>
+                        <Route path="create-equity" element={<CreateEquityTip />} />
+                        <Route path="create-fo" element={<CreateFOTip />} />
+                        <Route path="categories" element={<TipCategories />} />
+                    </Route>
+                    <Route path="risk-reward" element={<RiskRewardMaster />} />
+                    <Route path="analysis" element={<TipsAnalysis />} />
+                    <Route path="show/:id" element={<TipDetails />} />
+                </Route>
             </Route>
-            <Route path="campaigns">
-                <Route index element={<CampaignList />} />
-                <Route path="create" element={<CampaignCreate />} />
-                <Route path="edit/:id" element={<CampaignCreate />} />
+
+            <Route element={<ProtectedRoute requiredPermission="view_campaigns" />}>
+                <Route path="campaigns">
+                    <Route index element={<CampaignList />} />
+                    <Route element={<ProtectedRoute requiredPermission="create_campaigns" />}>
+                        <Route path="create" element={<CampaignCreate />} />
+                    </Route>
+                    <Route element={<ProtectedRoute requiredPermission="update_campaigns" />}>
+                        <Route path="edit/:id" element={<CampaignCreate />} />
+                    </Route>
+                </Route>
             </Route>
-            <Route path="notifications" element={<NotificationCenter />} />
+            
+            <Route element={<ProtectedRoute requiredPermission="view_notifications" />}>
+                <Route path="notifications" element={<NotificationCenter />} />
+            </Route>
 
             {/* Content Modules */}
             <Route path="about">
@@ -244,7 +298,6 @@ const AdminRoutes = (
 
             {/* System Health */}
             <Route path="system-health" element={<SystemHealth />} />
-            </Route>
         </Route>
     </Route>
 );

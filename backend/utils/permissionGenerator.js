@@ -55,10 +55,12 @@ const generatePermissions = async (app) => {
       if (parts.length > 0) allResources.add(parts[0]);
     });
 
-    // We only generate permissions for these core modules for now to keep UI clean
+    // We generate permissions for all admin modules to enforce granular RBAC
     const coreResources = [
       'users', 'roles', 'blogs', 'customers', 'news', 'notifications',
-      'media', 'kyc', 'banks', 'faqs', 'services', 'tips', 'leads', 'lead-imports'
+      'media', 'kyc', 'banks', 'faqs', 'services', 'tips', 'leads', 'lead-imports',
+      'popups', 'marquees', 'coupons', 'complaints', 'inquiries', 'reviews',
+      'certificates', 'refunds', 'tickets', 'designations', 'policies', 'agreements'
     ];
 
     const actions = ['View', 'Create', 'Update', 'Delete', 'Manage'];
@@ -92,6 +94,13 @@ const generatePermissions = async (app) => {
       name: 'Manage Settings',
       slug: 'manage_settings',
       description: 'Can modify administrative settings'
+    });
+
+    // Special Dashboard permission
+    permissions.push({
+      name: 'Admin Dashboard View',
+      slug: 'view_admin_dashboard',
+      description: 'Can view the main administrative dashboard'
     });
 
     // Bulk upsert

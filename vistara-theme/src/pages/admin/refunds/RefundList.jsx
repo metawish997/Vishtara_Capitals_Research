@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../../context/AuthContext';
+import { canAccess, hasPermission } from '../../../utils/rbac';
 import { Link } from 'react-router-dom';
 import api from '../../../services/api';
 import toast from 'react-hot-toast';
 
 const RefundList = () => {
+    const { user } = useAuth();
     const [refunds, setRefunds] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');

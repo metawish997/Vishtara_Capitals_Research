@@ -202,7 +202,7 @@ const TipDetails = () => {
                 <div className="flex flex-col">
                     <div className="flex items-center gap-2 text-slate-500 mb-1">
                         <Link to="/admin/tips" className="hover:text-[#011D52] transition-colors"><i className="fa-solid fa-arrow-left"></i></Link>
-                        <span className="text-[11px] font-semibold uppercase tracking-widest">Equity Tip / View</span>
+                        <span className="text-[11px] font-semibold uppercase tracking-widest">{tip.tip_type || 'Equity'} Tip / View</span>
                     </div>
                     <h1 className="text-xl md:text-2xl font-black text-[#011D52] tracking-tight">{tip.stock_name}</h1>
                 </div>
@@ -245,10 +245,14 @@ const TipDetails = () => {
                             <i className="fa-solid fa-circle-info text-[#011D52]"></i>
                             <h2 className="text-xs font-black uppercase tracking-widest text-[#011D52]">Basic Info</h2>
                         </div>
-                        <div className="p-5 grid grid-cols-2 md:grid-cols-4 gap-y-6 gap-x-4">
+                        <div className="p-5 grid grid-cols-2 md:grid-cols-5 gap-y-6 gap-x-4">
                             <div>
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Segment</p>
                                 <p className="text-sm font-black text-slate-800">{tip.segment || tip.exchange}</p>
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Tip Type</p>
+                                <p className="text-sm font-black text-slate-800 uppercase">{tip.tip_type || 'N/A'}</p>
                             </div>
                             <div>
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Strike Price</p>
@@ -257,6 +261,10 @@ const TipDetails = () => {
                             <div>
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Option Type</p>
                                 <p className="text-sm font-black text-slate-800">{tip.option_type || 'N/A'}</p>
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Expiry Date</p>
+                                <p className="text-sm font-black text-slate-800">{tip.expiry_date ? new Date(tip.expiry_date).toLocaleDateString('en-GB') : 'N/A'}</p>
                             </div>
                             <div>
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Open Price</p>
@@ -287,7 +295,7 @@ const TipDetails = () => {
                             <i className="fa-solid fa-clock-rotate-left text-[#011D52]"></i>
                             <h2 className="text-xs font-black uppercase tracking-widest text-[#011D52]">Entry & Exit</h2>
                         </div>
-                        <div className="p-5 grid grid-cols-2 md:grid-cols-5 gap-y-6 gap-x-4">
+                        <div className="p-5 grid grid-cols-2 md:grid-cols-6 gap-y-6 gap-x-4">
                             <div>
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Entry Date</p>
                                 <p className="text-sm font-black text-slate-800">{new Date(tip.createdAt).toLocaleDateString('en-GB')}</p>
@@ -305,6 +313,10 @@ const TipDetails = () => {
                                     {tip.priceDirection === 'up' && <span className="text-[10px] text-emerald-600">▲</span>}
                                     {tip.priceDirection === 'down' && <span className="text-[10px] text-rose-600">▼</span>}
                                 </p>
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Exit Price</p>
+                                <p className="text-sm font-black text-slate-800">{tip.exit_price ? `₹${parseFloat(tip.exit_price).toFixed(2)}` : '-'}</p>
                             </div>
                             <div>
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Exit Date</p>
